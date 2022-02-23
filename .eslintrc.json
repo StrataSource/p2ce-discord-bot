@@ -1,6 +1,6 @@
 {
     "env": {
-        "browser": true,
+		"node": true,
         "es2021": true
     },
     "extends": [
@@ -19,10 +19,6 @@
         "indent": [
             "error",
             "tab"
-        ],
-        "linebreak-style": [
-            "error",
-            "unix"
         ],
         "quotes": [
             "error",

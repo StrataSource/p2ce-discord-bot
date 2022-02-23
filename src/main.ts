@@ -3,7 +3,7 @@ import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import fs from 'fs';
 
-import * as config from './botconfig.json';
+import * as config from './config.json';
 
 // Make console output better
 import consoleStamp from 'console-stamp';
