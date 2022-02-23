@@ -3,7 +3,9 @@ import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import fs from 'fs';
 
-import { hasToken, hasPermissionLevel } from './utils';
+import { hasToken } from './utils/config';
+import { hasPermissionLevel } from './utils/permissions';
+
 import * as config from './config.json';
 
 // Make console output better

@@ -2,17 +2,13 @@
 
 import { GuildMember } from 'discord.js';
 
-import * as config from './config.json';
+import * as config from '../config.json';
 
 export enum PermissionLevel {
 	MEMBER      = 0,
 	BETA_TESTER = 1,
 	TEAM_MEMBER = 2,
 	MODERATOR   = 3,
-}
-
-export function hasToken(): boolean {
-	return config.token !== null && config.token !== undefined && config.token !== '';
 }
 
 export async function hasPermissionLevel(member: GuildMember | null, permissionLevel: PermissionLevel): Promise<boolean> {

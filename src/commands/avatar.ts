@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, MessageEmbed } from 'discord.js';
-import { PermissionLevel } from '../utils';
+import { PermissionLevel } from '../utils/permissions';
 
 module.exports = {
 	permissionLevel: PermissionLevel.MEMBER,
