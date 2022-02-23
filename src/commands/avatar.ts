@@ -11,11 +11,12 @@ module.exports = {
 		.addUserOption(option => option.setName('user').setDescription('The name of the user')),
 
 	async execute(interaction: CommandInteraction) {
-		const user = interaction.options.getUser('target') ?? interaction.user;
+		const user = interaction.options.getUser('user') ?? interaction.user;
 		const embed = new MessageEmbed()
 			.setColor('#FF7B02')
 			.setTitle(`Avatar of ${user.username}`)
 			.setImage(user.displayAvatarURL({ dynamic: true }));
-		return interaction.reply({ embeds: [embed] });
+		await interaction.reply({ embeds: [embed] });
+		return;
 	}
 };
