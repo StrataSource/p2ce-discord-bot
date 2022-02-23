@@ -1,0 +1,47 @@
+{
+	"name": "p2ce-discord-bot",
+	"version": "1.0.0",
+	"engines": {
+		"node": ">=16.0.0"
+	},
+	"engineStrict": true,
+	"description": "craftablescience was here",
+	"main": "build/main.js",
+	"scripts": {
+		"start": "node build/main.js",
+		"update-commands": "node build/main.js --update-commands",
+		"build": "tsc -p .",
+		"clean": "rm -rf build",
+		"lint": "eslint src --ext .ts --fix",
+		"dev": "tsc-watch --onSuccess \"node build/main.js\""
+	},
+	"author": "P2CE Moderation Team",
+	"license": "MIT",
+	"homepage": "https://github.com/ChaosInitiative/p2ce-discord-bot",
+	"bugs": {
+		"url": "https://github.com/ChaosInitiative/p2ce-discord-bot/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ChaosInitiative/p2ce-discord-bot.git"
+	},
+	"dependencies": {
+		"@discordjs/rest": "^0.3.0",
+		"canvas": "^2.8.0",
+		"console-stamp": "^3.0.2",
+		"discord-api-types": "^0.27.2",
+		"discord.js": "^13.1.0",
+		"moment": "^2.29.1",
+		"node-fetch": "^2.6.1"
+	},
+	"devDependencies": {
+		"@types/console-stamp": "^0.2.33",
+		"@types/node": "^14.14.20",
+		"@types/node-fetch": "^2.5.7",
+		"@typescript-eslint/eslint-plugin": "^5.12.1",
+		"@typescript-eslint/parser": "^5.12.1",
+		"eslint": "^7.26.0",
+		"tsc-watch": "^4.2.9",
+		"typescript": "^4.1.3"
+	}
+}

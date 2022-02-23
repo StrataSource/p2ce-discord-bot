@@ -1,0 +1,19 @@
+{
+	"compilerOptions": {
+		"rootDir": "src",
+		"target": "esnext",
+		"types": ["node", "discord.js"],
+		"module": "commonjs",
+		"outDir": "build",
+
+		"strict": true,
+		"esModuleInterop": true,
+		"resolveJsonModule": true,
+		"moduleResolution": "node",
+
+		"noImplicitAny": true,
+		"skipLibCheck": false,
+		"forceConsistentCasingInFileNames": true
+	},
+	"exclude": ["build", "node_modules"]
+}
