@@ -32,7 +32,7 @@
 		"discord-api-types": "^0.27.2",
 		"discord.js": "^13.1.0",
 		"moment": "^2.29.1",
-		"node-fetch": "^2.6.1"
+		"node-fetch": "^3.2.0"
 	},
 	"devDependencies": {
 		"@types/console-stamp": "^0.2.33",
