@@ -1,15 +1,16 @@
-import { Client, Collection, Intents } from 'discord.js';
+import { Client, Collection, GuildMember, Intents } from 'discord.js';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import fs from 'fs';
 
+import { hasToken, hasPermissionLevel } from './utils';
 import * as config from './config.json';
 
 // Make console output better
 import consoleStamp from 'console-stamp';
 consoleStamp(console);
 
-export interface P2CEClient extends Client {
+interface P2CEClient extends Client {
 	// Using any is bad, but it's necessary here
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	commands?: Collection<string, any>;
@@ -17,8 +18,8 @@ export interface P2CEClient extends Client {
 
 async function main() {
 	// You need a token, duh
-	if (!config.token) {
-		console.log('No token found in botconfig.json!');
+	if (!hasToken()) {
+		console.log('No token found in config.json!');
 		return;
 	}
 
@@ -62,7 +63,13 @@ async function main() {
 	
 		const command = client.commands?.get(interaction.commandName);
 		if (!command) return;
-	
+
+		// Check if the user has the required permission level
+		if (!await hasPermissionLevel(interaction.member as GuildMember, command.permissionLevel)) {
+			await interaction.reply({ content: 'You do not have permission to execute this command!', ephemeral: true });
+			return;
+		}
+
 		try {
 			await command.execute(interaction);
 		} catch (error) {
@@ -77,8 +84,8 @@ async function main() {
 
 async function updateCommands() {
 	// You need a token, duh
-	if (!config.token) {
-		console.log('No token found in botconfig.json!');
+	if (!hasToken()) {
+		console.log('No token found in config.json!');
 		return;
 	}
 

@@ -1,5 +1,15 @@
 {
 	"token": "token goes here",
 	"client_id": "client id goes here",
-	"guilds": ["guild ids", "go here"]
+	"guilds": [
+		"guild ids",
+		"go here"
+	],
+
+	"role_ids": {
+		"member":      "role id goes here",
+		"beta_tester": "role id goes here",
+		"team_member": "role id goes here",
+		"moderator":   "role id goes here"
+	}
 }

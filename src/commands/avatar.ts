@@ -1,7 +1,10 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, MessageEmbed } from 'discord.js';
+import { PermissionLevel } from '../utils';
 
 module.exports = {
+	permissionLevel: PermissionLevel.MEMBER,
+
 	data: new SlashCommandBuilder()
 		.setName('avatar')
 		.setDescription('Prints the full avatar of the selected user.')
