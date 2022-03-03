@@ -16,13 +16,13 @@ export async function hasPermissionLevel(member: GuildMember | null, permissionL
 	const roleId: Array<string> = [];
 	switch (permissionLevel) {
 	case PermissionLevel.MEMBER:
-		roleId.push(config.role_ids.member);
+		roleId.push(config.roles.member);
 	case PermissionLevel.BETA_TESTER:
-		roleId.push(config.role_ids.beta_tester);
+		roleId.push(config.roles.beta_tester);
 	case PermissionLevel.TEAM_MEMBER:
-		roleId.push(config.role_ids.team_member);
+		roleId.push(config.roles.team_member);
 	case PermissionLevel.MODERATOR:
-		roleId.push(config.role_ids.moderator);
+		roleId.push(config.roles.moderator);
 	}
 	for (const id of roleId) {
 		if (member?.roles.cache.some(role => role.id === id)) {

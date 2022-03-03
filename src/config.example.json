@@ -1,15 +1,16 @@
 {
 	"token": "token goes here",
 	"client_id": "client id goes here",
-	"guilds": [
-		"guild ids",
-		"go here"
-	],
+	"guild": "guild id goes here",
 
-	"role_ids": {
+	"roles": {
 		"member":      "role id goes here",
 		"beta_tester": "role id goes here",
 		"team_member": "role id goes here",
 		"moderator":   "role id goes here"
+	},
+
+	"channels": {
+		"log": "channel id goes here"
 	}
 }

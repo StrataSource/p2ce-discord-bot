@@ -2,8 +2,7 @@ import { Client, Collection, GuildMember, Intents } from 'discord.js';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import fs from 'fs';
-
-import { hasToken } from './utils/config';
+import * as log from './utils/log';
 import { hasPermissionLevel } from './utils/permissions';
 
 import * as config from './config.json';
@@ -20,12 +19,12 @@ interface P2CEClient extends Client {
 
 async function main() {
 	// You need a token, duh
-	if (!hasToken()) {
-		console.log('No token found in config.json!');
+	if (!config.token) {
+		console.log('[ERROR] No token found in config.json!');
 		return;
 	}
 
-	console.log('Starting...');
+	console.log('[INFO] Starting...');
 
 	// Create client
 	const client: P2CEClient = new Client({
@@ -45,19 +44,19 @@ async function main() {
 		]
 	});
 
-	// Run this when the client is ready
-	client.on('ready', async () => {
-		client.user?.setActivity('this server', { type: 'WATCHING' });
-		setTimeout(() => client.user?.setActivity('this server', { type: 'WATCHING' }), 30e3);
-		console.log(`Logged in as ${client.user?.tag}!`);
-	});
-
 	// Register commands
 	client.commands = new Collection();
 	for (const file of fs.readdirSync('./build/commands').filter(file => file.endsWith('.js'))) {
 		const command = await import(`./commands/${file}`);
 		client.commands.set(command.data.name, command);
 	}
+
+	// Run this when the client is ready
+	client.on('ready', async () => {
+		client.user?.setActivity('this server', { type: 'WATCHING' });
+		setTimeout(() => client.user?.setActivity('this server', { type: 'WATCHING' }), 30e3);
+		console.log(`[INFO] Logged in as ${client.user?.tag}!`);
+	});
 
 	// Listen for commands
 	client.on('interactionCreate', async interaction => {
@@ -68,30 +67,51 @@ async function main() {
 
 		// Check if the user has the required permission level
 		if (!await hasPermissionLevel(interaction.member as GuildMember, command.permissionLevel)) {
-			await interaction.reply({ content: 'You do not have permission to execute this command!', ephemeral: true });
-			return;
+			return interaction.reply({ content: 'You do not have permission to execute this command!', ephemeral: true });
 		}
 
 		try {
-			await command.execute(interaction);
+			return command.execute(interaction);
 		} catch (error) {
 			console.error(error);
-			await interaction.reply({ content: `There was an error while executing this command: ${error}`, ephemeral: true });
+			return interaction.reply({ content: `There was an error while executing this command: ${error}`, ephemeral: true });
 		}
 	});
 
-	// Login
+	// Listen for errors
+	client.on('error', async error => {
+		log.error(client, error);
+	});
+
+	// Listen for warnings
+	client.on('warn', async warn => {
+		log.warning(client, warn);
+	});
+
+	// Listen for debug messages
+	client.on('debug', async debug => {
+		log.debug(debug);
+	});
+
+	/*
+	// Listen for presence updates
+	client.on('userUpdate', async (oldUser, newUser) => {
+		log.userUpdate(client, oldUser, newUser);
+	});
+	*/
+
+	// Log in
 	client.login(config.token);
 }
 
 async function updateCommands() {
 	// You need a token, duh
-	if (!hasToken()) {
-		console.log('No token found in config.json!');
+	if (!config.token) {
+		console.log('[ERROR] No token found in config.json!');
 		return;
 	}
 
-	console.log('Registering commands...');
+	console.log('[INFO] Registering commands...');
 
 	const commands = [];
 	for (const file of fs.readdirSync('./build/commands').filter(file => file.endsWith('.js'))) {
@@ -100,13 +120,11 @@ async function updateCommands() {
 
 	// Update commands for every guild
 	const rest = new REST({ version: '9' }).setToken(config.token);
-	for (const guild of config.guilds) {
-		await rest.put(Routes.applicationGuildCommands(config.client_id, guild), { body: commands })
-			.then(() => console.log(`Registered ${commands.length} application commands for guild ${guild}.`))
-			.catch(console.error);
-	}
+	await rest.put(Routes.applicationGuildCommands(config.client_id, config.guild), { body: commands })
+		.then(() => console.log(`[INFO] Registered ${commands.length} application commands for guild ${config.guild}.`))
+		.catch(console.error);
 
-	console.log('Done!');
+	console.log('[INFO] Done!');
 }
 
 if (process.argv.includes('--update-commands')) {
