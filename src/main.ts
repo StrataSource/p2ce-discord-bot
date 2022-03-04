@@ -55,7 +55,7 @@ async function main() {
 	client.on('ready', async () => {
 		client.user?.setActivity('this server', { type: 'WATCHING' });
 		setTimeout(() => client.user?.setActivity('this server', { type: 'WATCHING' }), 30e3);
-		console.log(`[INFO] Logged in as ${client.user?.tag}!`);
+		console.log(`[INFO] Logged in as ${client.user?.tag}`);
 	});
 
 	// Listen for commands
@@ -79,34 +79,46 @@ async function main() {
 	});
 
 	// Listen for errors
-	client.on('error', async error => {
-		log.error(client, error);
-	});
+	if (config.options.log_errors) {
+		client.on('error', async error => {
+			log.error(client, error);
+		});
+	}
 
 	// Listen for warnings
-	client.on('warn', async warn => {
-		log.warning(client, warn);
-	});
+	if (config.options.log_warnings) {
+		client.on('warn', async warn => {
+			log.warning(client, warn);
+		});
+	}
 
 	// Listen for presence updates
-	client.on('userUpdate', async (oldUser, newUser) => {
-		log.userUpdate(client, oldUser, newUser);
-	});
+	if (config.options.log_user_updates) {
+		client.on('userUpdate', async (oldUser, newUser) => {
+			log.userUpdate(client, oldUser, newUser);
+		});
+	}
 
 	// Listen for banned members
-	client.on('guildBanAdd', async ban => {
-		log.userBanned(client, ban);
-	});
+	if (config.options.log_user_bans) {
+		client.on('guildBanAdd', async ban => {
+			log.userBanned(client, ban);
+		});
+	}
 
 	// Listen for deleted messages
-	client.on('messageDelete', async message => {
-		log.messageDeleted(client, message);
-	});
+	if (config.options.log_message_deletes) {
+		client.on('messageDelete', async message => {
+			log.messageDeleted(client, message);
+		});
+	}
 
 	// Listen for edited messages
-	client.on('messageUpdate', async (oldMessage, newMessage) => {
-		log.messageUpdated(client, oldMessage, newMessage);
-	});
+	if (config.options.log_message_edits) {
+		client.on('messageUpdate', async (oldMessage, newMessage) => {
+			log.messageUpdated(client, oldMessage, newMessage);
+		});
+	}
 
 	// Log in
 	client.login(config.token);
