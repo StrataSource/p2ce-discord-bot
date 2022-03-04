@@ -16,7 +16,6 @@ module.exports = {
 			.setColor('#2f3136')
 			.setTitle(`Avatar of ${user.username}#${user.discriminator}`)
 			.setImage(user.displayAvatarURL({ dynamic: true }));
-		await interaction.reply({ embeds: [embed] });
-		return;
+		return interaction.reply({ embeds: [embed] });
 	}
 };

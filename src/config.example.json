@@ -21,5 +21,12 @@
 
 	"channels": {
 		"log": "channel id goes here"
-	}
+	},
+
+	"messages": [
+		{
+			"names": ["message", "names", "go", "here"],
+			"content": "message content goes here"
+		}
+	]
 }
