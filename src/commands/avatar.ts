@@ -13,8 +13,8 @@ module.exports = {
 	async execute(interaction: CommandInteraction) {
 		const user = interaction.options.getUser('user') ?? interaction.user;
 		const embed = new MessageEmbed()
-			.setColor('#FF7B02')
-			.setTitle(`Avatar of ${user.username}`)
+			.setColor('#2f3136')
+			.setTitle(`Avatar of ${user.username}#${user.discriminator}`)
 			.setImage(user.displayAvatarURL({ dynamic: true }));
 		await interaction.reply({ embeds: [embed] });
 		return;

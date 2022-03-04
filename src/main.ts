@@ -88,17 +88,25 @@ async function main() {
 		log.warning(client, warn);
 	});
 
-	// Listen for debug messages
-	client.on('debug', async debug => {
-		log.debug(debug);
-	});
-
-	/*
 	// Listen for presence updates
 	client.on('userUpdate', async (oldUser, newUser) => {
 		log.userUpdate(client, oldUser, newUser);
 	});
-	*/
+
+	// Listen for banned members
+	client.on('guildBanAdd', async ban => {
+		log.userBanned(client, ban);
+	});
+
+	// Listen for deleted messages
+	client.on('messageDelete', async message => {
+		log.messageDeleted(client, message);
+	});
+
+	// Listen for edited messages
+	client.on('messageUpdate', async (oldMessage, newMessage) => {
+		log.messageUpdated(client, oldMessage, newMessage);
+	});
 
 	// Log in
 	client.login(config.token);
