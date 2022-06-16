@@ -9,7 +9,8 @@
 		"log_user_updates": true,
 		"log_user_bans": true,
 		"log_message_deletes": true,
-		"log_message_edits": true
+		"log_message_edits": true,
+		"autodetect_scams": true
 	},
 
 	"roles": {
@@ -25,7 +26,7 @@
 
 	"messages": [
 		{
-			"names": ["message", "names", "go", "here"],
+			"ids": ["message ID", "message ID alternate"],
 			"content": "message content goes here"
 		}
 	]

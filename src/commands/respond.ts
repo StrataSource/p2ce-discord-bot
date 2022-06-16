@@ -15,8 +15,8 @@ module.exports = {
 	async execute(interaction: CommandInteraction) {
 		const id = interaction.options.getString('id');
 		for (const message of config.messages) {
-			for (const name of message.names) {
-				if (id === name) {
+			for (const msgId of message.ids) {
+				if (id === msgId) {
 					return interaction.reply(message.content);
 				}
 			}

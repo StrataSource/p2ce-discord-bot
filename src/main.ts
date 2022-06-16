@@ -4,6 +4,7 @@ import { Routes } from 'discord-api-types/v9';
 import fs from 'fs';
 import * as log from './utils/log';
 import { hasPermissionLevel } from './utils/permissions';
+import { containsPhishing, checkMessageForPhishing } from './utils/spam_protection';
 
 import * as config from './config.json';
 
@@ -109,7 +110,10 @@ async function main() {
 	// Listen for deleted messages
 	if (config.options.log_message_deletes) {
 		client.on('messageDelete', async message => {
-			log.messageDeleted(client, message);
+			// if it contains a phishing link, it's been logged already
+			if (message.cleanContent !== null && !(await containsPhishing(message.cleanContent))) {
+				log.messageDeleted(client, message);
+			}
 		});
 	}
 
@@ -117,6 +121,13 @@ async function main() {
 	if (config.options.log_message_edits) {
 		client.on('messageUpdate', async (oldMessage, newMessage) => {
 			log.messageUpdated(client, oldMessage, newMessage);
+		});
+	}
+
+	// Listen for scams
+	if (config.options.autodetect_scams) {
+		client.on('message', async message => {
+			checkMessageForPhishing(client, message);
 		});
 	}
 
