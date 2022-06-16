@@ -21,6 +21,6 @@ module.exports = {
 				}
 			}
 		}
-		return interaction.reply({ content: `Could not find message with ID \`${id}\``, ephemeral: true });
+		return interaction.reply({ content: `Could not find message with ID "${id}"`, ephemeral: true });
 	}
 };
