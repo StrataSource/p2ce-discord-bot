@@ -30,7 +30,7 @@
 		"canvas": "^2.9.1",
 		"console-stamp": "^3.0.6",
 		"discord-api-types": "^0.34.0",
-		"discord.js": "^13.8.0",
+		"discord.js": "^14.0.3",
 		"moment": "^2.29.3",
 		"node-fetch": "^3.2.6",
 		"stop-discord-phishing": "^0.2.0"
