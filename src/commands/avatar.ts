@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, MessageEmbed } from 'discord.js';
+import { CommandInteraction, EmbedBuilder } from 'discord.js';
 import { PermissionLevel } from '../utils/permissions';
 
 module.exports = {
@@ -12,10 +12,10 @@ module.exports = {
 
 	async execute(interaction: CommandInteraction) {
 		const user = interaction.options.getUser('user') ?? interaction.user;
-		const embed = new MessageEmbed()
+		const embed = new EmbedBuilder()
 			.setColor('#2f3136')
 			.setTitle(`Avatar of ${user.username}#${user.discriminator}`)
-			.setImage(user.displayAvatarURL({ dynamic: true }));
+			.setImage(user.displayAvatarURL());
 		return interaction.reply({ embeds: [embed] });
 	}
 };

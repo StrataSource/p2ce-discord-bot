@@ -1,4 +1,4 @@
-import { Client, Collection, GuildMember, Intents } from 'discord.js';
+import { ActivityType, Client, Collection, GuildMember, IntentsBitField, Partials } from 'discord.js';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import fs from 'fs';
@@ -30,18 +30,18 @@ async function main() {
 	// Create client
 	const client: P2CEClient = new Client({
 		intents: [
-			Intents.FLAGS.GUILDS,
-			Intents.FLAGS.GUILD_BANS,
-			Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS,
-			Intents.FLAGS.GUILD_INVITES,
-			Intents.FLAGS.GUILD_MEMBERS,
-			Intents.FLAGS.GUILD_MESSAGES,
-			Intents.FLAGS.GUILD_MESSAGE_REACTIONS
+			IntentsBitField.Flags.Guilds,
+			IntentsBitField.Flags.GuildEmojisAndStickers,
+			IntentsBitField.Flags.GuildInvites,
+			IntentsBitField.Flags.GuildBans,
+			IntentsBitField.Flags.GuildMembers,
+			IntentsBitField.Flags.GuildMessages,
+			IntentsBitField.Flags.GuildMessageReactions,
 		],
 		partials: [
-			'CHANNEL',
-			'MESSAGE',
-			'GUILD_MEMBER'
+			Partials.Channel,
+			Partials.Message,
+			Partials.GuildMember,
 		]
 	});
 
@@ -54,8 +54,8 @@ async function main() {
 
 	// Run this when the client is ready
 	client.on('ready', async () => {
-		client.user?.setActivity('this server', { type: 'WATCHING' });
-		setTimeout(() => client.user?.setActivity('this server', { type: 'WATCHING' }), 30e3);
+		client.user?.setActivity('this server', { type: ActivityType.Watching });
+		setTimeout(() => client.user?.setActivity('this server', { type: ActivityType.Watching }), 30e3);
 		console.log(`[INFO] Logged in as ${client.user?.tag}`);
 	});
 

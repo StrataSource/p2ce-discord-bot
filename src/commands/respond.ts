@@ -13,7 +13,7 @@ module.exports = {
 		.addStringOption(option => option.setName('id').setDescription('The ID of the message to respond with.').setRequired(true)),
 
 	async execute(interaction: CommandInteraction) {
-		const id = interaction.options.getString('id');
+		const id = interaction.options.get('id')?.value;
 		for (const message of config.messages) {
 			for (const msgId of message.ids) {
 				if (id === msgId) {

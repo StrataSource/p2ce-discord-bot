@@ -1,4 +1,4 @@
-import { Client, GuildBan, GuildTextBasedChannel, Message, MessageEmbed, PartialMessage, PartialUser, User } from 'discord.js';
+import { Client, GuildBan, GuildTextBasedChannel, Message, EmbedBuilder, PartialMessage, PartialUser, User } from 'discord.js';
 
 import * as config from '../config.json';
 
@@ -11,12 +11,12 @@ export enum LogLevelColor {
 
 export function getLogChannel(client: Client): GuildTextBasedChannel | null {
 	const channel = client.guilds.resolve(config.guild)?.channels.resolve(config.channels.log);
-	if (!channel || !(channel.isText() || channel.isThread())) return null;
+	if (!channel || !(channel.isTextBased() || channel.isThread())) return null;
 	return channel;
 }
 
 export function message(client: Client, title: string, color: LogLevelColor, msg: string, thumb: string | null = null): Promise<Message<boolean>> | undefined {
-	const embed = new MessageEmbed()
+	const embed = new EmbedBuilder()
 		.setColor(color)
 		.setTitle(title)
 		.setDescription(msg)
