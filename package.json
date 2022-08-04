@@ -37,7 +37,7 @@
 	},
 	"devDependencies": {
 		"@types/console-stamp": "^3.0.0",
-		"@types/node": "^18.0.0",
+		"@types/node": "^18.6.3",
 		"@types/node-fetch": "^2.5.7",
 		"@typescript-eslint/eslint-plugin": "^5.32.0",
 		"@typescript-eslint/parser": "^5.32.0",
