@@ -1,4 +1,4 @@
-import { ActivityType, Client, Collection, GuildMember, IntentsBitField, Partials } from 'discord.js';
+import { ActivityType, CacheType, Client, Collection, GuildMember, IntentsBitField, Interaction, InteractionResponse, Message, Partials } from 'discord.js';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import fs from 'fs';
@@ -12,10 +12,13 @@ import * as config from './config.json';
 import consoleStamp from 'console-stamp';
 consoleStamp(console);
 
+interface Command {
+	permissionLevel: PermissionLevel,
+	execute(interaction: Interaction<CacheType>): Promise<void | boolean | Message<boolean> | InteractionResponse<boolean>>
+}
+
 interface P2CEClient extends Client {
-	// Using any is bad, but it's necessary here
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	commands?: Collection<string, any>;
+	commands?: Collection<string, Command>;
 }
 
 async function main() {
@@ -70,17 +73,21 @@ async function main() {
 		// Check if the user has the required permission level
 		if (!await hasPermissionLevel(interaction.member as GuildMember, command.permissionLevel)) {
 			if (interaction.deferred) {
-				return interaction.editReply('You do not have permission to execute this command!');
+				interaction.editReply('You do not have permission to execute this command!');
+				return;
 			} else {
-				return interaction.reply({ content: 'You do not have permission to execute this command!', ephemeral: true });
+				interaction.reply({ content: 'You do not have permission to execute this command!', ephemeral: true });
+				return;
 			}
 		}
 
 		try {
-			return command.execute(interaction);
+			command.execute(interaction);
+			return;
 		} catch (error) {
 			console.error(error);
-			return interaction.reply({ content: `There was an error while executing this command: ${error}`, ephemeral: true });
+			interaction.reply({ content: `There was an error while executing this command: ${error}`, ephemeral: true });
+			return;
 		}
 	});
 
