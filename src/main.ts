@@ -69,7 +69,11 @@ async function main() {
 
 		// Check if the user has the required permission level
 		if (!await hasPermissionLevel(interaction.member as GuildMember, command.permissionLevel)) {
-			return interaction.reply({ content: 'You do not have permission to execute this command!', ephemeral: true });
+			if (interaction.deferred) {
+				return interaction.editReply('You do not have permission to execute this command!');
+			} else {
+				return interaction.reply({ content: 'You do not have permission to execute this command!', ephemeral: true });
+			}
 		}
 
 		try {

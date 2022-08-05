@@ -18,7 +18,7 @@ module.exports = {
 		const url = interaction.options.get('file', true).attachment?.url;
 		if (!url) return;
 
-		await interaction.deferReply();
+		await interaction.deferReply({ ephemeral: true });
 
 		const contents = await fetch(url);
 		const contentJSON = JSON.parse(await contents.text());
