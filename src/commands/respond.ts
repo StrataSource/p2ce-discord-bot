@@ -16,18 +16,15 @@ module.exports = {
 				.setRequired(true);
 
 			// Update commands when this part of the config changes
-			for (const message of config.messages) {
-				option.addChoices({ name: message.id, value: message.id });
-			}
+			Object.keys(config.messages).forEach(id => option.addChoices({ name: id, value: id }));
 			return option;
 		}),
 
 	async execute(interaction: CommandInteraction) {
-		const id = interaction.options.get('id', true).value;
-		for (const message of config.messages) {
-			if (id === message.id) {
-				return interaction.reply(message.content);
-			}
+		const id = interaction.options.get('id', true).value?.toString();
+		if (id && (id in config.messages)) {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			return interaction.reply((config.messages as any)[id]);
 		}
 		return interaction.reply({ content: `Could not find message with ID "${id}"`, ephemeral: true });
 	}

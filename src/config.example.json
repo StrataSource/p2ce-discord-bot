@@ -24,16 +24,7 @@
 		"log": "channel id goes here"
 	},
 
-	"messages": [
-		{
-			"id": "message_ID",
-			"content": "message content goes here"
-		},
-		{
-			"id": "another_ID",
-			"keywords": [["word_variant1", "word_variant2"], ["a phrase"]],
-			"keywords_needed": 2,
-			"content": "another content goes here"
-		}
-	]
+	"messages": {
+		"message_ID": "message content goes here"
+	}
 }
