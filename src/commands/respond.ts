@@ -10,15 +10,23 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('respond')
 		.setDescription('Responds with a message.')
-		.addStringOption(option => option.setName('id').setDescription('The ID of the message to respond with.').setRequired(true)),
+		.addStringOption(option => {
+			option.setName('id')
+				.setDescription('The ID of the message to respond with.')
+				.setRequired(true);
+
+			// Update commands when this part of the config changes
+			for (const message of config.messages) {
+				option.addChoices({ name: message.id, value: message.id });
+			}
+			return option;
+		}),
 
 	async execute(interaction: CommandInteraction) {
 		const id = interaction.options.get('id')?.value;
 		for (const message of config.messages) {
-			for (const msgId of message.ids) {
-				if (id === msgId) {
-					return interaction.reply(message.content);
-				}
+			if (id === message.id) {
+				return interaction.reply(message.content);
 			}
 		}
 		return interaction.reply({ content: `Could not find message with ID "${id}"`, ephemeral: true });

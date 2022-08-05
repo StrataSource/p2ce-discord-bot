@@ -3,8 +3,8 @@ import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import fs from 'fs';
 import * as log from './utils/log';
-import { hasPermissionLevel } from './utils/permissions';
-import { containsPhishing, checkMessageForPhishing } from './utils/spam_protection';
+import { hasPermissionLevel, PermissionLevel } from './utils/permissions';
+import { messageNeedsResponse } from './utils/autorespond';
 
 import * as config from './config.json';
 
@@ -29,7 +29,7 @@ async function main() {
 
 	// Create client
 	const client: P2CEClient = new Client({
-		intents: [
+		intents: new IntentsBitField([
 			IntentsBitField.Flags.Guilds,
 			IntentsBitField.Flags.GuildEmojisAndStickers,
 			IntentsBitField.Flags.GuildInvites,
@@ -37,7 +37,8 @@ async function main() {
 			IntentsBitField.Flags.GuildMembers,
 			IntentsBitField.Flags.GuildMessages,
 			IntentsBitField.Flags.GuildMessageReactions,
-		],
+			IntentsBitField.Flags.MessageContent,
+		]),
 		partials: [
 			Partials.Channel,
 			Partials.Message,
@@ -62,7 +63,7 @@ async function main() {
 	// Listen for commands
 	client.on('interactionCreate', async interaction => {
 		if (!interaction.isCommand()) return;
-	
+
 		const command = client.commands?.get(interaction.commandName);
 		if (!command) return;
 
@@ -110,8 +111,7 @@ async function main() {
 	// Listen for deleted messages
 	if (config.options.log_message_deletes) {
 		client.on('messageDelete', async message => {
-			// if it contains a phishing link, it's been logged already
-			if (message.cleanContent !== null && !(await containsPhishing(message.cleanContent))) {
+			if (message.cleanContent) {
 				log.messageDeleted(client, message);
 			}
 		});
@@ -124,10 +124,16 @@ async function main() {
 		});
 	}
 
-	// Listen for scams
-	if (config.options.autodetect_scams) {
-		client.on('message', async message => {
-			checkMessageForPhishing(client, message);
+	// Listen for messages to respond to
+	if (config.options.autorespond) {
+		client.on('messageCreate', async message => {
+			// Only responds to members, any users with higher permissions are safe
+			if (!await hasPermissionLevel(message.member as GuildMember, PermissionLevel.BETA_TESTER)) {
+				const response = await messageNeedsResponse(message);
+				if (response) {
+					message.reply(response);
+				}
+			}
 		});
 	}
 

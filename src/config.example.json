@@ -10,7 +10,7 @@
 		"log_user_bans": true,
 		"log_message_deletes": true,
 		"log_message_edits": true,
-		"autodetect_scams": true
+		"autorespond": true
 	},
 
 	"roles": {
@@ -26,8 +26,14 @@
 
 	"messages": [
 		{
-			"ids": ["message ID", "message ID alternate"],
+			"id": "message_ID",
 			"content": "message content goes here"
+		},
+		{
+			"id": "another_ID",
+			"keywords": [["word_variant1", "word_variant2"], ["a phrase"]],
+			"keywords_needed": 2,
+			"content": "another content goes here"
 		}
 	]
 }
