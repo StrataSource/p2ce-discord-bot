@@ -1,2 +1,2 @@
-# p2ce-discord-bot
-Moderation and stuff
+# P2CE Discord Bot
+Performs moderation tasks and other important automatable actions.
