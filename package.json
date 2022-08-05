@@ -32,7 +32,7 @@
 		"discord-api-types": "^0.37.1",
 		"discord.js": "^14.1.2",
 		"moment": "^2.29.4",
-		"node-fetch": "^3.2.10",
+		"node-fetch": "^2.6.1",
 		"stop-discord-phishing": "^0.2.0"
 	},
 	"devDependencies": {

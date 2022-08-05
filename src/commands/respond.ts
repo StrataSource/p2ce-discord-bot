@@ -12,7 +12,7 @@ module.exports = {
 		.setDescription('Responds with a message.')
 		.addStringOption(option => {
 			option.setName('id')
-				.setDescription('The ID of the message to respond with.')
+				.setDescription('The ID of the message to respond with')
 				.setRequired(true);
 
 			// Update commands when this part of the config changes
@@ -23,7 +23,7 @@ module.exports = {
 		}),
 
 	async execute(interaction: CommandInteraction) {
-		const id = interaction.options.get('id')?.value;
+		const id = interaction.options.get('id', true).value;
 		for (const message of config.messages) {
 			if (id === message.id) {
 				return interaction.reply(message.content);

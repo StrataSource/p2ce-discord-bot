@@ -8,7 +8,10 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('untimeout')
 		.setDescription('Untimeout the selected user.')
-		.addUserOption(option => option.setName('user').setDescription('The name of the user').setRequired(true)),
+		.addUserOption(option => option
+			.setName('user')
+			.setDescription('The name of the user')
+			.setRequired(true)),
 
 	async execute(interaction: CommandInteraction) {
 		const user = interaction.options.getUser('user');

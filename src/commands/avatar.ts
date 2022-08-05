@@ -8,7 +8,9 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('avatar')
 		.setDescription('Prints the full avatar of the selected user.')
-		.addUserOption(option => option.setName('user').setDescription('The name of the user')),
+		.addUserOption(option => option
+			.setName('user')
+			.setDescription('The name of the user')),
 
 	async execute(interaction: CommandInteraction) {
 		const user = interaction.options.getUser('user') ?? interaction.user;
