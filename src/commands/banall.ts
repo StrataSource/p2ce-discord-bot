@@ -2,8 +2,9 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from 'discord.js';
 import { PermissionLevel } from '../utils/permissions';
 import fetch from 'node-fetch';
+import { Command } from '../types/command';
 
-module.exports = {
+const BanAll: Command = {
 	permissionLevel: PermissionLevel.MODERATOR,
 
 	data: new SlashCommandBuilder()
@@ -28,6 +29,7 @@ module.exports = {
 				.then(clientUser => interaction.guild?.bans.create(clientUser));
 			banCount++;
 		}
-		await interaction.editReply({ content: `Banned ${banCount} users!` });
+		return interaction.editReply({ content: `Banned ${banCount} users!` });
 	}
 };
+export default BanAll;

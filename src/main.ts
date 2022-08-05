@@ -5,17 +5,13 @@ import fs from 'fs';
 import * as log from './utils/log';
 import { hasPermissionLevel, PermissionLevel } from './utils/permissions';
 import { messageNeedsResponse } from './utils/autorespond';
+import { Command } from './types/command';
 
 import * as config from './config.json';
 
 // Make console output better
 import consoleStamp from 'console-stamp';
 consoleStamp(console);
-
-interface Command {
-	permissionLevel: PermissionLevel,
-	execute(interaction: Interaction<CacheType>): Promise<void | boolean | Message<boolean> | InteractionResponse<boolean>>
-}
 
 interface P2CEClient extends Client {
 	commands?: Collection<string, Command>;
@@ -52,7 +48,7 @@ async function main() {
 	// Register commands
 	client.commands = new Collection();
 	for (const file of fs.readdirSync('./build/commands').filter(file => file.endsWith('.js'))) {
-		const command = await import(`./commands/${file}`);
+		const command: Command = (await import(`./commands/${file}`)).default;
 		client.commands.set(command.data.name, command);
 	}
 

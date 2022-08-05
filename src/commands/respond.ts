@@ -1,10 +1,11 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from 'discord.js';
 import { PermissionLevel } from '../utils/permissions';
+import { Command } from '../types/command';
 
 import * as config from '../config.json';
 
-module.exports = {
+const Respond: Command = {
 	permissionLevel: PermissionLevel.TEAM_MEMBER,
 
 	data: new SlashCommandBuilder()
@@ -29,3 +30,4 @@ module.exports = {
 		return interaction.reply({ content: `Could not find message with ID "${id}"`, ephemeral: true });
 	}
 };
+export default Respond;

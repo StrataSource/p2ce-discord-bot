@@ -1,8 +1,9 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from 'discord.js';
+import { Command } from '../types/command';
 import { PermissionLevel } from '../utils/permissions';
 
-module.exports = {
+const UnTimeout: Command = {
 	permissionLevel: PermissionLevel.MODERATOR,
 
 	data: new SlashCommandBuilder()
@@ -25,3 +26,4 @@ module.exports = {
 		return interaction.reply({ content: `Unmuted ${user.username}#${user.discriminator}`, ephemeral: true });
 	}
 };
+export default UnTimeout;

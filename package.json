@@ -5,7 +5,6 @@
 		"node": ">=16.0.0"
 	},
 	"engineStrict": true,
-	"description": "craftablescience was here",
 	"main": "build/main.js",
 	"scripts": {
 		"start": "node build/main.js",
@@ -16,6 +15,7 @@
 		"dev": "tsc-watch --onSuccess \"node build/main.js\""
 	},
 	"author": "P2CE Moderation Team",
+	"description": "craftablescience was here",
 	"license": "MIT",
 	"homepage": "https://github.com/ChaosInitiative/p2ce-discord-bot",
 	"bugs": {
@@ -31,12 +31,11 @@
 		"console-stamp": "^3.0.6",
 		"discord-api-types": "^0.37.1",
 		"discord.js": "^14.1.2",
+		"google-spreadsheet": "^3.3.0",
 		"moment": "^2.29.4",
-		"node-fetch": "^2.6.1",
-		"stop-discord-phishing": "^0.2.0"
+		"node-fetch": "^2.6.7"
 	},
 	"devDependencies": {
-		"@types/console-stamp": "^3.0.0",
 		"@types/node": "^18.6.3",
 		"@types/node-fetch": "^2.5.7",
 		"@typescript-eslint/eslint-plugin": "^5.32.0",
