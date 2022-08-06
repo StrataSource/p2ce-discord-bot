@@ -1,10 +1,11 @@
-import { ActivityType, Client, Collection, GuildMember, IntentsBitField, Partials } from 'discord.js';
+import { ActivityType, Client, Collection, GuildMember, IntentsBitField, Partials, TextChannel } from 'discord.js';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import fs from 'fs';
 import * as log from './utils/log';
 import { hasPermissionLevel, PermissionLevel } from './utils/permissions';
 import { messageNeedsResponse } from './utils/autorespond';
+import { messageIsSpam } from './utils/spamprevent';
 import { Command } from './types/command';
 
 import * as config from './config.json';
@@ -139,6 +140,12 @@ async function main() {
 				const response = await messageNeedsResponse(message);
 				if (response) {
 					message.reply(response);
+				}
+				
+				const spamPrevention = await messageIsSpam(message);
+				if(spamPrevention){
+					message.member?.timeout(config.options.timeoutTime, config.messages.timeoutSpamMessage);
+					(client.channels.cache.get(config.channels.modChannel) as TextChannel).send("User <@"+message.author.id+"> Has send more than "+config.options.maxMentions+" mentions and therefore has been timed out for "+config.options.timeoutTime+" milliseconds.");
 				}
 			}
 		});
