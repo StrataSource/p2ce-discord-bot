@@ -4,6 +4,8 @@ import { PermissionLevel } from '../utils/permissions';
 import { isSheetLoaded, sheet } from '../utils/sheet';
 import { Command } from '../types/command';
 
+import * as config from '../config.json';
+
 const COLORS = {
 	red:    { red: 1, green: 0,   blue: 0 },
 	orange: { red: 1, green: 0.6, blue: 0 },
@@ -32,7 +34,7 @@ const Check: Command = {
 		if (USER_DB.has(interaction.user.id) && (USER_DB.get(interaction.user.id) ?? 0) > (Date.now() / 1000)) {
 			return interaction.followUp(`You have already checked the status of your application today. Please check again <t:${Math.round((USER_DB.get(interaction.user.id) ?? 0) / 1000)}:R>.`);
 		} else {
-			USER_DB.set(interaction.user.id, Date.now() + (1000 * 60 * 60 * 24));
+			USER_DB.set(interaction.user.id, Date.now() + (1000 * 60 * 60 * config.options.key_check_hours_to_wait));
 		}
 
 		// Refresh cache

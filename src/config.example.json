@@ -13,7 +13,8 @@
 		"log_user_bans": true,
 		"log_message_deletes": true,
 		"log_message_edits": true,
-		"autorespond": true
+		"autorespond": true,
+		"key_check_hours_to_wait": 24
 	},
 
 	"roles": {
