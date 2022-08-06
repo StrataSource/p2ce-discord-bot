@@ -141,10 +141,10 @@ async function main() {
 				if (response) {
 					message.reply(response);
 				}
-				
+
 				const spamPrevention = await messageIsSpam(message);
 				if(spamPrevention){
-					message.member?.timeout(config.options.timeoutTime, config.messages.timeoutSpamMessage);
+					message.member?.timeout(config.options.timeoutTime, config.messages.timeoutSpamReason);
 					(client.channels.cache.get(config.channels.modChannel) as TextChannel).send("User <@"+message.author.id+"> Has send more than "+config.options.maxMentions+" mentions and therefore has been timed out for "+config.options.timeoutTime+" milliseconds.");
 				}
 			}
