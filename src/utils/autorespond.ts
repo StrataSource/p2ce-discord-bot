@@ -4,18 +4,24 @@ import * as config from '../config.json';
 
 function needsCoopResponse(input: string): boolean {
 	// thanks baguettery 💖
-	const is_query        = input.match(/(will|can|could)|\?/g);
-	const mentions_play	  = input.match(/play|complete|do/g);
-	const mentions_coop	  = input.match(/coop|co-op|cooperative|multiplayer/g);
-	const mentions_p2ce	  = input.match(/p2ce|p2:ce|community edition/g);
-	const mentions_portal = input.match(/p2|portal|community|pc|switch/g);
-	const mentions_anyone = input.match(/anyone|someone|any1|some1/g);
-	const mentions_devs	  = input.match(/developers|devs/g);
+	const is_query        = input.match(/(will|can|could)\b|\?/g);
+	const mentions_play	  = input.match(/(play|complete|do)\b/g);
 
+	const mentions_coop	  = input.match(/(coop|co-op|co op|cooperative|multiplayer)\b/g);
+	const mentions_p2ce	  = input.match(/(p2ce|p2:ce|community edition|portal 2:? ce|(this|the) mod)\b/g);
+	const mentions_portal = input.match(/(p2|portal|community|pc|switch)\b/g);
+	const mentions_achvmt = input.match(/(get|complete|earn|unlock)\b.*achievements?\b/g);
+		
+	const mentions_anyone = input.match(/(anyone|someone|any1|some1|somebody|anybody|partners?)\b/g);
+	const mentions_self	  = input.match(/with[\s\t]+me[\s\t]*([\?\.\n]|$)/g);
+	const mentions_devs	  = input.match(/(developers|devs)\b/g);
+		
 	if (mentions_devs || mentions_p2ce) return false;
 	if (mentions_play && mentions_portal && mentions_coop) return true;
+	if (mentions_play && (mentions_portal || mentions_coop) && mentions_self) return true;
 	if ((mentions_anyone || is_query) && mentions_coop) return true;
 	if (mentions_anyone && mentions_play && (mentions_coop || mentions_portal)) return true;
+	if (mentions_anyone && mentions_achvmt && (mentions_coop || mentions_self)) return true;
 	return false;
 }
 
