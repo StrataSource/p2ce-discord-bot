@@ -1,4 +1,4 @@
-import { ActivityType, CacheType, Client, Collection, GuildMember, IntentsBitField, Interaction, InteractionResponse, Message, Partials } from 'discord.js';
+import { ActivityType, Client, Collection, GuildMember, IntentsBitField, Partials } from 'discord.js';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import fs from 'fs';
@@ -69,7 +69,7 @@ async function main() {
 		// Check if the user has the required permission level
 		if (!await hasPermissionLevel(interaction.member as GuildMember, command.permissionLevel)) {
 			if (interaction.deferred) {
-				interaction.editReply('You do not have permission to execute this command!');
+				interaction.followUp('You do not have permission to execute this command!');
 				return;
 			} else {
 				interaction.reply({ content: 'You do not have permission to execute this command!', ephemeral: true });
