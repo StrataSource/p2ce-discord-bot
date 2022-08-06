@@ -50,11 +50,11 @@ const Check: Command = {
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				const bgColor: any = {};
 				Object.assign(bgColor, cell.backgroundColor);
-				for (const [colorName, color] of Object.entries(COLORS)) {
-					if (!Object.hasOwn(bgColor, 'red')) bgColor.red = 0;
-					if (!Object.hasOwn(bgColor, 'green')) bgColor.green = 0;
-					if (!Object.hasOwn(bgColor, 'blue')) bgColor.blue = 0;
+				if (!Object.hasOwn(bgColor, 'red')) bgColor.red = 0;
+				if (!Object.hasOwn(bgColor, 'green')) bgColor.green = 0;
+				if (!Object.hasOwn(bgColor, 'blue')) bgColor.blue = 0;
 
+				for (const [colorName, color] of Object.entries(COLORS)) {
 					if (Math.round(bgColor.red * 100) === Math.round(color.red * 100) &&
 						Math.round(bgColor.green * 100) === Math.round(color.green * 100) &&
 						Math.round(bgColor.blue * 100) === Math.round(color.blue * 100)) {
