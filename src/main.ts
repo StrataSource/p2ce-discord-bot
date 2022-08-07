@@ -135,13 +135,15 @@ async function main() {
 	// Listen for messages to respond to
 	if (config.options.autorespond) {
 		client.on('messageCreate', async message => {
+			// If the bot is DMed, we return, we don't care about DMs.
+			if(message.channel.isDMBased()) return;
 			// Only responds to members, any users with higher permissions are safe
 			if (!await hasPermissionLevel(message.member as GuildMember, PermissionLevel.BETA_TESTER)) {
 
 				const spam_prevention = await messageIsSpam(message);
 				if (spam_prevention){
 					message.delete();
-					message.member?.timeout(config.options.timeoutTime, config.messages.timeoutSpamReason);
+					message.member?.timeout(config.options.timeout_time, config.messages.timeout_spam_reason);
 					log.userSpamResponse(client, message);
 				}
 				

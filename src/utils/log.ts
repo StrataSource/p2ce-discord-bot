@@ -49,7 +49,7 @@ export function userBanned(client: Client, ban: GuildBan) {
 }
 
 export function userSpamResponse(client: Client, msg: Message<boolean> | PartialMessage){
-	message(client,"TIMEOUT",LogLevelColor.IMPORTANT,"User <@"+msg.author?.id+"> Has send more than "+config.options.maxMentions+" mentions and therefore has been timed out for "+config.options.timeoutTime+" milliseconds.");
+	message(client,"TIMEOUT",LogLevelColor.IMPORTANT,"User <@"+msg.author?.id+"> Has send more than "+config.options.max_mentions+" mentions and therefore has been timed out for "+config.options.timeout_time+" milliseconds.");
 }
 
 export function messageDeleted(client: Client, msg: Message<boolean> | PartialMessage) {
