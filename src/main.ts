@@ -1,10 +1,11 @@
-import { ActivityType, Client, Collection, GuildMember, IntentsBitField, Partials } from 'discord.js';
+import { ActivityType, Client, Collection, GuildMember, IntentsBitField, Partials, TextChannel } from 'discord.js';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import fs from 'fs';
 import * as log from './utils/log';
 import { hasPermissionLevel, PermissionLevel } from './utils/permissions';
 import { messageNeedsResponse } from './utils/autorespond';
+import { messageIsSpam } from './utils/spamprevent';
 import { Command } from './types/command';
 
 import * as config from './config.json';
@@ -134,8 +135,18 @@ async function main() {
 	// Listen for messages to respond to
 	if (config.options.autorespond) {
 		client.on('messageCreate', async message => {
+			// If the bot is DMed, we return, we don't care about DMs.
+			if(message.channel.isDMBased()) return;
 			// Only responds to members, any users with higher permissions are safe
 			if (!await hasPermissionLevel(message.member as GuildMember, PermissionLevel.BETA_TESTER)) {
+
+				const spam_prevention = await messageIsSpam(message);
+				if (spam_prevention){
+					message.delete();
+					message.member?.timeout(config.options.timeout_time, config.messages.timeout_spam_reason);
+					log.userSpamResponse(client, message);
+				}
+				
 				const response = await messageNeedsResponse(message);
 				if (response) {
 					message.reply(response);
