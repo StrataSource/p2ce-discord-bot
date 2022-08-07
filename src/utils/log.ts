@@ -48,6 +48,10 @@ export function userBanned(client: Client, ban: GuildBan) {
 	message(client, 'BAN', LogLevelColor.IMPORTANT, `**${ban.user.username}#${ban.user.discriminator}** was banned`, ban.user.avatarURL());
 }
 
+export function userSpamResponse(client: Client, msg: Message<boolean> | PartialMessage){
+	message(client,"TIMEOUT",LogLevelColor.IMPORTANT,"User <@"+msg.author?.id+"> Has send more than "+config.options.maxMentions+" mentions and therefore has been timed out for "+config.options.timeoutTime+" milliseconds.");
+}
+
 export function messageDeleted(client: Client, msg: Message<boolean> | PartialMessage) {
 	if (msg.author?.bot || !msg.author?.username) return undefined;
 	if (msg.cleanContent) {

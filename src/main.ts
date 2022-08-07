@@ -142,11 +142,11 @@ async function main() {
 					message.reply(response);
 				}
 
-				const spamPrevention = await messageIsSpam(message);
-				if(spamPrevention){
+				const spam_prevention = await messageIsSpam(message);
+				if(spam_prevention){
 					message.delete();
 					message.member?.timeout(config.options.timeoutTime, config.messages.timeoutSpamReason);
-					(client.channels.cache.get(config.channels.modChannel) as TextChannel).send("User <@"+message.author.id+"> Has send more than "+config.options.maxMentions+" mentions and therefore has been timed out for "+config.options.timeoutTime+" milliseconds.");
+					log.userSpamResponse(client, message);
 				}
 			}
 		});
