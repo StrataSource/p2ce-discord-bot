@@ -143,7 +143,7 @@ async function main() {
 				}
 
 				const spam_prevention = await messageIsSpam(message);
-				if(spam_prevention){
+				if (spam_prevention){
 					message.delete();
 					message.member?.timeout(config.options.timeoutTime, config.messages.timeoutSpamReason);
 					log.userSpamResponse(client, message);
