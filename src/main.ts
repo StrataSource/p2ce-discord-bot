@@ -137,16 +137,17 @@ async function main() {
 		client.on('messageCreate', async message => {
 			// Only responds to members, any users with higher permissions are safe
 			if (!await hasPermissionLevel(message.member as GuildMember, PermissionLevel.BETA_TESTER)) {
-				const response = await messageNeedsResponse(message);
-				if (response) {
-					message.reply(response);
-				}
 
 				const spam_prevention = await messageIsSpam(message);
 				if (spam_prevention){
 					message.delete();
 					message.member?.timeout(config.options.timeoutTime, config.messages.timeoutSpamReason);
 					log.userSpamResponse(client, message);
+				}
+				
+				const response = await messageNeedsResponse(message);
+				if (response) {
+					message.reply(response);
 				}
 			}
 		});
