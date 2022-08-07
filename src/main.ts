@@ -1,4 +1,4 @@
-import { ActivityType, Client, Collection, GuildMember, IntentsBitField, Partials, TextChannel } from 'discord.js';
+import { ActivityType, Client, Collection, GuildMember, IntentsBitField, Partials } from 'discord.js';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import fs from 'fs';
@@ -135,18 +135,20 @@ async function main() {
 	// Listen for messages to respond to
 	if (config.options.autorespond) {
 		client.on('messageCreate', async message => {
-			// If the bot is DMed, we return, we don't care about DMs.
-			if(message.channel.isDMBased()) return;
-			// Only responds to members, any users with higher permissions are safe
-			if (!await hasPermissionLevel(message.member as GuildMember, PermissionLevel.BETA_TESTER)) {
+			// Only respond to messages in guilds for now
+			if (message.channel.isDMBased()) return;
 
-				const spam_prevention = await messageIsSpam(message);
-				if (spam_prevention){
+			// Only responds to members, any users with higher permissions are safe
+			if (!await hasPermissionLevel(message.member, PermissionLevel.BETA_TESTER)) {
+				// Check for spam
+				const spamPrevention = await messageIsSpam(message);
+				if (spamPrevention) {
 					message.delete();
-					message.member?.timeout(config.options.timeout_time, config.messages.timeout_spam_reason);
+					message.member?.timeout(config.options.spam_timeout_duration_minutes * 1000 * 60, 'Spamming @mentions');
 					log.userSpamResponse(client, message);
 				}
-				
+
+				// Check for coop query
 				const response = await messageNeedsResponse(message);
 				if (response) {
 					message.reply(response);

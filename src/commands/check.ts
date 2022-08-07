@@ -46,10 +46,13 @@ const Check: Command = {
 		// Try to find it
 		for (let i = 2; i < sheet.rowCount; i++) {
 			const cell = sheet.getCellByA1('B' + i);
-			if (name === cell.value.toString()) {
+			if (name === cell.value) {
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				const bgColor: any = {};
-				Object.assign(bgColor, cell.backgroundColor);
+				try {
+					Object.assign(bgColor, cell.backgroundColor);
+				// eslint-disable-next-line no-empty
+				} catch (err) {}
 				if (!Object.hasOwn(bgColor, 'red')) bgColor.red = 0;
 				if (!Object.hasOwn(bgColor, 'green')) bgColor.green = 0;
 				if (!Object.hasOwn(bgColor, 'blue')) bgColor.blue = 0;
@@ -71,7 +74,7 @@ const Check: Command = {
 						}
 					}
 				}
-				return interaction.followUp('Your application has an unknown status. Ping @craftablescience about this!');
+				return interaction.followUp('Your application has not been reviewed yet.');
 			}
 		}
 		return interaction.followUp('Your application was not found. If you have already submitted one, let a team member know.');
