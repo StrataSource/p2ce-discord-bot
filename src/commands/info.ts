@@ -6,7 +6,7 @@ import { PermissionLevel } from '../utils/permissions';
 
 
 const BotInfo: Command = {
-	permissionLevel: PermissionLevel.TEAM_MEMBER,
+	permissionLevel: PermissionLevel.MEMBER,
 
 	data: new SlashCommandBuilder()
 		.setName('info')
