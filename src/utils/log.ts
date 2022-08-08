@@ -26,12 +26,12 @@ export function message(client: Client, title: string, color: LogLevelColor, msg
 }
 
 export function error(client: Client, msg: Error) {
-	console.log(`[ERROR] ${message}`);
+	console.log(`Error: ${message}`);
 	message(client, 'ERROR', LogLevelColor.ERROR, `${msg.name}: ${msg.message}`);
 }
 
 export function warning(client: Client, msg: string) {
-	console.log(`[WARNING] ${message}`);
+	console.log(`Warning: ${message}`);
 	message(client, 'WARNING', LogLevelColor.WARNING, msg);
 }
 

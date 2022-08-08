@@ -21,11 +21,11 @@ interface P2CEClient extends Client {
 async function main() {
 	// You need a token, duh
 	if (!config.token) {
-		console.log('[ERROR] No token found in config.json!');
+		console.log('Error: No token found in config.json!');
 		return;
 	}
 
-	console.log('[INFO] Starting...');
+	console.log('Starting...');
 
 	// Create client
 	const client: P2CEClient = new Client({
@@ -57,7 +57,7 @@ async function main() {
 	client.on('ready', async () => {
 		client.user?.setActivity('this server', { type: ActivityType.Watching });
 		setTimeout(() => client.user?.setActivity('this server', { type: ActivityType.Watching }), 30e3);
-		console.log(`[INFO] Logged in as ${client.user?.tag}`);
+		console.log(`Logged in as ${client.user?.tag}`);
 	});
 
 	// Listen for commands
@@ -76,7 +76,8 @@ async function main() {
 		if (!command) return;
 
 		// Check if the user has the required permission level
-		if (!await hasPermissionLevel(interaction.member as GuildMember, command.permissionLevel)) {
+		// This is a backup to Discord's own permissions stuff in case that breaks
+		if (!hasPermissionLevel(interaction.member as GuildMember, command.permissionLevel)) {
 			if (interaction.deferred) {
 				interaction.followUp('You do not have permission to execute this command!');
 				return;
@@ -86,14 +87,10 @@ async function main() {
 			}
 		}
 
-		try {
-			command.execute(interaction);
-			return;
-		} catch (error) {
-			console.error(error);
-			interaction.reply({ content: `There was an error while executing this command: ${error}`, ephemeral: true });
-			return;
-		}
+		command.execute(interaction).catch(err => {
+			console.error(err);
+			interaction.reply({ content: `There was an error while executing this command: ${err}`, ephemeral: true });
+		});
 	});
 
 	// Listen for errors
@@ -147,7 +144,7 @@ async function main() {
 			if (message.channel.isDMBased()) return;
 
 			// Only responds to members, any users with higher permissions are safe
-			if (!await hasPermissionLevel(message.member, PermissionLevel.BETA_TESTER)) {
+			if (!hasPermissionLevel(message.member, PermissionLevel.BETA_TESTER)) {
 				// Check for spam
 				const spamPrevention = await messageIsSpam(message);
 				if (spamPrevention) {
@@ -172,11 +169,11 @@ async function main() {
 async function updateCommands() {
 	// You need a token, duh
 	if (!config.token) {
-		console.log('[ERROR] No token found in config.json!');
+		console.log('Error: No token found in config.json!');
 		return;
 	}
 
-	console.log('[INFO] Registering commands...');
+	console.log('Registering commands...');
 
 	const commands = [];
 	for (const file of fs.readdirSync('./build/commands').filter(file => file.endsWith('.js'))) {
@@ -185,11 +182,9 @@ async function updateCommands() {
 
 	// Update commands for every guild
 	const rest = new REST({ version: '10' }).setToken(config.token);
-	await rest.put(Routes.applicationGuildCommands(config.client_id, config.guild), { body: commands })
-		.then(() => console.log(`[INFO] Registered ${commands.length} application commands for guild ${config.guild}`))
-		.catch(console.error);
+	await rest.put(Routes.applicationGuildCommands(config.client_id, config.guild), { body: commands });
 
-	console.log('[INFO] Done!');
+	console.log(`Registered ${commands.length} application commands for guild ${config.guild}`);
 }
 
 if (process.argv.includes('--update-commands')) {

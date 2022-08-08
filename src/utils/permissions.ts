@@ -11,7 +11,7 @@ export enum PermissionLevel {
 	MODERATOR   = 3,
 }
 
-export async function hasPermissionLevel(member: GuildMember | null, permissionLevel: PermissionLevel): Promise<boolean> {
+export function hasPermissionLevel(member: GuildMember | null, permissionLevel: PermissionLevel) {
 	// Switch uses fallthrough, because lower permissions are always a subset of higher permissions
 	const roleId: Array<string> = [];
 	switch (permissionLevel) {
