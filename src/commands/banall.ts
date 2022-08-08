@@ -29,7 +29,7 @@ const BanAll: Command = {
 				.then(clientUser => interaction.guild?.bans.create(clientUser));
 			banCount++;
 		}
-		return interaction.followUp({ content: `Banned ${banCount} users!` });
+		return interaction.followUp(`Banned ${banCount} users!`);
 	}
 };
 export default BanAll;
