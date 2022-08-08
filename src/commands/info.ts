@@ -22,7 +22,7 @@ const BotInfo: Command = {
             iconURL: interaction.client.user?.displayAvatarURL()?.toString()
         }
 
-        const hasNickname = interaction.guild?.members.cache.get(interaction.client.user?.id || "")?.nickname;
+        const hasNickname = interaction.guild?.members.cache.get(config.client_id ?? '')?.nickname;
         
         const fields:Array<APIEmbedField> = [
             {
