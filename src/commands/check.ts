@@ -14,6 +14,7 @@ const COLORS = {
 	green:  { red: 0, green: 1,   blue: 0 },
 };
 
+// I don't care if this gets flushed when the bot restarts
 const USER_DB = new Collection<string, number>();
 
 const Check: Command = {

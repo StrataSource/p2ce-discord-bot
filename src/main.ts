@@ -63,6 +63,14 @@ async function main() {
 	// Listen for commands
 	client.on('interactionCreate', async interaction => {
 		if (!interaction.isCommand()) return;
+		if (interaction.channel && interaction.channel.isDMBased()) {
+			if (interaction.deferred) {
+				interaction.followUp('Please execute all commands in a server with this bot.');
+			} else {
+				interaction.reply({ content: 'Please execute all commands in a server with this bot.', ephemeral: true });
+			}
+			return;
+		}
 
 		const command = client.commands?.get(interaction.commandName);
 		if (!command) return;
