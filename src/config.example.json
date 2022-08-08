@@ -3,8 +3,8 @@
 	"client_id": "client id goes here",
 	"guild": "guild id goes here",
 
-	"google_api_key": "google api key goes here",
-	"key_application_sheet_id": "sheet id goes here",
+	"google_api_key": "",
+	"key_application_sheet_id": "",
 
 	"options": {
 		"log_errors": true,
