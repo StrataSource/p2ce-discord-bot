@@ -16,11 +16,20 @@ const ServerInfo: Command = {
 			return interaction.reply('This command can only be ran in a server.');
 		}
 
-		const description = (interaction.guild.description && interaction.guild.description.length > 0) ? interaction.guild.description : 'Server has no description.';
+		let description = (interaction.guild.description && interaction.guild.description.length > 0) ? interaction.guild.description : 'Server has no description.';
+		const emojis = (await interaction.guild.emojis.fetch()).map(e => e).join(' ');
+		if (emojis.length == 0) {
+			description += '\n\nThis server has no emojis.';
+		} else {
+			description += '\n\nServer Emoji:\n' + emojis;
+		}
 
 		const creator = await interaction.guild.fetchOwner();
 
-		const emojis = interaction.guild.emojis.cache.map(e => e).join(' ');
+		const channelCount = (await interaction.guild.channels.fetch()).filter(e => e.isTextBased() || e.isVoiceBased()).size;
+
+		// Decrement by 1 because @everyone is a role
+		const roleCount = (await interaction.guild.roles.fetch()).size - 1;
 
 		const embed = new EmbedBuilder()
 			.setColor(LogLevelColor.INFO)
@@ -30,11 +39,10 @@ const ServerInfo: Command = {
 			.addFields(
 				{ name: 'Created On', value: `<t:${Math.round(interaction.guild.createdTimestamp / 1000)}:f>` },
 				{ name: 'Created By', value: `<@${creator.user.id}>` },
-				{ name: 'Users', value: interaction.guild.memberCount.toString(), inline: true },
-				{ name: 'Channels', value: interaction.guild.channels.channelCountWithoutThreads.toString(), inline: true },
-				{ name: 'Roles', value: (interaction.guild.roles.cache.size - 1).toString(), inline: true },
-				{ name: 'Server Emoji', value: emojis.length > 0 ? emojis : 'This server has no emojis.' }
-			);
+				{ name: 'Users', value: `${interaction.guild.memberCount}`, inline: true },
+				{ name: 'Channels', value: `${channelCount}`, inline: true },
+				{ name: 'Roles', value: `${roleCount}`, inline: true }
+			).setTimestamp();
 		return interaction.reply({ embeds: [embed] });
 	}
 };
