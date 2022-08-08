@@ -172,7 +172,7 @@ async function updateCommands() {
 
 	const commands = [];
 	for (const file of fs.readdirSync('./build/commands').filter(file => file.endsWith('.js'))) {
-		commands.push((await import(`./commands/${file}`)).data.toJSON());
+		commands.push((await import(`./commands/${file}`)).default.data.toJSON());
 	}
 
 	// Update commands for every guild
