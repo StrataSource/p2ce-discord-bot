@@ -101,7 +101,7 @@ const ReactionRole: Command = {
 			const desc = out.join('\n\n');
 			const embed = new EmbedBuilder()
 				.setColor(LogLevelColor.INFO)
-				.setTitle('REACTION ROLE - LIST')
+				.setTitle('REACTION ROLE MESSAGES')
 				.setDescription(desc.length > 0 ? desc : 'There are no reaction role messages currently.');
 
 			return interaction.reply({ embeds: [embed] });

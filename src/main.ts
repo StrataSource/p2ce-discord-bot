@@ -69,6 +69,20 @@ async function main() {
 		console.log(`Logged in as ${client.user?.tag}`);
 	});
 
+	// Listen for errors
+	if (config.options.log_errors) {
+		client.on('error', async error => {
+			log.error(client, error);
+		});
+	}
+
+	// Listen for warnings
+	if (config.options.log_warnings) {
+		client.on('warn', async warn => {
+			log.warning(client, warn);
+		});
+	}
+
 	// Listen for commands
 	client.on('interactionCreate', async interaction => {
 		if (!interaction.isChatInputCommand()) return;
@@ -158,19 +172,21 @@ async function main() {
 		}
 	});
 
-	// Listen for errors
-	if (config.options.log_errors) {
-		client.on('error', async error => {
-			log.error(client, error);
-		});
-	}
+	// Listen for thread changes
+	client.on('threadUpdate', async (oldThread, newThread) => {
+		if (persist.data.watched_threads.includes(newThread.id) && !oldThread.archived && newThread.archived) {
+			newThread.setArchived(false);
+		}
+	});
 
-	// Listen for warnings
-	if (config.options.log_warnings) {
-		client.on('warn', async warn => {
-			log.warning(client, warn);
-		});
-	}
+	// Listen for thread deletions
+	client.on('threadDelete', async thread => {
+		// Remove deleted threads from watchlist
+		if (persist.data.watched_threads.includes(thread.id)) {
+			persist.data.watched_threads = persist.data.watched_threads.filter((e: string) => e !== thread.id);
+			persist.saveData();
+		}
+	});
 
 	// Listen for presence updates
 	if (config.options.log_user_updates) {
