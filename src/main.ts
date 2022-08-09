@@ -76,8 +76,6 @@ async function main() {
 				// Return as `reaction.message.author` may be undefined/null
 				return;
 			}
-		} else {
-			console.log('partial failed!');
 		}
 
 
@@ -106,8 +104,6 @@ async function main() {
 				// Return as `reaction.message.author` may be undefined/null
 				return;
 			}
-		} else {
-			console.log('partial failed!');
 		}
 	
 		
