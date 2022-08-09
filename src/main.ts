@@ -112,10 +112,10 @@ async function main() {
 			}
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		Object.keys(persist.data.reaction_roles).filter((e: any) => e === reaction.message.id).forEach((res: any) => {
+		// If persistent storage has the reaction message ID, add requested role to the user
+		if (Object.hasOwn(persist.data.reaction_roles, reaction.message.id)) {
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			persist.data.reaction_roles[res].roles.filter((e: any) => {
+			persist.data.reaction_roles[reaction.message.id].roles.filter((e: any) => {
 				let name = e.emoji_name;
 				if (name.startsWith('<:') && name.endsWith('>')) {
 					name = name.substring(name.indexOf(':') + 1, name.lastIndexOf(':'));
@@ -125,7 +125,7 @@ async function main() {
 			}).forEach((roles: any) => {
 				reaction.message.guild?.members.cache.get(user.id)?.roles.add(roles.role);
 			});
-		});
+		}
 	});
 
 	// Listen for removed reactions
@@ -142,10 +142,10 @@ async function main() {
 			}
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		Object.keys(persist.data.reaction_roles).filter((e: any) => e === reaction.message.id).forEach((res: any) => {
+		// If persistent storage has the reaction message ID, remove requested role from the user
+		if (Object.hasOwn(persist.data.reaction_roles, reaction.message.id)) {
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			persist.data.reaction_roles[res].roles.filter((e: any) => {
+			persist.data.reaction_roles[reaction.message.id].roles.filter((e: any) => {
 				let name = e.emoji_name;
 				if (name.startsWith('<:') && name.endsWith('>')) {
 					name = name.substring(name.indexOf(':') + 1, name.lastIndexOf(':'));
@@ -155,7 +155,7 @@ async function main() {
 			}).forEach((roles: any) => {
 				reaction.message.guild?.members.cache.get(user.id)?.roles.remove(roles.role);
 			});
-		});
+		}
 	});
 
 	// Listen for errors
