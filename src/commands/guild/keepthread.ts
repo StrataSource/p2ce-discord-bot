@@ -50,7 +50,7 @@ const KeepThread: Command = {
 		case 'list': {
 			let desc = '';
 			for (const id of persist.data.watched_threads) {
-				desc += `<#${id}>\n`;
+				desc += `- <#${id}>\n`;
 			}
 
 			const embed = new EmbedBuilder()
