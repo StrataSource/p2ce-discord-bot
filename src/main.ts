@@ -128,15 +128,13 @@ async function main() {
 
 		// If persistent storage has the reaction message ID, add requested role to the user
 		if (Object.hasOwn(persist.data.reaction_roles, reaction.message.id)) {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			persist.data.reaction_roles[reaction.message.id].roles.filter((e: any) => {
+			persist.data.reaction_roles[reaction.message.id].roles.filter(e => {
 				let name = e.emoji_name;
 				if (name.startsWith('<:') && name.endsWith('>')) {
 					name = name.substring(name.indexOf(':') + 1, name.lastIndexOf(':'));
 				}
 				return name === reaction.emoji.name;
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			}).forEach((roles: any) => {
+			}).forEach(roles => {
 				reaction.message.guild?.members.cache.get(user.id)?.roles.add(roles.role);
 			});
 		}
@@ -158,15 +156,13 @@ async function main() {
 
 		// If persistent storage has the reaction message ID, remove requested role from the user
 		if (Object.hasOwn(persist.data.reaction_roles, reaction.message.id)) {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			persist.data.reaction_roles[reaction.message.id].roles.filter((e: any) => {
+			persist.data.reaction_roles[reaction.message.id].roles.filter(e => {
 				let name = e.emoji_name;
 				if (name.startsWith('<:') && name.endsWith('>')) {
 					name = name.substring(name.indexOf(':') + 1, name.lastIndexOf(':'));
 				}
 				return name === reaction.emoji.name;
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			}).forEach((roles: any) => {
+			}).forEach(roles => {
 				reaction.message.guild?.members.cache.get(user.id)?.roles.remove(roles.role);
 			});
 		}

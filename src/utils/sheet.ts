@@ -1,11 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-import { GoogleSpreadsheet } from 'google-spreadsheet';
+import { GoogleSpreadsheet, GoogleSpreadsheetWorksheet } from 'google-spreadsheet';
 
 import * as config from '../config.json';
 
-let sheets: any;
-export let sheet: any;
+let sheets: GoogleSpreadsheet;
+export let sheet: GoogleSpreadsheetWorksheet;
 
 if (config.google_api_key.length > 0) {
 	sheets = new GoogleSpreadsheet(config.key_application_sheet_id);

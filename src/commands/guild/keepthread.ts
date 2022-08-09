@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, EmbedBuilder, GuildBasedChannel } from 'discord.js';
+import { ChannelType, CommandInteraction, EmbedBuilder, GuildBasedChannel } from 'discord.js';
 import { Command } from '../../types/command';
 import { LogLevelColor } from '../../utils/log';
 import { PermissionLevel } from '../../utils/permissions';
@@ -17,6 +17,7 @@ const KeepThread: Command = {
 			.addChannelOption(option => option
 				.setName('thread')
 				.setDescription('The thread to keep open')
+				.addChannelTypes(ChannelType.GuildPublicThread, ChannelType.GuildPrivateThread)
 				.setRequired(true)))
 		.addSubcommand(subcommand => subcommand
 			.setName('list')
@@ -27,6 +28,7 @@ const KeepThread: Command = {
 			.addChannelOption(option => option
 				.setName('thread')
 				.setDescription('The thread to stop watching')
+				.addChannelTypes(ChannelType.GuildPublicThread, ChannelType.GuildPrivateThread)
 				.setRequired(true))),
 
 	async execute(interaction: CommandInteraction) {
@@ -68,7 +70,7 @@ const KeepThread: Command = {
 			}
 
 			if (persist.data.watched_threads.includes(thread.id)) {
-				persist.data.watched_threads = persist.data.watched_threads.filter((e: string) => e !== thread.id);
+				persist.data.watched_threads = persist.data.watched_threads.filter(e => e !== thread.id);
 			}
 			persist.saveData();
 

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CacheType, CommandInteraction, EmbedBuilder } from 'discord.js';
 import { Command } from '../../types/command';
@@ -93,10 +91,10 @@ const ReactionRole: Command = {
 			const out: string[] = [];
 			for (const [message, reactElement] of Object.entries(persist.data.reaction_roles)) {
 				const emojis: string[] = [];
-				for (const role of (reactElement as any).roles) {
+				for (const role of reactElement.roles) {
 					emojis.push(role.emoji_name);
 				}
-				out.push(`https://discord.com/channels/${config.guild}/${(reactElement as any).channel}/${message}\n${emojis.join(' ')}`);
+				out.push(`https://discord.com/channels/${config.guild}/${reactElement.channel}/${message}\n${emojis.join(' ')}`);
 			}
 			const desc = out.join('\n\n');
 			const embed = new EmbedBuilder()

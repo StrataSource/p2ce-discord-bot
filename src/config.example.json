@@ -32,6 +32,6 @@
 	},
 
 	"messages": {
-		"message_ID": "message content goes here"
+		"coop": "this response is required in code"
 	}
 }

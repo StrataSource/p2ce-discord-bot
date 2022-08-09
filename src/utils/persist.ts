@@ -1,7 +1,20 @@
 import fs from 'fs';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export let data: any = {};
+// Modify this interface when adding new data things, or don't if you hate TypeScript and everything it stands for
+export interface PersistentData {
+	reaction_roles: {
+		[message: string]: {
+			channel: string,
+			roles: Array<{
+				emoji_name: string,
+				role: string,
+			}>,
+		},
+	};
+	watched_threads: Array<string>;
+}
+
+export let data: PersistentData;
 
 export function loadData() {
 	if (!fs.existsSync('./data.json')) {
