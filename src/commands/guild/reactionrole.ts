@@ -60,7 +60,11 @@ const ReactionRole: Command = {
 
 			const discordChannel = interaction.guild?.channels.resolve(channel.id);
 			if (discordChannel?.isTextBased()) {
-				discordChannel.messages.react(message, emoji);
+				try {
+					await discordChannel.messages.react(message, emoji);
+				} catch (err) {
+					return interaction.reply({ content: 'Could not react to message with given emoji. Is this a valid emoji?', ephemeral: true });
+				}
 			}
 
 			// Add message if it's not a reaction role message
