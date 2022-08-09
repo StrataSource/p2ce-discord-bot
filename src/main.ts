@@ -43,6 +43,7 @@ async function main() {
 			Partials.Channel,
 			Partials.Message,
 			Partials.GuildMember,
+			Partials.Reaction,
 		]
 	});
 
@@ -62,6 +63,65 @@ async function main() {
 		client.user?.setActivity('this server', { type: ActivityType.Watching });
 		setTimeout(() => client.user?.setActivity('this server', { type: ActivityType.Watching }), 30e3);
 		console.log(`Logged in as ${client.user?.tag}`);
+	});
+
+	client.on('messageReactionAdd', async (reaction, user) => {
+		// When a reaction is received, check if the structure is partial
+		if (reaction.partial) {
+			// If the message this reaction belongs to was removed, the fetching might result in an API error which should be handled
+			try {
+				await reaction.fetch();
+			} catch (error) {
+				log.error(client, {message: 'Something went wrong when fetching the message:',stack:'',name:'React Message Error'});
+				// Return as `reaction.message.author` may be undefined/null
+				return;
+			}
+		} else {
+			console.log('partial failed!');
+		}
+
+
+	
+		for(const res of config.reaction_role_response) {
+			if(res.message_id !== reaction.message.id) continue;
+			for(const roles of res.roles) {
+				if(roles.emoji_name !== reaction.emoji.name) continue;
+				const guildreactuser = reaction.message.guild?.members.cache.get(user.id);
+				guildreactuser?.roles.add(roles.role_id);
+				break;
+			}
+			break;
+		}
+
+	});
+
+	client.on('messageReactionRemove', async (reaction, user) => {
+		// When a reaction is received, check if the structure is partial
+		if (reaction.partial) {
+			// If the message this reaction belongs to was removed, the fetching might result in an API error which should be handled
+			try {
+				await reaction.fetch();
+			} catch (error) {
+				log.error(client, {message: 'Something went wrong when fetching the message:',stack:'',name:'React Message Error'});
+				// Return as `reaction.message.author` may be undefined/null
+				return;
+			}
+		} else {
+			console.log('partial failed!');
+		}
+	
+		
+		for(const res of config.reaction_role_response) {
+			if(res.message_id !== reaction.message.id) continue;
+			for(const roles of res.roles) {
+				if(roles.emoji_name !== reaction.emoji.name) continue;
+				const guildreactuser = reaction.message.guild?.members.cache.get(user.id);
+				guildreactuser?.roles.remove(roles.role_id);
+				break;
+			}
+			break;
+		}
+
 	});
 
 	// Listen for commands
