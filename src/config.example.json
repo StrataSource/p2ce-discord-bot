@@ -15,6 +15,7 @@
 		"log_message_edits": true,
 		"autorespond": true,
 		"key_check_hours_to_wait": 24,
+		"message_purge_max": 50,
 		"spam_max_mentions": 6,
 		"spam_timeout_duration_minutes": 10
 	},
