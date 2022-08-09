@@ -48,8 +48,12 @@ async function main() {
 
 	// Register commands
 	client.commands = new Collection();
-	for (const file of fs.readdirSync('./build/commands').filter(file => file.endsWith('.js'))) {
-		const command: Command = (await import(`./commands/${file}`)).default;
+	for (const file of fs.readdirSync('./build/commands/global').filter(file => file.endsWith('.js'))) {
+		const command: Command = (await import(`./commands/global/${file}`)).default;
+		client.commands.set(command.data.name, command);
+	}
+	for (const file of fs.readdirSync('./build/commands/guild').filter(file => file.endsWith('.js'))) {
+		const command: Command = (await import(`./commands/guild/${file}`)).default;
 		client.commands.set(command.data.name, command);
 	}
 
@@ -143,7 +147,7 @@ async function main() {
 			if (!hasPermissionLevel(message.member, PermissionLevel.BETA_TESTER)) {
 				// Check for spam
 				const spamPrevention = await messageIsSpam(message);
-				if (spamPrevention) {
+				if (spamPrevention && message.deletable) {
 					message.delete();
 					message.member?.timeout(config.options.spam_timeout_duration_minutes * 1000 * 60, 'Spamming @mentions');
 					log.userSpamResponse(client, message);
