@@ -22,8 +22,10 @@ const Respond: Command = {
 		}),
 
 	async execute(interaction: CommandInteraction) {
-		const id = interaction.options.get('id', true).value?.toString();
-		if (id && (id in config.messages)) {
+		if (!interaction.isChatInputCommand()) return;
+
+		const id = interaction.options.getString('id', true);
+		if (id in config.messages) {
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			return interaction.reply((config.messages as any)[id]);
 		}

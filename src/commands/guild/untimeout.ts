@@ -15,10 +15,7 @@ const UnTimeout: Command = {
 			.setRequired(true)),
 
 	async execute(interaction: CommandInteraction) {
-		const user = interaction.options.getUser('user');
-		if (!user) {
-			return interaction.reply({ content: 'You must specify a user to untimeout!', ephemeral: true });
-		}
+		const user = interaction.options.getUser('user', true);
 
 		// Untime them out!
 		interaction.guild?.members.resolve(user.id)?.timeout(null);
