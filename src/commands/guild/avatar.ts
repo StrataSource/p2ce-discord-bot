@@ -1,8 +1,8 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, EmbedBuilder } from 'discord.js';
-import { Command } from '../types/command';
-import { LogLevelColor } from '../utils/log';
-import { PermissionLevel } from '../utils/permissions';
+import { Command } from '../../types/command';
+import { LogLevelColor } from '../../utils/log';
+import { PermissionLevel } from '../../utils/permissions';
 
 const Avatar: Command = {
 	permissionLevel: PermissionLevel.MEMBER,
@@ -19,7 +19,7 @@ const Avatar: Command = {
 		const embed = new EmbedBuilder()
 			.setColor(LogLevelColor.INFO)
 			.setTitle(`Avatar of ${user.username}#${user.discriminator}`)
-			.setImage(user.displayAvatarURL());
+			.setImage(user.displayAvatarURL({ size: 1024 }));
 		return interaction.reply({ embeds: [embed] });
 	}
 };

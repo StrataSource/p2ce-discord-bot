@@ -2,11 +2,11 @@ import { ActivityType, Client, Collection, GuildMember, IntentsBitField, Partial
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import fs from 'fs';
+import { Command } from './types/command';
 import * as log from './utils/log';
 import { hasPermissionLevel, PermissionLevel } from './utils/permissions';
 import { messageNeedsResponse } from './utils/autorespond';
 import { messageIsSpam } from './utils/spamprevent';
-import { Command } from './types/command';
 
 import * as config from './config.json';
 
@@ -63,21 +63,13 @@ async function main() {
 	// Listen for commands
 	client.on('interactionCreate', async interaction => {
 		if (!interaction.isCommand()) return;
-		if (interaction.channel && interaction.channel.isDMBased()) {
-			if (interaction.deferred) {
-				interaction.followUp('Please execute all commands in a server with this bot.');
-			} else {
-				interaction.reply({ content: 'Please execute all commands in a server with this bot.', ephemeral: true });
-			}
-			return;
-		}
 
 		const command = client.commands?.get(interaction.commandName);
 		if (!command) return;
 
 		// Check if the user has the required permission level
 		// This is a backup to Discord's own permissions stuff in case that breaks
-		if (!hasPermissionLevel(interaction.member as GuildMember, command.permissionLevel)) {
+		if (!interaction.channel?.isDMBased() && !hasPermissionLevel(interaction.member as GuildMember, command.permissionLevel)) {
 			if (interaction.deferred) {
 				interaction.followUp('You do not have permission to execute this command!');
 				return;
@@ -89,7 +81,11 @@ async function main() {
 
 		command.execute(interaction).catch(err => {
 			console.error(err);
-			interaction.reply({ content: `There was an error while executing this command: ${err}`, ephemeral: true });
+			if (interaction.deferred) {
+				interaction.followUp(`There was an error while executing this command: ${err}`);
+			} else {
+				interaction.reply(`There was an error while executing this command: ${err}`);
+			}
 		});
 	});
 
@@ -140,7 +136,7 @@ async function main() {
 	// Listen for messages to respond to
 	if (config.options.autorespond) {
 		client.on('messageCreate', async message => {
-			// Only respond to messages in guilds for now
+			// Only respond to messages in guilds
 			if (message.channel.isDMBased()) return;
 
 			// Only responds to members, any users with higher permissions are safe
@@ -175,16 +171,24 @@ async function updateCommands() {
 
 	console.log('Registering commands...');
 
-	const commands = [];
-	for (const file of fs.readdirSync('./build/commands').filter(file => file.endsWith('.js'))) {
-		commands.push((await import(`./commands/${file}`)).default.data.toJSON());
+	const guildCommands = [];
+	for (const file of fs.readdirSync('./build/commands/guild').filter(file => file.endsWith('.js'))) {
+		guildCommands.push((await import(`./commands/guild/${file}`)).default.data.toJSON());
+	}
+	const globalCommands = [];
+	for (const file of fs.readdirSync('./build/commands/global').filter(file => file.endsWith('.js'))) {
+		globalCommands.push((await import(`./commands/global/${file}`)).default.data.toJSON());
 	}
 
-	// Update commands for every guild
 	const rest = new REST({ version: '10' }).setToken(config.token);
-	await rest.put(Routes.applicationGuildCommands(config.client_id, config.guild), { body: commands });
 
-	console.log(`Registered ${commands.length} application commands for guild ${config.guild}`);
+	// Update commands for every guild
+	await rest.put(Routes.applicationGuildCommands(config.client_id, config.guild), { body: guildCommands });
+	console.log(`Registered ${guildCommands.length} guild commands for ${config.guild}`);
+
+	// And register global commands
+	await rest.put(Routes.applicationCommands(config.client_id), { body: globalCommands });
+	console.log(`Registered ${globalCommands.length} application commands`);
 }
 
 if (process.argv.includes('--update-commands')) {

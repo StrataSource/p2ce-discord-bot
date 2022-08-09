@@ -1,11 +1,11 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, EmbedBuilder } from 'discord.js';
-import { Command } from '../types/command';
-import { LogLevelColor } from '../utils/log';
-import { PermissionLevel } from '../utils/permissions';
+import { Command } from '../../types/command';
+import { LogLevelColor } from '../../utils/log';
+import { PermissionLevel } from '../../utils/permissions';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const packageJSON: { version: number, dependencies: unknown } = require('../../package.json');
+const packageJSON: { version: number, dependencies: unknown } = require('../../../package.json');
 
 const Info: Command = {
 	permissionLevel: PermissionLevel.MEMBER,

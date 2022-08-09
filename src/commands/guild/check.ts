@@ -1,10 +1,10 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { Collection, CommandInteraction } from 'discord.js';
-import { PermissionLevel } from '../utils/permissions';
-import { isSheetLoaded, sheet } from '../utils/sheet';
-import { Command } from '../types/command';
+import { Command } from '../../types/command';
+import { PermissionLevel } from '../../utils/permissions';
+import { isSheetLoaded, sheet } from '../../utils/sheet';
 
-import * as config from '../config.json';
+import * as config from '../../config.json';
 
 const COLORS = {
 	red:    { red: 1, green: 0,   blue: 0 },

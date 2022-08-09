@@ -1,8 +1,8 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, EmbedBuilder } from 'discord.js';
-import { Command } from '../types/command';
-import { LogLevelColor } from '../utils/log';
-import { PermissionLevel } from '../utils/permissions';
+import { Command } from '../../types/command';
+import { LogLevelColor } from '../../utils/log';
+import { PermissionLevel } from '../../utils/permissions';
 
 const ServerInfo: Command = {
 	permissionLevel: PermissionLevel.MEMBER,
@@ -35,7 +35,7 @@ const ServerInfo: Command = {
 			.setColor(LogLevelColor.INFO)
 			.setTitle(interaction.guild.name.toUpperCase())
 			.setDescription(description)
-			.setThumbnail(interaction.guild.iconURL() + '?size=1024')
+			.setThumbnail(interaction.guild.iconURL({ size: 1024 }))
 			.addFields(
 				{ name: 'Created On', value: `<t:${Math.round(interaction.guild.createdTimestamp / 1000)}:f>` },
 				{ name: 'Created By', value: `<@${creator.user.id}>` },

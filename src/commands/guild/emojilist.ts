@@ -1,8 +1,8 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, EmbedBuilder } from 'discord.js';
-import { Command } from '../types/command';
-import { LogLevelColor } from '../utils/log';
-import { PermissionLevel } from '../utils/permissions';
+import { Command } from '../../types/command';
+import { LogLevelColor } from '../../utils/log';
+import { PermissionLevel } from '../../utils/permissions';
 
 const EmojiList: Command = {
 	permissionLevel: PermissionLevel.MEMBER,

@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from 'discord.js';
-import { Command } from '../types/command';
-import { PermissionLevel } from '../utils/permissions';
+import { Command } from '../../types/command';
+import { PermissionLevel } from '../../utils/permissions';
 
 const UnTimeout: Command = {
 	permissionLevel: PermissionLevel.MODERATOR,

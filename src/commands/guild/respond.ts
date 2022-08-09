@@ -1,9 +1,9 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from 'discord.js';
-import { PermissionLevel } from '../utils/permissions';
-import { Command } from '../types/command';
+import { Command } from '../../types/command';
+import { PermissionLevel } from '../../utils/permissions';
 
-import * as config from '../config.json';
+import * as config from '../../config.json';
 
 const Respond: Command = {
 	permissionLevel: PermissionLevel.TEAM_MEMBER,
