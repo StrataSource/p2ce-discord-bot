@@ -11,7 +11,7 @@ const Purge: Command = {
 	data: new SlashCommandBuilder()
 		.setName('purge')
 		.setDescription('Deletes the given amount of messages.')
-		.addNumberOption(option => option
+		.addIntegerOption(option => option
 			.setName('amount')
 			.setDescription(`The amount of messages to delete. Capped at ${config.options.message_purge_max}`)
 			.setRequired(true)),
