@@ -80,6 +80,7 @@ const ReactionRole: Command = {
 					role: role.id
 				});
 			}
+			persist.saveData();
 
 			return interaction.reply({ content: 'Added reaction role to message.', ephemeral: true });
 		}
@@ -116,6 +117,8 @@ const ReactionRole: Command = {
 				}
 			}
 			delete persist.data.reaction_roles[message];
+			persist.saveData();
+
 			return interaction.reply({ content: 'Cleared reaction roles from message.', ephemeral: true });
 		}
 		}
