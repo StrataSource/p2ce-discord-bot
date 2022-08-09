@@ -6,7 +6,7 @@ import { Command } from './types/command';
 import { messageNeedsResponse } from './utils/autorespond';
 import * as log from './utils/log';
 import { hasPermissionLevel, PermissionLevel } from './utils/permissions';
-import { loadData, saveData } from './utils/persist';
+import * as persist from './utils/persist';
 import { messageIsSpam } from './utils/spamprevent';
 
 import * as config from './config.json';
@@ -16,7 +16,7 @@ import consoleStamp from 'console-stamp';
 consoleStamp(console);
 
 // Load persistent storage
-loadData();
+persist.loadData();
 
 interface P2CEClient extends Client {
 	commands?: Collection<string, Command>;
@@ -69,64 +69,9 @@ async function main() {
 		console.log(`Logged in as ${client.user?.tag}`);
 	});
 
-	client.on('messageReactionAdd', async (reaction, user) => {
-		// When a reaction is received, check if the structure is partial
-		if (reaction.partial) {
-			// If the message this reaction belongs to was removed, the fetching might result in an API error which should be handled
-			try {
-				await reaction.fetch();
-			} catch (error) {
-				log.error(client, {message: 'Something went wrong when fetching the message:',stack:'',name:'React Message Error'});
-				// Return as `reaction.message.author` may be undefined/null
-				return;
-			}
-		}
-
-
-	
-		for(const res of config.reaction_role_response) {
-			if(res.message_id !== reaction.message.id) continue;
-			for(const roles of res.roles) {
-				if(roles.emoji_name !== reaction.emoji.name) continue;
-				const guildreactuser = reaction.message.guild?.members.cache.get(user.id);
-				guildreactuser?.roles.add(roles.role_id);
-				break;
-			}
-			break;
-		}
-
-	});
-
-	client.on('messageReactionRemove', async (reaction, user) => {
-		// When a reaction is received, check if the structure is partial
-		if (reaction.partial) {
-			// If the message this reaction belongs to was removed, the fetching might result in an API error which should be handled
-			try {
-				await reaction.fetch();
-			} catch (error) {
-				log.error(client, {message: 'Something went wrong when fetching the message:',stack:'',name:'React Message Error'});
-				// Return as `reaction.message.author` may be undefined/null
-				return;
-			}
-		}
-	
-		
-		for(const res of config.reaction_role_response) {
-			if(res.message_id !== reaction.message.id) continue;
-			for(const roles of res.roles) {
-				if(roles.emoji_name !== reaction.emoji.name) continue;
-				const guildreactuser = reaction.message.guild?.members.cache.get(user.id);
-				guildreactuser?.roles.remove(roles.role_id);
-				break;
-			}
-			break;
-		}
-
-	});
-
 	// Listen for commands
 	client.on('interactionCreate', async interaction => {
-		if (!interaction.isCommand()) return;
+		if (!interaction.isChatInputCommand()) return;
 
 		const command = client.commands?.get(interaction.commandName);
 		if (!command) return;
@@ -150,6 +95,66 @@ async function main() {
 			} else {
 				interaction.reply(`There was an error while executing this command: ${err}`);
 			}
+		});
+	});
+
+	// Listen for added reactions
+	client.on('messageReactionAdd', async (reaction, user) => {
+		if (user.id === config.client_id) return;
+
+		// When a reaction is received, check if the structure is partial
+		if (reaction.partial) {
+			// If the message this reaction belongs to was removed, the fetching might result in an API error
+			try {
+				await reaction.fetch();
+			} catch (err) {
+				console.error(err);
+			}
+		}
+
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		Object.keys(persist.data.reaction_roles).filter((e: any) => e === reaction.message.id).forEach((res: any) => {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			persist.data.reaction_roles[res].roles.filter((e: any) => {
+				let name = e.emoji_name;
+				if (name.startsWith('<:') && name.endsWith('>')) {
+					name = name.substring(name.indexOf(':') + 1, name.lastIndexOf(':'));
+				}
+				return name === reaction.emoji.name;
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			}).forEach((roles: any) => {
+				reaction.message.guild?.members.cache.get(user.id)?.roles.add(roles.role);
+			});
+		});
+	});
+
+	// Listen for removed reactions
+	client.on('messageReactionRemove', async (reaction, user) => {
+		if (user.id === config.client_id) return;
+
+		// When a reaction is received, check if the structure is partial
+		if (reaction.partial) {
+			// If the message this reaction belongs to was removed, the fetching might result in an API error
+			try {
+				await reaction.fetch();
+			} catch (err) {
+				console.error(err);
+			}
+		}
+
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		Object.keys(persist.data.reaction_roles).filter((e: any) => e === reaction.message.id).forEach((res: any) => {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			persist.data.reaction_roles[res].roles.filter((e: any) => {
+				let name = e.emoji_name;
+				if (name.startsWith('<:') && name.endsWith('>')) {
+					name = name.substring(name.indexOf(':') + 1, name.lastIndexOf(':'));
+				}
+				return name === reaction.emoji.name;
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			}).forEach((roles: any) => {
+				reaction.message.guild?.members.cache.get(user.id)?.roles.remove(roles.role);
+			});
 		});
 	});
 
@@ -228,7 +233,7 @@ async function main() {
 	process.on('SIGINT', () => {
 		console.log('Exiting...');
 		client.destroy();
-		saveData();
+		persist.saveData();
 		process.exit();
 	});
 }

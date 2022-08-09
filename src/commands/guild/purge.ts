@@ -17,11 +17,13 @@ const Purge: Command = {
 			.setRequired(true)),
 
 	async execute(interaction: CommandInteraction) {
+		if (!interaction.isChatInputCommand()) return;
+
 		if (!interaction.channel || (interaction.channel && !interaction.channel.isTextBased())) {
 			return interaction.reply({ content: 'Purge command must be run in a text-based channel!', ephemeral: true });
 		}
 
-		let amount = interaction.options.get('amount', true).value as number;
+		let amount = interaction.options.getInteger('amount', true);
 		if (amount > config.options.message_purge_max) {
 			amount = config.options.message_purge_max;
 		}
