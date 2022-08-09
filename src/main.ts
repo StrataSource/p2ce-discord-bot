@@ -3,9 +3,10 @@ import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import fs from 'fs';
 import { Command } from './types/command';
+import { messageNeedsResponse } from './utils/autorespond';
 import * as log from './utils/log';
 import { hasPermissionLevel, PermissionLevel } from './utils/permissions';
-import { messageNeedsResponse } from './utils/autorespond';
+import { loadData, saveData } from './utils/persist';
 import { messageIsSpam } from './utils/spamprevent';
 
 import * as config from './config.json';
@@ -13,6 +14,9 @@ import * as config from './config.json';
 // Make console output better
 import consoleStamp from 'console-stamp';
 consoleStamp(console);
+
+// Load persistent storage
+loadData();
 
 interface P2CEClient extends Client {
 	commands?: Collection<string, Command>;
@@ -164,6 +168,13 @@ async function main() {
 
 	// Log in
 	client.login(config.token);
+
+	process.on('SIGINT', () => {
+		console.log('Exiting...');
+		client.destroy();
+		saveData();
+		process.exit();
+	});
 }
 
 async function updateCommands() {
