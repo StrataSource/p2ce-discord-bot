@@ -30,7 +30,7 @@
 		"canvas": "^2.9.3",
 		"console-stamp": "^3.0.6",
 		"discord-api-types": "^0.37.1",
-		"discord.js": "^14.1.2",
+		"discord.js": "^14.2.0",
 		"google-spreadsheet": "^3.3.0",
 		"moment": "^2.29.4",
 		"node-fetch": "^2.6.7"
