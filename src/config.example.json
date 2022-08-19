@@ -10,6 +10,7 @@
 		"log_errors": true,
 		"log_warnings": true,
 		"log_user_updates": true,
+		"log_user_avatar_changes": true,
 		"log_user_bans": true,
 		"log_message_deletes": true,
 		"log_message_edits": true,
