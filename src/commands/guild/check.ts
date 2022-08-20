@@ -44,7 +44,9 @@ const Check: Command = {
 		// Get plaintext username + discriminator
 		const name = interaction.user.username + '#' + interaction.user.discriminator;
 
-		// Try to find it
+		// Try to find one row where it's approved
+		let appFound = false;
+		let appDenied = false;
 		for (let i = 2; i < sheet.rowCount; i++) {
 			const cell = sheet.getCellByA1('B' + i);
 			if (name === cell.value) {
@@ -66,7 +68,8 @@ const Check: Command = {
 						switch (colorName) {
 						case 'red':
 						case 'orange':
-							return interaction.followUp('Your key application has been denied.');
+							appDenied = true;
+							break;
 						case 'yellow':
 						case 'cyan':
 							return interaction.followUp('Your key application has been approved! The key will be sent to your DMs when they are distributed next.');
@@ -75,10 +78,16 @@ const Check: Command = {
 						}
 					}
 				}
-				return interaction.followUp('Your application has not been reviewed yet.');
+				appFound = true;
 			}
 		}
-		return interaction.followUp('Your application was not found. If you have already submitted one, let a team member know.');
+		if (appDenied) {
+			return interaction.followUp('Your key application has been denied.');
+		}
+		if (appFound) {
+			return interaction.followUp('Your application has not been reviewed yet.');
+		}
+		return interaction.followUp('Your application was not found. If you have already submitted one, let a team member know.\nThe failure to find your application is likely a result of your username or discriminator changing since you submitted the application.');
 	}
 };
 export default Check;
