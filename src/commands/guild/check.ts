@@ -3,6 +3,7 @@ import { Collection, CommandInteraction } from 'discord.js';
 import { Command } from '../../types/command';
 import { PermissionLevel } from '../../utils/permissions';
 import { isSheetLoaded, sheet } from '../../utils/sheet';
+import { GoogleSpreadsheetCell } from 'google-spreadsheet';
 
 import * as config from '../../config.json';
 
@@ -48,7 +49,14 @@ const Check: Command = {
 		let appFound = false;
 		let appDenied = false;
 		for (let i = 2; i < sheet.rowCount; i++) {
-			const cell = sheet.getCellByA1('B' + i);
+			let cell: GoogleSpreadsheetCell;
+			try {
+				cell = sheet.getCellByA1('B' + i);
+			} catch (err) {
+				// make double sure, saw an error about a cell not being loaded even though they should be...
+				await sheet.loadCells('B2:B' + sheet.rowCount.toString());
+				cell = sheet.getCellByA1('B' + i);
+			}
 			if (name === cell.value) {
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				const bgColor: any = {};
