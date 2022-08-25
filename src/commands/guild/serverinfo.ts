@@ -26,7 +26,8 @@ const ServerInfo: Command = {
 
 		const creator = await interaction.guild.fetchOwner();
 
-		const channelCount = (await interaction.guild.channels.fetch()).filter(e => e.isTextBased() || e.isVoiceBased()).size;
+		// Forum channels are null in djs 14.2, when they're properly added you can change this
+		const channelCount = (await interaction.guild.channels.fetch()).filter(e => (e == null) || (e.isTextBased() || e.isVoiceBased())).size;
 
 		// Decrement by 1 because @everyone is a role
 		const roleCount = (await interaction.guild.roles.fetch()).size - 1;
