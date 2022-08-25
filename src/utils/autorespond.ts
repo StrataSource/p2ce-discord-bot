@@ -25,12 +25,30 @@ function needsCoopResponse(input: string) {
 	return false;
 }
 
-export async function messageNeedsResponse(msg: Message<boolean>): Promise<string | undefined> {
+function needsSussyResponse(input: string) {
+	return input.match(/imposter/g);
+}
+
+export function messageNeedsResponse(msg: Message<boolean>): string | undefined {
 	if (msg.author.bot || msg.cleanContent.length <= 0) return undefined;
 
 	const input = msg.cleanContent.toLowerCase();
 	if (needsCoopResponse(input)) {
 		return config.messages['coop'];
+	}
+	if (needsSussyResponse(input)) {
+		return 'amogus sus';
+	}
+
+	return undefined;
+}
+
+export function priviledgedMessageNeedsResponse(msg: Message<boolean>): string | undefined {
+	if (msg.author.bot || msg.cleanContent.length <= 0) return undefined;
+
+	const input = msg.cleanContent.toLowerCase();
+	if (needsSussyResponse(input)) {
+		return 'amogus sus';
 	}
 
 	return undefined;

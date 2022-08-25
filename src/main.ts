@@ -3,7 +3,7 @@ import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import fs from 'fs';
 import { Command } from './types/command';
-import { messageNeedsResponse } from './utils/autorespond';
+import { messageNeedsResponse, priviledgedMessageNeedsResponse } from './utils/autorespond';
 import * as log from './utils/log';
 import { hasPermissionLevel, PermissionLevel } from './utils/permissions';
 import * as persist from './utils/persist';
@@ -232,8 +232,14 @@ async function main() {
 					log.userSpamResponse(client, message);
 				}
 
-				// Check for coop query
-				const response = await messageNeedsResponse(message);
+				// Check for response
+				const response = messageNeedsResponse(message);
+				if (response) {
+					message.reply(response);
+				}
+			} else {
+				// This bit will respond to ANY USER
+				const response = priviledgedMessageNeedsResponse(message);
 				if (response) {
 					message.reply(response);
 				}
