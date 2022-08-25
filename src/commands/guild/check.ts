@@ -8,6 +8,7 @@ import { GoogleSpreadsheetCell } from 'google-spreadsheet';
 import * as config from '../../config.json';
 
 const COLORS = {
+	blank:  { red: 0, green: 0,   blue: 0 },
 	red:    { red: 1, green: 0,   blue: 0 },
 	orange: { red: 1, green: 0.6, blue: 0 },
 	yellow: { red: 1, green: 1,   blue: 0 },
@@ -83,6 +84,11 @@ const Check: Command = {
 							return interaction.followUp('Your key application has been approved! The key will be sent to your DMs when they are distributed next.');
 						case 'green':
 							return interaction.followUp('Your key application has been approved! You either already have a key, or your key will be sent to you in a few days.');
+						default:
+						case 'blank':
+							// If a cell has no background color, it hasn't been reviewed
+							appDenied = false;
+							break;
 						}
 					}
 				}
