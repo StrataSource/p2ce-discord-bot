@@ -1,5 +1,7 @@
 import fs from 'fs';
 
+import * as config from '../config.json';
+
 // Modify this interface when adding new data things, or don't if you hate TypeScript and everything it stands for
 export interface PersistentData {
 	reaction_roles: {
@@ -16,13 +18,15 @@ export interface PersistentData {
 
 export let data: PersistentData;
 
+const dataURL = `./data_${config.guild}.json`;
+
 export function loadData() {
-	if (!fs.existsSync('./data.json')) {
-		fs.writeFileSync('./data.json', fs.readFileSync('./data_default.json'));
+	if (!fs.existsSync(dataURL)) {
+		fs.writeFileSync(dataURL, fs.readFileSync('./data.default.json'));
 	}
-	data = JSON.parse(fs.readFileSync('./data.json').toString());
+	data = JSON.parse(fs.readFileSync(dataURL).toString());
 }
 
 export function saveData() {
-	fs.writeFileSync('./data.json', JSON.stringify(data, undefined, '\t') + '\n');
+	fs.writeFileSync(dataURL, JSON.stringify(data, undefined, '\t') + '\n');
 }

@@ -2,8 +2,9 @@
 .vscode/
 
 build/
+dist/
 node_modules/
 
-!config.example.json
-config*.json
-data.json
+config.json
+config_*.json
+data_*.json
