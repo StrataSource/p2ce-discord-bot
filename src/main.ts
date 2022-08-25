@@ -102,6 +102,8 @@ async function main() {
 			}
 		}
 
+		console.log(`/${interaction.commandName} run by ${interaction.user.username}#${interaction.user.discriminator}`);
+
 		command.execute(interaction).catch(err => {
 			console.error(err);
 			if (interaction.deferred) {
