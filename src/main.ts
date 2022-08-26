@@ -203,7 +203,8 @@ async function main() {
 	// Listen for deleted messages
 	if (config.options.log_message_deletes) {
 		client.on('messageDelete', async message => {
-			if (message.cleanContent) {
+			// Only responds to beta testers and members
+			if (!hasPermissionLevel(message.member, PermissionLevel.TEAM_MEMBER) && message.cleanContent) {
 				log.messageDeleted(client, message);
 			}
 		});
@@ -212,7 +213,10 @@ async function main() {
 	// Listen for edited messages
 	if (config.options.log_message_edits) {
 		client.on('messageUpdate', async (oldMessage, newMessage) => {
-			log.messageUpdated(client, oldMessage, newMessage);
+			// Only responds to beta testers and members
+			if (!hasPermissionLevel(newMessage.member, PermissionLevel.TEAM_MEMBER)) {
+				log.messageUpdated(client, oldMessage, newMessage);
+			}
 		});
 	}
 
@@ -222,7 +226,7 @@ async function main() {
 			// Only respond to messages in guilds
 			if (message.channel.isDMBased()) return;
 
-			// Only responds to members, any users with higher permissions are safe
+			// Only responds to members
 			if (!hasPermissionLevel(message.member, PermissionLevel.BETA_TESTER)) {
 				// Check for spam
 				const spamPrevention = await messageIsSpam(message);
