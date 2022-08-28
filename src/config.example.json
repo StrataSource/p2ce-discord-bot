@@ -12,6 +12,7 @@
 		"log_user_updates": true,
 		"log_user_avatar_changes": true,
 		"log_user_bans": true,
+		"log_user_joins_and_leaves": true,
 		"log_message_deletes": true,
 		"log_message_edits": true,
 		"autorespond": true,

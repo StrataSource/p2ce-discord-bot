@@ -1,4 +1,4 @@
-import { Client, GuildBan, GuildTextBasedChannel, Message, EmbedBuilder, PartialMessage, PartialUser, User } from 'discord.js';
+import { Client, GuildBan, GuildTextBasedChannel, Message, EmbedBuilder, PartialMessage, PartialUser, User, GuildMember, PartialGuildMember } from 'discord.js';
 
 import * as config from '../config.json';
 
@@ -40,12 +40,16 @@ export function userUpdate(client: Client, user1: User | PartialUser, user2: Use
 		message(client, 'USER', LogLevelColor.INFO, `**${user1.username}#${user1.discriminator}** changed their username to **${user2.username}#${user2.discriminator}**`);
 	}
 	if (config.options.log_user_avatar_changes && user1.avatar !== user2.avatar) {
-		message(client, 'USER', LogLevelColor.INFO, `<@${user1.id}> changed their avatar`, user2.avatarURL());
+		message(client, 'USER', LogLevelColor.INFO, `<@${user1.id}> changed their avatar`, user2.avatarURL({ size: 1024 }));
 	}
 }
 
 export function userBanned(client: Client, ban: GuildBan) {
-	message(client, 'BAN', LogLevelColor.IMPORTANT, `<@${ban.user.id}> was banned`, ban.user.avatarURL());
+	message(client, 'BAN', LogLevelColor.IMPORTANT, `<@${ban.user.id}> was banned`, ban.user.avatarURL({ size: 1024 }));
+}
+
+export function userLeft(client: Client, member: GuildMember | PartialGuildMember) {
+	message(client, 'USER', LogLevelColor.INFO, `<@${member.id}> left the server 😭`, member.avatarURL({ size: 1024 }));
 }
 
 export function userSpamResponse(client: Client, msg: Message<boolean> | PartialMessage){
@@ -55,15 +59,15 @@ export function userSpamResponse(client: Client, msg: Message<boolean> | Partial
 export function messageDeleted(client: Client, msg: Message<boolean> | PartialMessage) {
 	if (msg.author?.bot || !msg.author?.username) return undefined;
 	if (msg.cleanContent) {
-		message(client, 'MESSAGE', LogLevelColor.INFO, `A message from <@${msg.author?.id}> was deleted in ${msg.channel.toString()}\n\nContents: \`\`\`${msg.cleanContent}\`\`\``, msg.author?.avatarURL());
+		message(client, 'MESSAGE', LogLevelColor.INFO, `A message from <@${msg.author?.id}> was deleted in ${msg.channel.toString()}\n\nContents: \`\`\`${msg.cleanContent}\`\`\``, msg.author?.avatarURL({ size: 1024 }));
 	} else {
-		message(client, 'MESSAGE', LogLevelColor.INFO, `A message from <@${msg.author?.id}> was deleted in ${msg.channel.toString()}\n\nThe message did not contain any text.`, msg.author?.avatarURL());
+		message(client, 'MESSAGE', LogLevelColor.INFO, `A message from <@${msg.author?.id}> was deleted in ${msg.channel.toString()}\n\nThe message did not contain any text.`, msg.author?.avatarURL({ size: 1024 }));
 	}
 }
 
 export function messageUpdated(client: Client, oldMessage: Message<boolean> | PartialMessage, newMessage: Message<boolean> | PartialMessage) {
 	if (oldMessage.author?.bot || !oldMessage.author?.username) return;
 	if (oldMessage.content !== newMessage.content) {
-		message(client, 'MESSAGE', LogLevelColor.INFO, `A message from <@${newMessage.author?.id}> was edited in ${oldMessage.channel.toString()}\n\nBefore: \`\`\`${oldMessage.cleanContent}\`\`\`\nAfter: \`\`\`${newMessage.cleanContent}\`\`\``, newMessage.author?.avatarURL());
+		message(client, 'MESSAGE', LogLevelColor.INFO, `A message from <@${newMessage.author?.id}> was edited in ${oldMessage.channel.toString()}\n\nBefore: \`\`\`${oldMessage.cleanContent}\`\`\`\nAfter: \`\`\`${newMessage.cleanContent}\`\`\``, newMessage.author?.avatarURL({ size: 1024 }));
 	}
 }

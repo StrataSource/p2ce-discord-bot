@@ -251,6 +251,24 @@ async function main() {
 		});
 	}
 
+	if (config.options.log_user_joins_and_leaves) {
+		// Listen for members joining
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		client.on('guildMemberAdd', async _member => {
+			// No logging here, it's unnecessary
+			persist.data.statistics.joins++;
+			persist.saveData();
+		});
+
+		// Listen for members leaving
+		client.on('guildMemberRemove', async member => {
+			persist.data.statistics.leaves++;
+			persist.saveData();
+
+			log.userLeft(client, member);
+		});
+	}
+
 	// Log in
 	client.login(config.token);
 

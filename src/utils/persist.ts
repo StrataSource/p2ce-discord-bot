@@ -14,6 +14,10 @@ export interface PersistentData {
 		},
 	};
 	watched_threads: Array<string>;
+	statistics: {
+		joins: number,
+		leaves: number
+	}
 }
 
 export let data: PersistentData;
