@@ -6,7 +6,7 @@ import { PermissionLevel } from '../../utils/permissions';
 import * as persist from '../../utils/persist';
 
 const ServerStats: Command = {
-	permissionLevel: PermissionLevel.MODERATOR,
+	permissionLevel: PermissionLevel.TEAM_MEMBER,
 
 	data: new SlashCommandBuilder()
 		.setName('serverstats')
