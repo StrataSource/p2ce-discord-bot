@@ -1,4 +1,5 @@
 import { Client, GuildBan, GuildTextBasedChannel, Message, EmbedBuilder, PartialMessage, PartialUser, User, GuildMember, PartialGuildMember } from 'discord.js';
+import fs from 'fs';
 
 import * as config from '../config.json';
 
@@ -9,29 +10,44 @@ export enum LogLevelColor {
 	ERROR = '#ff0000',
 }
 
+export const logPath = `./log_${config.guild}.txt`;
+
+export function writeToLog(message: string) {
+	console.log(message);
+
+	if (!fs.existsSync(logPath)) {
+		fs.writeFileSync(logPath, '');
+	}
+	fs.appendFileSync(logPath, message + '\n');
+}
+
 export function getLogChannel(client: Client): GuildTextBasedChannel | undefined {
 	const channel = client.guilds.resolve(config.guild)?.channels.resolve(config.channels.log);
-	if (!channel || !(channel.isTextBased() || channel.isThread())) return undefined;
+	if (!channel || !(channel.isTextBased() || channel.isThread())) {
+		return undefined;
+	}
 	return channel;
 }
 
 export function message(client: Client, title: string, color: LogLevelColor, msg: string, thumb: string | null = null) {
+	writeToLog(`[${title}] ${msg}`);
+
 	const embed = new EmbedBuilder()
 		.setColor(color)
 		.setTitle(title)
 		.setDescription(msg)
 		.setTimestamp();
-	if (thumb) embed.setThumbnail(thumb);
+	if (thumb) {
+		embed.setThumbnail(thumb);
+	}
 	getLogChannel(client)?.send({ embeds: [embed] });
 }
 
 export function error(client: Client, msg: Error) {
-	console.log(`Error: ${message}`);
 	message(client, 'ERROR', LogLevelColor.ERROR, `${msg.name}: ${msg.message}`);
 }
 
 export function warning(client: Client, msg: string) {
-	console.log(`Warning: ${message}`);
 	message(client, 'WARNING', LogLevelColor.WARNING, msg);
 }
 

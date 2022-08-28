@@ -25,11 +25,12 @@ interface P2CEClient extends Client {
 async function main() {
 	// You need a token, duh
 	if (!config.token) {
-		console.log('Error: No token found in config.json!');
+		log.writeToLog('[ERROR] No token found in config.json!');
 		return;
 	}
 
-	console.log('Starting...');
+	const date = new Date();
+	log.writeToLog(`--- START AT ${date.toDateString()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ---`);
 
 	// Create client
 	const client: P2CEClient = new Client({
@@ -66,7 +67,7 @@ async function main() {
 	client.on('ready', async () => {
 		client.user?.setActivity('this server', { type: ActivityType.Watching });
 		setTimeout(() => client.user?.setActivity('this server', { type: ActivityType.Watching }), 30e3);
-		console.log(`Logged in as ${client.user?.tag}`);
+		log.writeToLog(`[INFO] Logged in as ${client.user?.tag}`);
 	});
 
 	// Listen for errors
@@ -102,10 +103,9 @@ async function main() {
 			}
 		}
 
-		console.log(`/${interaction.commandName} run by ${interaction.user.username}#${interaction.user.discriminator}`);
-
+		log.writeToLog(`/${interaction.commandName} run by ${interaction.user.username}#${interaction.user.discriminator}`);
 		command.execute(interaction).catch(err => {
-			console.error(err);
+			log.writeToLog((err as Error).toString());
 			if (interaction.deferred) {
 				interaction.followUp(`There was an error while executing this command: ${err}`);
 			} else {
@@ -124,7 +124,7 @@ async function main() {
 			try {
 				await reaction.fetch();
 			} catch (err) {
-				console.error(err);
+				log.writeToLog((err as Error).toString());
 			}
 		}
 
@@ -152,7 +152,7 @@ async function main() {
 			try {
 				await reaction.fetch();
 			} catch (err) {
-				console.error(err);
+				log.writeToLog((err as Error).toString());
 			}
 		}
 
@@ -273,7 +273,8 @@ async function main() {
 	client.login(config.token);
 
 	process.on('SIGINT', () => {
-		console.log('Exiting...');
+		const date = new Date();
+		log.writeToLog(`--- STOP AT ${date.toDateString()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ---`);
 		client.destroy();
 		persist.saveData();
 		process.exit();

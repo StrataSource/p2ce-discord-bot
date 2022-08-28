@@ -13,7 +13,9 @@ const Purge: Command = {
 		.setDescription('Deletes the given amount of messages.')
 		.addIntegerOption(option => option
 			.setName('amount')
-			.setDescription(`The amount of messages to delete. Capped at ${config.options.message_purge_max}`)
+			.setDescription('The amount of messages to delete')
+			.setMinValue(1)
+			.setMaxValue(config.options.message_purge_max)
 			.setRequired(true)),
 
 	async execute(interaction: CommandInteraction) {
@@ -23,16 +25,9 @@ const Purge: Command = {
 			return interaction.reply({ content: 'Purge command must be run in a text-based channel!', ephemeral: true });
 		}
 
-		let amount = interaction.options.getInteger('amount', true);
-		if (amount > config.options.message_purge_max) {
-			amount = config.options.message_purge_max;
-		}
-		if (amount > 100) {
-			amount = 100;
-		}
-
+		const amount = interaction.options.getInteger('amount', true);
 		const messages = await interaction.channel.messages.fetch({ limit: amount });
-		(interaction.channel as TextChannel).bulkDelete(messages).catch(console.error);
+		(interaction.channel as TextChannel).bulkDelete(messages);
 
 		return interaction.reply({ content: `Purged ${amount} messages!`, ephemeral: true });
 	}
