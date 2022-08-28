@@ -45,11 +45,11 @@ export function userUpdate(client: Client, user1: User | PartialUser, user2: Use
 }
 
 export function userBanned(client: Client, ban: GuildBan) {
-	message(client, 'BAN', LogLevelColor.IMPORTANT, `<@${ban.user.id}> was banned`, ban.user.avatarURL({ size: 1024 }));
+	message(client, 'BAN', LogLevelColor.IMPORTANT, `<@${ban.user.id}> (${ban.user.username}#${ban.user.discriminator}) was banned`, ban.user.avatarURL({ size: 1024 }));
 }
 
 export function userLeft(client: Client, member: GuildMember | PartialGuildMember) {
-	message(client, 'USER', LogLevelColor.INFO, `<@${member.id}> left the server 😭`, member.avatarURL({ size: 1024 }));
+	message(client, 'USER', LogLevelColor.INFO, `<@${member.id}> (${member.user.username}#${member.user.discriminator}) left the server 😭`, member.avatarURL({ size: 1024 }));
 }
 
 export function userSpamResponse(client: Client, msg: Message<boolean> | PartialMessage){
