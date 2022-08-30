@@ -16,12 +16,11 @@ const ServerInfo: Command = {
 			return interaction.reply('This command can only be ran in a server.');
 		}
 
-		let description = (interaction.guild.description && interaction.guild.description.length > 0) ? interaction.guild.description : 'Server has no description.';
-		const emojis = (await interaction.guild.emojis.fetch()).map(e => e).join(' ');
+		const description = (interaction.guild.description && interaction.guild.description.length > 0) ? interaction.guild.description : 'Server has no description.';
+
+		let emojis = (await interaction.guild.emojis.fetch()).map(e => e).join(' ');
 		if (emojis.length == 0) {
-			description += '\n\nThis server has no emojis.';
-		} else {
-			description += '\n\nServer Emoji:\n' + emojis;
+			emojis = 'This server has no emojis.';
 		}
 
 		const creator = await interaction.guild.fetchOwner();
@@ -38,8 +37,10 @@ const ServerInfo: Command = {
 			.setDescription(description)
 			.setThumbnail(interaction.guild.iconURL({ size: 1024 }))
 			.addFields(
-				{ name: 'Created On', value: `<t:${Math.round(interaction.guild.createdTimestamp / 1000)}:f>` },
-				{ name: 'Created By', value: `<@${creator.user.id}>` },
+				{ name: 'Server Emoji', value: emojis },
+				{ name: 'Created On', value: `<t:${Math.round(interaction.guild.createdTimestamp / 1000)}:f>`, inline: true },
+				{ name: 'Created By', value: `<@${creator.user.id}>`, inline: true },
+				{ name: 'Partner Server', value: `${interaction.guild.partnered ? 'Yes' : 'No'}`, inline: true },
 				{ name: 'Users', value: `${interaction.guild.memberCount}`, inline: true },
 				{ name: 'Channels', value: `${channelCount}`, inline: true },
 				{ name: 'Roles', value: `${roleCount}`, inline: true }
