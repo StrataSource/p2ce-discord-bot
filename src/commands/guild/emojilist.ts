@@ -16,7 +16,7 @@ const EmojiList: Command = {
 			return interaction.reply('This command can only be ran in a server.');
 		}
 
-		const emojis = interaction.guild.emojis.cache.map(e => `${e} - \`:${e.name}:\``).join('\n');
+		const emojis = (await interaction.guild.emojis.fetch()).map(e => `${e} - \`:${e.name}:\``).join('\n');
 
 		const embed = new EmbedBuilder()
 			.setColor(LogLevelColor.INFO)
