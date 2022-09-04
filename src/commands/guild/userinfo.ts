@@ -9,23 +9,20 @@ const UserInfo: Command = {
 
 	data: new SlashCommandBuilder()
 		.setName('userinfo')
-		.setDescription('Displays the user information of the message author.'),
+		.setDescription('Displays some information about the given user.')
+		.addUserOption(option => option
+			.setName('user')
+			.setDescription('The name of the user')),
 
 	async execute(interaction: CommandInteraction) {
 		const user = interaction.options.getUser('user') ?? interaction.user;
-		const name = `${user.username}#${user.discriminator}`;
-		const avatar = user.avatarURL({ size: 1024 });
-
 		const embed = new EmbedBuilder()
 			.setColor(LogLevelColor.INFO)
-			.setTitle(user.username)
-			.setAuthor({ name: name, iconURL: avatar ?? undefined })
-			.setDescription(`Your ID: ${user.id}`)
-			.setThumbnail(avatar)
-			.addFields({
-				name: 'Joined Discord',
-				value: `<t:${(user.createdAt.getTime() / 1000).toFixed(0)}:D>`,
-			})
+			.setAuthor({ name: `${user.username}#${user.discriminator}`, iconURL: user.avatarURL({ size: 1024 }) ?? undefined })
+			.setThumbnail(user.displayAvatarURL({ size: 1024 }))
+			.addFields(
+				{ name: 'User ID', value: `\`${user.id}\`` },
+				{ name: 'Joined Discord', value: `<t:${(user.createdAt.getTime() / 1000).toFixed(0)}:D>` })
 			.setTimestamp();
 
 		return interaction.reply({ embeds: [embed] });

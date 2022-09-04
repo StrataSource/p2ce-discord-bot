@@ -43,8 +43,8 @@ const ServerInfo: Command = {
 				{ name: 'Partner Server', value: `${interaction.guild.partnered ? 'Yes' : 'No'}`, inline: true },
 				{ name: 'Users', value: `${interaction.guild.memberCount}`, inline: true },
 				{ name: 'Channels', value: `${channelCount}`, inline: true },
-				{ name: 'Roles', value: `${roleCount}`, inline: true }
-			).setTimestamp();
+				{ name: 'Roles', value: `${roleCount}`, inline: true })
+			.setTimestamp();
 		return interaction.reply({ embeds: [embed] });
 	}
 };

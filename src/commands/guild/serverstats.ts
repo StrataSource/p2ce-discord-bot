@@ -36,8 +36,8 @@ const ServerStats: Command = {
 				{ name: 'Roles', value: `${roleCount}`, inline: true },
 				{ name: 'Joins', value: `${joins}`, inline: true },
 				{ name: 'Leaves', value: `${leaves}`, inline: true },
-				{ name: 'J/L Ratio', value: `${joins / leaves}`, inline: true }
-			).setTimestamp();
+				{ name: 'J/L Ratio', value: `${joins / leaves}`, inline: true })
+			.setTimestamp();
 		return interaction.reply({ embeds: [embed] });
 	}
 };
