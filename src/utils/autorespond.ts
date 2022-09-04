@@ -25,9 +25,12 @@ function needsCoopResponse(input: string) {
 	return false;
 }
 
+// Disabled this response because the server was being really immature about it
+/*
 function needsSussyResponse(input: string) {
 	return input.match(/imposter/g);
 }
+*/
 
 export function messageNeedsResponse(msg: Message<boolean>): string | undefined {
 	if (msg.author.bot || msg.cleanContent.length <= 0) return undefined;
@@ -36,9 +39,11 @@ export function messageNeedsResponse(msg: Message<boolean>): string | undefined 
 	if (needsCoopResponse(input)) {
 		return config.messages['coop'];
 	}
+	/*
 	if (needsSussyResponse(input)) {
 		return 'amogus sus';
 	}
+	*/
 
 	return undefined;
 }
@@ -46,10 +51,13 @@ export function messageNeedsResponse(msg: Message<boolean>): string | undefined 
 export function priviledgedMessageNeedsResponse(msg: Message<boolean>): string | undefined {
 	if (msg.author.bot || msg.cleanContent.length <= 0) return undefined;
 
-	const input = msg.cleanContent.toLowerCase();
+	//const input = msg.cleanContent.toLowerCase();
+
+	/*
 	if (needsSussyResponse(input)) {
 		return 'amogus sus';
 	}
+	*/
 
 	return undefined;
 }
