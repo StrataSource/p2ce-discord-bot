@@ -29,7 +29,9 @@ const UserInfo: Command = {
             .addFields(
                 {
                     name: "Joined Discord",
-                    value: user.createdAt.toDateString(),
+                    value: `<t:${(user.createdAt.getTime() / 1000).toFixed(
+                        0
+                    )}:D>`,
                 },
                 { name: "\u200B", value: "\u200B" }
             )
