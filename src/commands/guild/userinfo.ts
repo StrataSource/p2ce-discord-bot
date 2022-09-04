@@ -14,7 +14,7 @@ const UserInfo: Command = {
     async execute(interaction: CommandInteraction) {
         const user = interaction.options.getUser("user") ?? interaction.user;
         const name = `${user.username}#${user.discriminator}`;
-        const avatar = user.avatarURL() ?? "";
+        const avatar = user.avatarURL({ size: 1024 }) ?? "";
 
         // The EMBED
         const embed = new EmbedBuilder()
