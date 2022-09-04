@@ -52,6 +52,7 @@ export function warning(client: Client, msg: string) {
 }
 
 export function userUpdate(client: Client, user1: User | PartialUser, user2: User) {
+	if (config.options.log.user_exceptions.includes(user2.id)) return;
 	if (user1.username !== user2.username) {
 		message(client, 'USER', LogLevelColor.INFO, `**${user1.username}#${user1.discriminator}** changed their username to **${user2.username}#${user2.discriminator}**`);
 	}
@@ -68,12 +69,13 @@ export function userLeft(client: Client, member: GuildMember | PartialGuildMembe
 	message(client, 'USER', LogLevelColor.INFO, `<@${member.id}> (${member.user.username}#${member.user.discriminator}) left the server 😭`, member.avatarURL({ size: 1024 }));
 }
 
-export function userSpamResponse(client: Client, msg: Message<boolean> | PartialMessage){
+export function userSpamResponse(client: Client, msg: Message<boolean> | PartialMessage) {
 	message(client, 'SPAM', LogLevelColor.IMPORTANT, `User <@${msg.author?.id}> sent more than ${config.options.spam.max_mentions} mentions and has been timed out for ${config.options.spam.timeout_duration_minutes} minutes.`);
 }
 
 export function messageDeleted(client: Client, msg: Message<boolean> | PartialMessage) {
-	if (msg.author?.bot || !msg.author?.username) return undefined;
+	if (msg.author?.bot || !msg.author?.username) return;
+	if (config.options.log.user_exceptions.includes(msg.author.id)) return;
 	if (msg.cleanContent) {
 		message(client, 'MESSAGE', LogLevelColor.INFO, `A message from <@${msg.author?.id}> was deleted in ${msg.channel.toString()}\n\nContents: \`\`\`${msg.cleanContent}\`\`\``, msg.author?.avatarURL({ size: 1024 }));
 	} else {
@@ -83,6 +85,7 @@ export function messageDeleted(client: Client, msg: Message<boolean> | PartialMe
 
 export function messageUpdated(client: Client, oldMessage: Message<boolean> | PartialMessage, newMessage: Message<boolean> | PartialMessage) {
 	if (oldMessage.author?.bot || !oldMessage.author?.username) return;
+	if (config.options.log.user_exceptions.includes(oldMessage.author.id)) return;
 	if (oldMessage.content !== newMessage.content) {
 		message(client, 'MESSAGE', LogLevelColor.INFO, `A message from <@${newMessage.author?.id}> was edited in ${oldMessage.channel.toString()}\n\nBefore: \`\`\`${oldMessage.cleanContent}\`\`\`\nAfter: \`\`\`${newMessage.cleanContent}\`\`\``, newMessage.author?.avatarURL({ size: 1024 }));
 	}

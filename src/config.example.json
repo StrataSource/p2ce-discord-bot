@@ -16,6 +16,7 @@
 			"user_joins_and_leaves": true,
 			"message_deletes": true,
 			"message_edits": true,
+			"user_exceptions": []
 		},
 
 		"spam": {
