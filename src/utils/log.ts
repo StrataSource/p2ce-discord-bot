@@ -69,7 +69,7 @@ export function userLeft(client: Client, member: GuildMember | PartialGuildMembe
 }
 
 export function userSpamResponse(client: Client, msg: Message<boolean> | PartialMessage){
-	message(client, 'SPAM', LogLevelColor.IMPORTANT, `User <@${msg.author?.id}> sent more than ${config.options.spam_max_mentions} mentions and has been timed out for ${config.options.spam_timeout_duration_minutes} minutes.`);
+	message(client, 'SPAM', LogLevelColor.IMPORTANT, `User <@${msg.author?.id}> sent more than ${config.options.spam.max_mentions} mentions and has been timed out for ${config.options.spam.timeout_duration_minutes} minutes.`);
 }
 
 export function messageDeleted(client: Client, msg: Message<boolean> | PartialMessage) {
