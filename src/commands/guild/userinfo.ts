@@ -30,12 +30,7 @@ const UserInfo: Command = {
                 name: "Joined Discord",
                 value: `<t:${(user.createdAt.getTime() / 1000).toFixed(0)}:D>`,
             })
-            .setTimestamp()
-            .setFooter({
-                text: "Morality Core",
-                iconURL:
-                    "https://images-ext-2.discordapp.net/external/eH-_P4JXW9et_xYOdaWUlVc0vcS18n0UNL6-Y81Q0js/https/cdn.discordapp.com/avatars/945775761107857408/1c2481ba0874b2df26bb38798ee9837d.webp",
-            });
+            .setTimestamp();
 
         return interaction.reply({ embeds: [embed] });
     },
