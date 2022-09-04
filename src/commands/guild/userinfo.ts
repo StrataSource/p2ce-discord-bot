@@ -26,15 +26,10 @@ const UserInfo: Command = {
             })
             .setDescription(`Your ID: ${user.id}`)
             .setThumbnail(avatar)
-            .addFields(
-                {
-                    name: "Joined Discord",
-                    value: `<t:${(user.createdAt.getTime() / 1000).toFixed(
-                        0
-                    )}:D>`,
-                },
-                { name: "\u200B", value: "\u200B" }
-            )
+            .addFields({
+                name: "Joined Discord",
+                value: `<t:${(user.createdAt.getTime() / 1000).toFixed(0)}:D>`,
+            })
             .setTimestamp()
             .setFooter({
                 text: "Morality Core",
