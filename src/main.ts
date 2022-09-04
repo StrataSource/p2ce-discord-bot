@@ -229,11 +229,14 @@ async function main() {
 			// Only responds to members
 			if (!hasPermissionLevel(message.member, PermissionLevel.BETA_TESTER)) {
 				// Check for spam
-				const spamPrevention = await messageIsSpam(message);
-				if (spamPrevention && message.deletable) {
-					message.delete();
-					message.member?.timeout(config.options.spam_timeout_duration_minutes * 1000 * 60, 'Spamming @mentions');
-					log.userSpamResponse(client, message);
+				if (config.options.spam.enabled) {
+					messageIsSpam(message).then(spam => {
+						if (spam && message.deletable) {
+							message.delete();
+							message.member?.timeout(config.options.spam.timeout_duration_minutes * 1000 * 60, 'Spamming @mentions');
+							log.userSpamResponse(client, message);
+						}
+					});
 				}
 
 				// Check for response
