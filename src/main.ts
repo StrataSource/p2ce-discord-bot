@@ -71,14 +71,14 @@ async function main() {
 	});
 
 	// Listen for errors
-	if (config.options.log_errors) {
+	if (config.options.log.errors) {
 		client.on('error', async error => {
 			log.error(client, error);
 		});
 	}
 
 	// Listen for warnings
-	if (config.options.log_warnings) {
+	if (config.options.log.warnings) {
 		client.on('warn', async warn => {
 			log.warning(client, warn);
 		});
@@ -187,21 +187,21 @@ async function main() {
 	});
 
 	// Listen for presence updates
-	if (config.options.log_user_updates) {
+	if (config.options.log.user_updates) {
 		client.on('userUpdate', async (oldUser, newUser) => {
 			log.userUpdate(client, oldUser, newUser);
 		});
 	}
 
 	// Listen for banned members
-	if (config.options.log_user_bans) {
+	if (config.options.log.user_bans) {
 		client.on('guildBanAdd', async ban => {
 			log.userBanned(client, ban);
 		});
 	}
 
 	// Listen for deleted messages
-	if (config.options.log_message_deletes) {
+	if (config.options.log.message_deletes) {
 		client.on('messageDelete', async message => {
 			// Only responds to beta testers and members
 			if (!hasPermissionLevel(message.member, PermissionLevel.TEAM_MEMBER) && message.cleanContent) {
@@ -211,7 +211,7 @@ async function main() {
 	}
 
 	// Listen for edited messages
-	if (config.options.log_message_edits) {
+	if (config.options.log.message_edits) {
 		client.on('messageUpdate', async (oldMessage, newMessage) => {
 			// Only responds to beta testers and members
 			if (!hasPermissionLevel(newMessage.member, PermissionLevel.TEAM_MEMBER)) {
@@ -221,7 +221,7 @@ async function main() {
 	}
 
 	// Listen for messages to respond to
-	if (config.options.autorespond) {
+	if (config.options.misc.autorespond) {
 		client.on('messageCreate', async message => {
 			// Only respond to messages in guilds
 			if (message.channel.isDMBased()) return;
@@ -254,7 +254,7 @@ async function main() {
 		});
 	}
 
-	if (config.options.log_user_joins_and_leaves) {
+	if (config.options.log.user_joins_and_leaves) {
 		// Listen for members joining
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		client.on('guildMemberAdd', async _member => {

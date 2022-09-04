@@ -15,7 +15,7 @@ const Purge: Command = {
 			.setName('amount')
 			.setDescription('The amount of messages to delete')
 			.setMinValue(1)
-			.setMaxValue(config.options.message_purge_max)
+			.setMaxValue(config.options.misc.message_purge_max)
 			.setRequired(true)),
 
 	async execute(interaction: CommandInteraction) {

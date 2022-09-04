@@ -7,22 +7,27 @@
 	"key_application_sheet_id": "",
 
 	"options": {
-		"log_errors": true,
-		"log_warnings": true,
-		"log_user_updates": true,
-		"log_user_avatar_changes": true,
-		"log_user_bans": true,
-		"log_user_joins_and_leaves": true,
-		"log_message_deletes": true,
-		"log_message_edits": true,
-		"autorespond": true,
-		"key_check_hours_to_wait": 24,
-		"message_purge_max": 50,
+		"log": {
+			"errors": true,
+			"warnings": true,
+			"user_updates": true,
+			"user_avatar_changes": true,
+			"user_bans": true,
+			"user_joins_and_leaves": true,
+			"message_deletes": true,
+			"message_edits": true,
+		},
 
 		"spam": {
 			"enabled": true,
 			"max_mentions": 6,
 			"timeout_duration_minutes": 2
+		},
+
+		"misc": {
+			"autorespond": true,
+			"key_check_hours_to_wait": 1,
+			"message_purge_max": 50
 		}
 	},
 

@@ -55,7 +55,7 @@ export function userUpdate(client: Client, user1: User | PartialUser, user2: Use
 	if (user1.username !== user2.username) {
 		message(client, 'USER', LogLevelColor.INFO, `**${user1.username}#${user1.discriminator}** changed their username to **${user2.username}#${user2.discriminator}**`);
 	}
-	if (config.options.log_user_avatar_changes && user1.avatar !== user2.avatar) {
+	if (config.options.log.user_avatar_changes && user1.avatar !== user2.avatar) {
 		message(client, 'USER', LogLevelColor.INFO, `<@${user1.id}> changed their avatar`, user2.avatarURL({ size: 1024 }));
 	}
 }
