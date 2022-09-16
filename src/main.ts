@@ -1,3 +1,5 @@
+// noinspection JSIgnoredPromiseFromCall
+
 import { ActivityType, Client, Collection, GuildMember, IntentsBitField, Partials } from 'discord.js';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
@@ -95,10 +97,13 @@ async function main() {
 		// This is a backup to Discord's own permissions stuff in case that breaks
 		if (!interaction.channel?.isDMBased() && !hasPermissionLevel(interaction.member as GuildMember, command.permissionLevel)) {
 			if (interaction.deferred) {
-				interaction.followUp('You do not have permission to execute this command!');
+				await interaction.followUp('You do not have permission to execute this command!');
 				return;
 			} else {
-				interaction.reply({ content: 'You do not have permission to execute this command!', ephemeral: true });
+				await interaction.reply({
+					content: 'You do not have permission to execute this command!',
+					ephemeral: true
+				});
 				return;
 			}
 		}
@@ -173,7 +178,7 @@ async function main() {
 	// Listen for thread changes
 	client.on('threadUpdate', async (oldThread, newThread) => {
 		if (persist.data.watched_threads.includes(newThread.id) && !oldThread.archived && newThread.archived) {
-			newThread.setArchived(false);
+			await newThread.setArchived(false);
 		}
 	});
 
@@ -242,13 +247,13 @@ async function main() {
 				// Check for response
 				const response = messageNeedsResponse(message);
 				if (response) {
-					message.reply(response);
+					await message.reply(response);
 				}
 			} else {
 				// This bit will respond to ANY USER
 				const response = priviledgedMessageNeedsResponse(message);
 				if (response) {
-					message.reply(response);
+					await message.reply(response);
 				}
 			}
 		});
@@ -275,7 +280,7 @@ async function main() {
 	}
 
 	// Log in
-	client.login(config.token);
+	await client.login(config.token);
 
 	process.on('SIGINT', () => {
 		const date = new Date();
