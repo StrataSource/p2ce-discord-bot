@@ -27,7 +27,7 @@ const Purge: Command = {
 
 		const amount = interaction.options.getInteger('amount', true);
 		const messages = await interaction.channel.messages.fetch({ limit: amount });
-		(interaction.channel as TextChannel).bulkDelete(messages);
+		await (interaction.channel as TextChannel).bulkDelete(messages);
 
 		return interaction.reply({ content: `Purged ${amount} messages!`, ephemeral: true });
 	}
