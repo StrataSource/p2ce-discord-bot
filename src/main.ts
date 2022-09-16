@@ -254,15 +254,17 @@ async function main() {
 		});
 	}
 
-	if (config.options.log.user_joins_and_leaves) {
-		// Listen for members joining
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		client.on('guildMemberAdd', async _member => {
+	// Listen for members joining
+	client.on('guildMemberAdd', async member => {
+		if (config.options.log.user_joins_and_leaves) {
 			// No logging here, it's unnecessary
 			persist.data.statistics.joins++;
 			persist.saveData();
-		});
+		}
+		await member.roles.add( config.roles.member );
+	});
 
+	if (config.options.log.user_joins_and_leaves) {
 		// Listen for members leaving
 		client.on('guildMemberRemove', async member => {
 			persist.data.statistics.leaves++;
