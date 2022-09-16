@@ -1,4 +1,5 @@
 /* eslint-disable no-fallthrough */
+// noinspection FallThroughInSwitchStatementJS
 
 import { GuildMember } from 'discord.js';
 
