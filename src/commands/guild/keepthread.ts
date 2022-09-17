@@ -17,7 +17,7 @@ const KeepThread: Command = {
 			.addChannelOption(option => option
 				.setName('thread')
 				.setDescription('The thread to keep open')
-				.addChannelTypes(ChannelType.GuildPublicThread, ChannelType.GuildPrivateThread)
+				.addChannelTypes(ChannelType.PublicThread, ChannelType.PrivateThread)
 				.setRequired(true)))
 		.addSubcommand(subcommand => subcommand
 			.setName('list')
@@ -28,7 +28,7 @@ const KeepThread: Command = {
 			.addChannelOption(option => option
 				.setName('thread')
 				.setDescription('The thread to stop watching')
-				.addChannelTypes(ChannelType.GuildPublicThread, ChannelType.GuildPrivateThread)
+				.addChannelTypes(ChannelType.PublicThread, ChannelType.PrivateThread)
 				.setRequired(true))),
 
 	async execute(interaction: CommandInteraction) {
