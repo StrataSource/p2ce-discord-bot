@@ -62,7 +62,11 @@ export function userUpdate(client: Client, user1: User | PartialUser, user2: Use
 }
 
 export function userBanned(client: Client, ban: GuildBan) {
-	message(client, 'BAN', LogLevelColor.IMPORTANT, `<@${ban.user.id}> (${ban.user.username}#${ban.user.discriminator}) was banned`, ban.user.avatarURL({ size: 1024 }));
+	message(client, 'BAN', LogLevelColor.IMPORTANT, `<@${ban.user.id}> (${ban.user.username}#${ban.user.discriminator}) was banned 😈`, ban.user.avatarURL({ size: 1024 }));
+}
+
+export function userJoined(client: Client, member: GuildMember | PartialGuildMember) {
+	message(client, 'USER', LogLevelColor.INFO, `<@${member.id}> (${member.user.username}#${member.user.discriminator}) joined the server 😊`, member.avatarURL({ size: 1024 }));
 }
 
 export function userLeft(client: Client, member: GuildMember | PartialGuildMember) {
@@ -86,7 +90,7 @@ export function messageDeleted(client: Client, msg: Message<boolean> | PartialMe
 export function messageUpdated(client: Client, oldMessage: Message<boolean> | PartialMessage, newMessage: Message<boolean> | PartialMessage) {
 	if (oldMessage.author?.bot || !oldMessage.author?.username) return;
 	if (config.options.log.user_exceptions.includes(oldMessage.author.id)) return;
-	if (oldMessage.content !== newMessage.content) {
+	if (oldMessage.cleanContent !== newMessage.cleanContent) {
 		message(client, 'MESSAGE', LogLevelColor.INFO, `A message from <@${newMessage.author?.id}> was edited in ${oldMessage.channel.toString()}\n\nBefore: \`\`\`${oldMessage.cleanContent}\`\`\`\nAfter: \`\`\`${newMessage.cleanContent}\`\`\``, newMessage.author?.avatarURL({ size: 1024 }));
 	}
 }

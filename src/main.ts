@@ -262,10 +262,13 @@ async function main() {
 	// Listen for members joining
 	client.on('guildMemberAdd', async member => {
 		if (config.options.log.user_joins_and_leaves) {
-			// No logging here, it's unnecessary
 			persist.data.statistics.joins++;
 			persist.saveData();
+
+			log.userJoined(client, member);
 		}
+
+		// Add the member role to the user so they can use the server
 		await member.roles.add(config.roles.member);
 	});
 
