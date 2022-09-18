@@ -266,7 +266,7 @@ async function main() {
 			persist.data.statistics.joins++;
 			persist.saveData();
 		}
-		await member.roles.add( config.roles.member );
+		await member.roles.add(config.roles.member);
 	});
 
 	if (config.options.log.user_joins_and_leaves) {
