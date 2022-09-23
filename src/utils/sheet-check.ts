@@ -11,6 +11,7 @@ const COLORS = {
 	yellow: { red: 1, green: 1,   blue: 0 },
 	cyan:   { red: 0, green: 1,   blue: 1 },
 	green:  { red: 0, green: 1,   blue: 0 },
+    purple: { red: 0.6, green: 0, blue: 1 },
 };
 
 // I don't care if this gets flushed when the bot restarts
@@ -79,6 +80,8 @@ export async function CheckUserKeyStatus(interaction: CommandInteraction) {
                         return interaction.followUp('Your key application has been approved! The key will be sent to your DMs when they are distributed next.');
                     case 'green':
                         return interaction.followUp('Your key application has been approved! You either already have a key, or your key will be sent to you in a few days.');
+                    case 'purple':
+                        return interaction.followUp('Your key application has been placed onto a waitlist for when we require general users for testing.');
                     default:
                     case 'blank':
                         // If a cell has no background color, it hasn't been reviewed
