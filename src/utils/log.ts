@@ -91,6 +91,6 @@ export function messageUpdated(client: Client, oldMessage: Message<boolean> | Pa
 	if (oldMessage.author?.bot || !oldMessage.author?.username) return;
 	if (config.options.log.user_exceptions.includes(oldMessage.author.id)) return;
 	if (oldMessage.cleanContent !== newMessage.cleanContent) {
-		message(client, 'MESSAGE', LogLevelColor.INFO, `A message from <@${newMessage.author?.id}> was edited in ${oldMessage.channel.toString()}\n\nBefore: \`\`\`${oldMessage.cleanContent}\`\`\`\nAfter: \`\`\`${newMessage.cleanContent}\`\`\``, newMessage.author?.avatarURL({ size: 1024 }));
+		message(client, 'MESSAGE', LogLevelColor.INFO, `[A message](${newMessage.url}) from <@${newMessage.author?.id}> was edited in ${oldMessage.channel.toString()}\n\nBefore: \`\`\`${oldMessage.cleanContent}\`\`\`\nAfter: \`\`\`${newMessage.cleanContent}\`\`\``, newMessage.author?.avatarURL({ size: 1024 }));
 	}
 }
