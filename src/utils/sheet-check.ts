@@ -22,19 +22,24 @@ export async function CheckUserKeyStatus(interaction: CommandInteraction) {
     }
     await interaction.deferReply({ ephemeral: true });
 
+    const hasCustomUser = interaction.options.getUser('user') != null;
+    const user = hasCustomUser ? interaction.options.getUser('user') : interaction.user;
+
     // Don't run command if already present in list
     // If not present, add user to list
-    if (USER_DB.has(interaction.user.id) && (USER_DB.get(interaction.user.id) ?? 0) > Date.now()) {
-        return interaction.followUp(`You have already checked the status of your application today. Please check again <t:${((USER_DB.get(interaction.user.id) ?? 0) / 1000).toFixed(0)}:R>.`);
-    } else {
-        USER_DB.set(interaction.user.id, Date.now() + (1000 * 60 * 60 * config.options.misc.key_check_hours_to_wait));
+    if (!hasCustomUser) {
+        if (USER_DB.has(interaction.user.id) && (USER_DB.get(interaction.user.id) ?? 0) > Date.now()) {
+            return interaction.followUp(`You have already checked the status of your application today. Please check again <t:${((USER_DB.get(interaction.user.id) ?? 0) / 1000).toFixed(0)}:R>.`);
+        } else {
+            USER_DB.set(interaction.user.id, Date.now() + (1000 * 60 * 60 * config.options.misc.key_check_hours_to_wait));
+        }
     }
 
     // Refresh cache
     await sheet.loadCells('B2:B' + sheet.rowCount.toString());
 
     // Get plaintext username + discriminator
-    const name = interaction.user.username + '#' + interaction.user.discriminator;
+    const name = user?.username + '#' + user?.discriminator;
 
     // Try to find one row where it's approved
     let appFound = false;
