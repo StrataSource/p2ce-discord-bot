@@ -1,5 +1,4 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, EmbedBuilder } from 'discord.js';
+import { CommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import fs from 'fs';
 import readline from 'readline';
 import events from 'events';

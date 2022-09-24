@@ -1,5 +1,4 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { CacheType, CommandInteraction, EmbedBuilder } from 'discord.js';
+import { CacheType, CommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { Command } from '../../types/command';
 import { LogLevelColor } from '../../utils/log';
 import { PermissionLevel } from '../../utils/permissions';

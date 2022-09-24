@@ -1,5 +1,4 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { ChannelType, CommandInteraction, EmbedBuilder, GuildBasedChannel } from 'discord.js';
+import { ChannelType, CommandInteraction, EmbedBuilder, GuildBasedChannel, SlashCommandBuilder } from 'discord.js';
 import { Command } from '../../types/command';
 import { LogLevelColor } from '../../utils/log';
 import { PermissionLevel } from '../../utils/permissions';
