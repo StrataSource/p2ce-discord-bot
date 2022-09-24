@@ -17,11 +17,6 @@ const ServerInfo: Command = {
 
 		const description = (interaction.guild.description && interaction.guild.description.length > 0) ? interaction.guild.description : 'Server has no description.';
 
-		let emojis = (await interaction.guild.emojis.fetch()).map(e => e).join(' ');
-		if (emojis.length == 0) {
-			emojis = 'This server has no emojis.';
-		}
-
 		const creator = await interaction.guild.fetchOwner();
 
 		// Forum channels are null in djs 14.2, when they're properly added you can change this
@@ -36,7 +31,6 @@ const ServerInfo: Command = {
 			.setDescription(description)
 			.setThumbnail(interaction.guild.iconURL({ size: 1024 }))
 			.addFields(
-				{ name: 'Server Emoji', value: emojis },
 				{ name: 'Created On', value: `<t:${Math.round(interaction.guild.createdTimestamp / 1000)}:f>`, inline: true },
 				{ name: 'Created By', value: `<@${creator.user.id}>`, inline: true },
 				{ name: 'Partner Server', value: `${interaction.guild.partnered ? 'Yes' : 'No'}`, inline: true },
