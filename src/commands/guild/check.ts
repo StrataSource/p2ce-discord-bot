@@ -20,7 +20,7 @@ const Check: Command = {
 		// Don't run command if already present in list
 		// If not present, add user to list
 		if (USER_DB.has(interaction.user.id) && (USER_DB.get(interaction.user.id) ?? 0) > Date.now()) {
-			return interaction.followUp(`You have already checked the status of your application today. Please check again <t:${((USER_DB.get(interaction.user.id) ?? 0) / 1000).toFixed(0)}:R>.`);
+			return interaction.reply({ content: `You have already checked the status of your application today. Please check again <t:${((USER_DB.get(interaction.user.id) ?? 0) / 1000).toFixed(0)}:R>.`, ephemeral: true});
 		} else {
 			USER_DB.set(interaction.user.id, Date.now() + (1000 * 60 * 60 * config.options.misc.key_check_hours_to_wait));
 		}
