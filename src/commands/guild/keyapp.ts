@@ -40,7 +40,12 @@ const KeyApp: Command = {
 				USER_DB_CHECK.set(interaction.user.id, Date.now() + (1000 * 60 * 60 * config.options.misc.key_check_hours_to_wait));
 			}
 
-			return checkUserKeyStatus(interaction, interaction.user);
+			try {
+				return checkUserKeyStatus(interaction, interaction.user);
+			} catch (err) {
+				USER_DB_CHECK.delete(interaction.user.id);
+				return interaction.followUp({ content: 'There was an error checking your application. Please try again.', ephemeral: true });
+			}
 		}
 
 		case 'read': {
@@ -50,7 +55,12 @@ const KeyApp: Command = {
 				USER_DB_READ.set(interaction.user.id, Date.now() + (1000 * 60 * 60 * config.options.misc.key_check_hours_to_wait));
 			}
 
-			return readUserApplication(interaction, interaction.user);
+			try {
+				return readUserApplication(interaction, interaction.user);
+			} catch (err) {
+				USER_DB_READ.delete(interaction.user.id);
+				return interaction.followUp({ content: 'There was an error reading your application. Please try again.', ephemeral: true });
+			}
 		}
 		}
 	}
