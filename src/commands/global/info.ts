@@ -26,8 +26,9 @@ const Info: Command = {
 			.addFields(
 				{ name: 'Bot Version', value: `${packageJSON.version}` },
 				{ name: 'Discord.JS Version', value: (packageJSON.dependencies as { 'discord.js': string })['discord.js'].substring(1) },
-				{ name: 'Node.JS Version', value: process.versions.node }
-			).setTimestamp();
+				{ name: 'Node.JS Version', value: process.versions.node },
+				{ name: 'Memory Usage', value: `${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)} MB` })
+			.setTimestamp();
 
 		return interaction.reply({ embeds: [embed] });
 	}
