@@ -32,7 +32,8 @@
 		"discord.js": "^14.2.0",
 		"google-spreadsheet": "^3.3.0",
 		"moment": "^2.29.4",
-		"node-fetch": "^2.6.7"
+		"node-fetch": "^2.6.7",
+		"owoify-js": "^2.0.0"
 	},
 	"devDependencies": {
 		"@types/node": "^18.7.18",
