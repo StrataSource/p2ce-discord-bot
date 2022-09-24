@@ -78,11 +78,11 @@ const FunText: Command = {
 				.setDescription('Text to make tiny')
 				.setRequired(true)))
 		.addSubcommand(subcommand => subcommand
-			.setName('owoify')
-			.setDescription('OwOify the input text.')
+			.setName('uwuify')
+			.setDescription('UwUify the input text.')
 			.addStringOption(option => option
 				.setName('text')
-				.setDescription('Text to OwOify')
+				.setDescription('Text to UwUify')
 				.setRequired(true))),
 
 	async execute(interaction: CommandInteraction) {
@@ -123,7 +123,7 @@ const FunText: Command = {
 			return interaction.reply(replaceText(text, regular, tiny));
 		}
 
-		case 'owoify': {
+		case 'uwuify': {
 			// Courtesy of https://github.com/Bauke/owofy
 			return interaction.reply(text
 				.replace(/[lr]/g, 'w')
