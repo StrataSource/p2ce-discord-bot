@@ -25,8 +25,7 @@ const Respond: Command = {
 
 		const id = interaction.options.getString('id', true);
 		if (id in config.messages) {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			return interaction.reply((config.messages as any)[id]);
+			return interaction.reply((config.messages as {[id: string]: string})[id]);
 		}
 		return interaction.reply({ content: `Could not find message with ID "${id}"`, ephemeral: true });
 	}
