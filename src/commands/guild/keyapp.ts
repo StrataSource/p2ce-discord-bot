@@ -41,7 +41,7 @@ const KeyApp: Command = {
 			}
 
 			try {
-				return checkUserKeyStatus(interaction, interaction.user);
+				return checkUserKeyStatus(interaction, interaction.user, true);
 			} catch (err) {
 				USER_DB_CHECK.delete(interaction.user.id);
 				return interaction.followUp({ content: 'There was an error checking your application. Please try again.', ephemeral: true });
@@ -56,7 +56,7 @@ const KeyApp: Command = {
 			}
 
 			try {
-				return readUserApplication(interaction, interaction.user);
+				return readUserApplication(interaction, interaction.user, true);
 			} catch (err) {
 				USER_DB_READ.delete(interaction.user.id);
 				return interaction.followUp({ content: 'There was an error reading your application. Please try again.', ephemeral: true });

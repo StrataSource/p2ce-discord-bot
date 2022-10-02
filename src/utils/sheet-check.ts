@@ -22,11 +22,25 @@ async function getCell(a1: string, reloadRange: string) {
 	}
 }
 
-export async function checkUserKeyStatus(interaction: CommandInteraction, user: User) {
+export async function checkUserKeyStatus(interaction: CommandInteraction, user: User, ranOnSelf: boolean) {
 	// Assumes isSheetLoaded() has been called...
 	await interaction.deferReply({ ephemeral: true });
 
 	const reloadRange = `B2:B${sheet.rowCount}`;
+
+	// Liberals smh
+	let pronoun1: string;
+	let pronoun1caps: string;
+	let pronoun2: string;
+	if (ranOnSelf) {
+		pronoun1 = 'your';
+		pronoun1caps = 'Your';
+		pronoun2 = 'you';
+	} else {
+		pronoun1 = `<@${user.id}>'s`;
+		pronoun1caps = pronoun1;
+		pronoun2 = `<@${user.id}>`;
+	}
 
 	// Refresh cache
 	await sheet.loadCells(reloadRange);
@@ -44,7 +58,7 @@ export async function checkUserKeyStatus(interaction: CommandInteraction, user: 
 	}
 
 	if (row < 0) {
-		return interaction.followUp('Your application was not found. If you have already submitted one, let a team member know.\nThe failure to find your application is likely a result of your username or discriminator changing since you submitted the application.');
+		return interaction.followUp(`${pronoun1caps} application was not found. If ${pronoun2} already submitted one, let a team member know.\nThe failure to find ${pronoun1} application is likely a result of ${pronoun1} username or discriminator changing since the application was submitted.`);
 	}
 
 	const cell = await getCell(`B${row}`, reloadRange);
@@ -67,28 +81,42 @@ export async function checkUserKeyStatus(interaction: CommandInteraction, user: 
 			switch (colorName) {
 			case 'red':
 			case 'orange':
-				return interaction.followUp('Your key application has been denied.');
+				return interaction.followUp(`${pronoun1caps} key application has been denied.`);
 			case 'yellow':
 			case 'cyan':
-				return interaction.followUp('Your key application has been approved! The key will be sent to your DMs when they are distributed next.');
+				return interaction.followUp(`${pronoun1caps} key application has been approved! The key will be sent to ${pronoun1} DMs when they are distributed next.`);
 			case 'green':
-				return interaction.followUp('Your key application has been approved! You either already have a key, or your key will be sent to you in a few days.');
+				return interaction.followUp(`${pronoun1caps} key application has been approved! Either a key was already sent to ${pronoun2}, or ${pronoun1} key will be sent to ${pronoun2} in a few days.`);
 			case 'purple':
-				return interaction.followUp('Your key application has been placed onto a waitlist for when we require general users for testing.');
+				return interaction.followUp(`${pronoun1caps} key application has been placed onto a waitlist for when we require general users for testing.`);
 			default:
 			case 'blank':
 				// If a cell has no background color, it hasn't been reviewed
-				return interaction.followUp('Your application has not been reviewed yet.');
+				return interaction.followUp(`${pronoun1caps} key application has not been reviewed yet.`);
 			}
 		}
 	}
 }
 
-export async function readUserApplication(interaction: CommandInteraction, user: User) {
+export async function readUserApplication(interaction: CommandInteraction, user: User, ranOnSelf: boolean) {
 	// Assumes isSheetLoaded() has been called...
 	await interaction.deferReply({ ephemeral: true });
 
 	const reloadRange = `B2:E${sheet.rowCount}`;
+
+	// Liberals smh
+	let pronoun1: string;
+	let pronoun1caps: string;
+	let pronoun2: string;
+	if (ranOnSelf) {
+		pronoun1 = 'your';
+		pronoun1caps = 'Your';
+		pronoun2 = 'you';
+	} else {
+		pronoun1 = `<@${user.id}>'s`;
+		pronoun1caps = pronoun1;
+		pronoun2 = `<@${user.id}>`;
+	}
 
 	// Refresh cache
 	await sheet.loadCells(reloadRange);
@@ -106,7 +134,7 @@ export async function readUserApplication(interaction: CommandInteraction, user:
 	}
 
 	if (row < 0) {
-		return interaction.followUp('Your application was not found. If you have already submitted one, let a team member know.\nThe failure to find your application is likely a result of your username or discriminator changing since you submitted the application.');
+		return interaction.followUp(`${pronoun1caps} application was not found. If ${pronoun2} already submitted one, let a team member know.\nThe failure to find ${pronoun1} application is likely a result of ${pronoun1} username or discriminator changing since the application was submitted.`);
 	}
 
 	const why = (await getCell(`C${row}`, reloadRange)).value?.toString() ?? 'No response.';

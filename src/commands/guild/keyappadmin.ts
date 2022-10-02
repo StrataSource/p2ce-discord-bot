@@ -36,11 +36,11 @@ const KeyAppAdmin: Command = {
 		// If not present, add user to list
 		switch (interaction.options.getSubcommand()) {
 		case 'check': {
-			return checkUserKeyStatus(interaction, interaction.options.getUser('user', true));
+			return checkUserKeyStatus(interaction, interaction.options.getUser('user', true), false);
 		}
 
 		case 'read': {
-			return readUserApplication(interaction, interaction.options.getUser('user', true));
+			return readUserApplication(interaction, interaction.options.getUser('user', true), false);
 		}
 		}
 	}
