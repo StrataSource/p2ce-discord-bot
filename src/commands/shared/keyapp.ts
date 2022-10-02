@@ -1,6 +1,6 @@
 import { CommandInteraction, EmbedBuilder, User } from 'discord.js';
-import { sheet } from './sheet';
-import { LogLevelColor } from './log';
+import { sheet } from '../../utils/sheet';
+import { LogLevelColor } from '../../utils/log';
 
 const COLORS = {
 	blank:  { red: 0,   green: 0,   blue: 0 },

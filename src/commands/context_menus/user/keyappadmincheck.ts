@@ -2,7 +2,7 @@ import { ApplicationCommandType, CommandInteraction, ContextMenuCommandBuilder }
 import { ContextMenu } from '../../../types/interaction';
 import { PermissionLevel } from '../../../utils/permissions';
 import { isSheetLoaded } from '../../../utils/sheet';
-import { checkUserKeyStatus } from '../../../utils/sheet-check';
+import { checkUserKeyStatus } from '../../shared/keyapp';
 
 const KeyAppAdminCheck: ContextMenu = {
 	permissionLevel: PermissionLevel.TEAM_MEMBER,

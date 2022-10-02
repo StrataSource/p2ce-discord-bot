@@ -2,7 +2,7 @@ import { Collection, CommandInteraction, SlashCommandBuilder } from 'discord.js'
 import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';
 import { isSheetLoaded } from '../../utils/sheet';
-import { checkUserKeyStatus, readUserApplication } from '../../utils/sheet-check';
+import { checkUserKeyStatus, readUserApplication } from '../shared/keyapp';
 
 import * as config from '../../config.json';
 
