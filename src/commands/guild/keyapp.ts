@@ -1,5 +1,5 @@
 import { Collection, CommandInteraction, SlashCommandBuilder } from 'discord.js';
-import { Command } from '../../types/command';
+import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';
 import { isSheetLoaded } from '../../utils/sheet';
 import { checkUserKeyStatus, readUserApplication } from '../../utils/sheet-check';

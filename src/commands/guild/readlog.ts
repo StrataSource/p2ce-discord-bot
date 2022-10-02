@@ -2,7 +2,7 @@ import { CommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.j
 import fs from 'fs';
 import readline from 'readline';
 import events from 'events';
-import { Command } from '../../types/command';
+import { Command } from '../../types/interaction';
 import { LogLevelColor, logPath } from '../../utils/log';
 import { PermissionLevel } from '../../utils/permissions';
 

@@ -1,7 +1,7 @@
-import { CommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
-import { Command } from '../../types/command';
-import { LogLevelColor } from '../../utils/log';
+import { CommandInteraction, SlashCommandBuilder } from 'discord.js';
+import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';
+import { getUserInfo } from '../shared/userinfo';
 
 const UserInfo: Command = {
 	permissionLevel: PermissionLevel.MEMBER,
@@ -15,16 +15,7 @@ const UserInfo: Command = {
 
 	async execute(interaction: CommandInteraction) {
 		const user = interaction.options.getUser('user') ?? interaction.user;
-		const embed = new EmbedBuilder()
-			.setColor(LogLevelColor.INFO)
-			.setAuthor({ name: `${user.username}#${user.discriminator}`, iconURL: user.avatarURL({ size: 1024 }) ?? undefined })
-			.setThumbnail(user.displayAvatarURL({ size: 1024 }))
-			.addFields(
-				{ name: 'User ID', value: `\`${user.id}\`` },
-				{ name: 'Joined Discord', value: `<t:${(user.createdAt.getTime() / 1000).toFixed(0)}:D>` })
-			.setTimestamp();
-
-		return interaction.reply({ embeds: [embed] });
+		return getUserInfo(interaction, user, false);
 	},
 };
 export default UserInfo;

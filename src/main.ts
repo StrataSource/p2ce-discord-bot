@@ -4,7 +4,7 @@ import { ActivityType, Client, Collection, GuildMember, IntentsBitField, Partial
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import fs from 'fs';
-import { Command } from './types/command';
+import { Command, CommandBase, ContextMenu } from './types/interaction';
 import { messageNeedsResponse, priviledgedMessageNeedsResponse } from './utils/autorespond';
 import * as log from './utils/log';
 import { hasPermissionLevel, PermissionLevel } from './utils/permissions';
@@ -21,7 +21,7 @@ consoleStamp(console);
 persist.loadData();
 
 interface P2CEClient extends Client {
-	commands?: Collection<string, Command>;
+	commands?: Collection<string, CommandBase>,
 }
 
 async function main() {
@@ -65,6 +65,16 @@ async function main() {
 		client.commands.set(command.data.name, command);
 	}
 
+	// Register context menus
+	//for (const file of fs.readdirSync('./build/commands/context_menus/message').filter(file => file.endsWith('.js'))) {
+	//	const context_menu: ContextMenu = (await import(`./commands/context_menus/message/${file}`)).default;
+	//	client.commands.set(context_menu.data.name, context_menu);
+	//}
+	for (const file of fs.readdirSync('./build/commands/context_menus/user').filter(file => file.endsWith('.js'))) {
+		const context_menu: ContextMenu = (await import(`./commands/context_menus/user/${file}`)).default;
+		client.commands.set(context_menu.data.name, context_menu);
+	}
+
 	// Run this when the client is ready
 	client.on('ready', async () => {
 		client.user?.setActivity('this server', { type: ActivityType.Watching });
@@ -88,35 +98,37 @@ async function main() {
 
 	// Listen for commands
 	client.on('interactionCreate', async interaction => {
-		if (!interaction.isChatInputCommand()) return;
+		if (interaction.isChatInputCommand() || interaction.isContextMenuCommand()) {
+			const command = client.commands?.get(interaction.commandName);
+			if (!command) return;
 
-		const command = client.commands?.get(interaction.commandName);
-		if (!command) return;
-
-		// Check if the user has the required permission level
-		// This is a backup to Discord's own permissions stuff in case that breaks
-		if (!interaction.channel?.isDMBased() && !hasPermissionLevel(interaction.member as GuildMember, command.permissionLevel)) {
-			if (interaction.deferred) {
-				await interaction.followUp('You do not have permission to execute this command!');
-				return;
-			} else {
-				await interaction.reply({
-					content: 'You do not have permission to execute this command!',
-					ephemeral: true
-				});
-				return;
+			// Check if the user has the required permission level
+			// This is a backup to Discord's own permissions stuff in case that breaks
+			if (!interaction.channel?.isDMBased() && !hasPermissionLevel(interaction.member as GuildMember, command.permissionLevel)) {
+				if (interaction.deferred) {
+					await interaction.followUp('You do not have permission to execute this command!');
+					return;
+				} else {
+					await interaction.reply({ content: 'You do not have permission to execute this command!', ephemeral: true });
+					return;
+				}
 			}
+
+			if (interaction.isContextMenuCommand()) {
+				log.writeToLog(`Context menu "${interaction.commandName}" run by ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`);
+			} else {
+				log.writeToLog(`Command "${interaction.commandName}" run by ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`);
+			}
+
+			command.execute(interaction).catch(err => {
+				log.writeToLog((err as Error).toString());
+				if (interaction.deferred) {
+					interaction.followUp(`There was an error while executing this command: ${err}`);
+				} else {
+					interaction.reply(`There was an error while executing this command: ${err}`);
+				}
+			});
 		}
-
-		log.writeToLog(`/${interaction.commandName} run by ${interaction.user.username}#${interaction.user.discriminator}`);
-		command.execute(interaction).catch(err => {
-			log.writeToLog((err as Error).toString());
-			if (interaction.deferred) {
-				interaction.followUp(`There was an error while executing this command: ${err}`);
-			} else {
-				interaction.reply(`There was an error while executing this command: ${err}`);
-			}
-		});
 	});
 
 	// Listen for added reactions
@@ -310,6 +322,14 @@ async function updateCommands() {
 	const globalCommands = [];
 	for (const file of fs.readdirSync('./build/commands/global').filter(file => file.endsWith('.js'))) {
 		globalCommands.push((await import(`./commands/global/${file}`)).default.data.toJSON());
+	}
+
+	// Context menus are assumed to be guild-based
+	//for (const file of fs.readdirSync('./build/commands/context_menus/message').filter(file => file.endsWith('.js'))) {
+	//	guildCommands.push((await import(`./commands/context_menus/message/${file}`)).default.data.toJSON());
+	//}
+	for (const file of fs.readdirSync('./build/commands/context_menus/user').filter(file => file.endsWith('.js'))) {
+		guildCommands.push((await import(`./commands/context_menus/user/${file}`)).default.data.toJSON());
 	}
 
 	const rest = new REST({ version: '10' }).setToken(config.token);

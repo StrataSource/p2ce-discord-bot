@@ -1,5 +1,5 @@
 import { CommandInteraction, SlashCommandBuilder, TextChannel } from 'discord.js';
-import { Command } from '../../types/command';
+import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';
 
 import * as config from '../../config.json';
