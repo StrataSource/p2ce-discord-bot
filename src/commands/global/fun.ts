@@ -20,114 +20,121 @@ function replaceText(text: string, from: string[], to: string[]) {
 	return text;
 }
 
-const FunText: Command = {
+const Fun: Command = {
 	permissionLevel: PermissionLevel.MEMBER,
 
 	data: new SlashCommandBuilder()
-		.setName('funtext')
+		.setName('fun')
 		.setDescription('Fun text commands.')
-		.addSubcommand(subcommand => subcommand
-			.setName('square')
-			.setDescription('Squareify the input text.')
-			.addStringOption(option => option
-				.setName('text')
-				.setDescription('Text to make square')
-				.setRequired(true)))
-		.addSubcommand(subcommand => subcommand
-			.setName('wide')
-			.setDescription('Widen the input text.')
-			.addStringOption(option => option
-				.setName('text')
-				.setDescription('Text to widen')
-				.setRequired(true)))
-		.addSubcommand(subcommand => subcommand
-			.setName('cursive')
-			.setDescription('Cursiveify the input text.')
-			.addStringOption(option => option
-				.setName('text')
-				.setDescription('Text to make cursive')
-				.setRequired(true)))
-		.addSubcommand(subcommand => subcommand
-			.setName('medieval')
-			.setDescription('Medievalify the input text.')
-			.addStringOption(option => option
-				.setName('text')
-				.setDescription('Text to make medieval')
-				.setRequired(true))
-			.addBooleanOption(option => option
-				.setName('bold')
-				.setDescription('Use bold medieval font')))
-		.addSubcommand(subcommand => subcommand
-			.setName('monospace')
-			.setDescription('Monospaceify the input text.')
-			.addStringOption(option => option
-				.setName('text')
-				.setDescription('Text to make monospace')
-				.setRequired(true)))
-		.addSubcommand(subcommand => subcommand
-			.setName('smallcaps')
-			.setDescription('Smallcapsify the input text.')
-			.addStringOption(option => option
-				.setName('text')
-				.setDescription('Text to make smallcaps')
-				.setRequired(true)))
-		.addSubcommand(subcommand => subcommand
-			.setName('tiny')
-			.setDescription('Minify the input text.')
-			.addStringOption(option => option
-				.setName('text')
-				.setDescription('Text to make tiny')
-				.setRequired(true)))
-		.addSubcommand(subcommand => subcommand
-			.setName('uwuify')
-			.setDescription('UwUify the input text.')
-			.addStringOption(option => option
-				.setName('text')
-				.setDescription('Text to UwUify')
-				.setRequired(true))),
+		.addSubcommandGroup(group => group
+			.setName('text')
+			.setDescription('Fun commands that print funny text.')
+			.addSubcommand(subcommand => subcommand
+				.setName('square')
+				.setDescription('Squareify the input text.')
+				.addStringOption(option => option
+					.setName('text')
+					.setDescription('Text to make square')
+					.setRequired(true)))
+			.addSubcommand(subcommand => subcommand
+				.setName('wide')
+				.setDescription('Widen the input text.')
+				.addStringOption(option => option
+					.setName('text')
+					.setDescription('Text to widen')
+					.setRequired(true)))
+			.addSubcommand(subcommand => subcommand
+				.setName('cursive')
+				.setDescription('Cursiveify the input text.')
+				.addStringOption(option => option
+					.setName('text')
+					.setDescription('Text to make cursive')
+					.setRequired(true)))
+			.addSubcommand(subcommand => subcommand
+				.setName('medieval')
+				.setDescription('Medievalify the input text.')
+				.addStringOption(option => option
+					.setName('text')
+					.setDescription('Text to make medieval')
+					.setRequired(true))
+				.addBooleanOption(option => option
+					.setName('bold')
+					.setDescription('Use bold medieval font')))
+			.addSubcommand(subcommand => subcommand
+				.setName('monospace')
+				.setDescription('Monospaceify the input text.')
+				.addStringOption(option => option
+					.setName('text')
+					.setDescription('Text to make monospace')
+					.setRequired(true)))
+			.addSubcommand(subcommand => subcommand
+				.setName('smallcaps')
+				.setDescription('Smallcapsify the input text.')
+				.addStringOption(option => option
+					.setName('text')
+					.setDescription('Text to make smallcaps')
+					.setRequired(true)))
+			.addSubcommand(subcommand => subcommand
+				.setName('tiny')
+				.setDescription('Minify the input text.')
+				.addStringOption(option => option
+					.setName('text')
+					.setDescription('Text to make tiny')
+					.setRequired(true)))
+			.addSubcommand(subcommand => subcommand
+				.setName('uwuify')
+				.setDescription('UwUify the input text.')
+				.addStringOption(option => option
+					.setName('text')
+					.setDescription('Text to UwUify')
+					.setRequired(true)))),
 
 	async execute(interaction: CommandInteraction) {
 		if (!interaction.isChatInputCommand()) return;
 
 		const text = interaction.options.getString('text', true);
 
-		switch (interaction.options.getSubcommand()) {
-		case 'square': {
-			return interaction.reply(replaceText(text, regular, square));
-		}
-
-		case 'wide': {
-			return interaction.reply(replaceText(text, regular, wide));
-		}
-
-		case 'cursive': {
-			return interaction.reply(replaceText(text, regular, cursive));
-		}
-
-		case 'medieval': {
-			if (interaction.options.getBoolean('bold')) {
-				return interaction.reply(replaceText(text, regular, medievalB));
-			} else {
-				return interaction.reply(replaceText(text, regular, medievalR));
+		switch (interaction.options.getSubcommandGroup()) {
+		case 'text': {
+			switch (interaction.options.getSubcommand()) {
+			case 'square': {
+				return interaction.reply(replaceText(text, regular, square));
 			}
-		}
-
-		case 'monospace': {
-			return interaction.reply(replaceText(text, regular, monospace));
-		}
-
-		case 'smallcaps': {
-			return interaction.reply(replaceText(text, regular, smallCaps));
-		}
-
-		case 'tiny': {
-			return interaction.reply(replaceText(text, regular, tiny));
-		}
-
-		case 'uwuify': {
-			return interaction.reply(uwuify(text));
+		
+			case 'wide': {
+				return interaction.reply(replaceText(text, regular, wide));
+			}
+		
+			case 'cursive': {
+				return interaction.reply(replaceText(text, regular, cursive));
+			}
+		
+			case 'medieval': {
+				if (interaction.options.getBoolean('bold')) {
+					return interaction.reply(replaceText(text, regular, medievalB));
+				} else {
+					return interaction.reply(replaceText(text, regular, medievalR));
+				}
+			}
+		
+			case 'monospace': {
+				return interaction.reply(replaceText(text, regular, monospace));
+			}
+		
+			case 'smallcaps': {
+				return interaction.reply(replaceText(text, regular, smallCaps));
+			}
+		
+			case 'tiny': {
+				return interaction.reply(replaceText(text, regular, tiny));
+			}
+		
+			case 'uwuify': {
+				return interaction.reply(uwuify(text));
+			}
+			}
 		}
 		}
 	}
 };
-export default FunText;
+export default Fun;
