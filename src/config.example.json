@@ -3,6 +3,7 @@
 	"client_id": "client id goes here",
 	"guild": "guild id goes here",
 
+	"github_token": "",
 	"google_api_key": "",
 	"key_application_sheet_id": "",
 
@@ -48,6 +49,9 @@
 	},
 
 	"git_repos": {
-		"repo": "https://github.com/ExampleUser/ExampleRepository"
+		"repo": {
+			"owner": "RepoOwner",
+			"name": "RepoName"
+		}
 	}
 }

@@ -29,11 +29,9 @@ const Issue: Command = {
 
 		const repo = interaction.options.getString('repo', true);
 		if (repo in config.git_repos) {
-			let repoURL = (config.git_repos as {[repo: string]: string})[repo];
-			if (repoURL.endsWith('/')) {
-				repoURL = repoURL.substring(0, repoURL.length - 1);
-			}
-			return interaction.reply(`${repoURL}/issues/${interaction.options.getInteger('id', true)}`);
+			const repoInfo = (config.git_repos as {[repo: string]: {owner: string, name: string}})[repo];
+			const issueID = interaction.options.getInteger('id', true);
+			return interaction.reply(`https://github.com/${repoInfo.owner}/${repoInfo.name}/issues/${issueID}`);
 		}
 		return interaction.reply({ content: `Could not find repository "${repo}"`, ephemeral: true });
 	}
