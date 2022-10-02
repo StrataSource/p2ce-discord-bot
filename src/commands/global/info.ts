@@ -19,9 +19,10 @@ const Info: Command = {
 		const embed = new EmbedBuilder()
 			.setAuthor({
 				name: username,
-				url: interaction.client.user?.avatarURL()?.toString(),
+				url: 'https://github.com/ChaosInitiative/p2ce-discord-bot',
 				iconURL: interaction.client.user?.displayAvatarURL()?.toString()
-			}).setDescription('This server\'s robotic helper and moral compass.')
+			})
+			.setDescription('This server\'s robotic helper and moral compass.')
 			.setColor(LogLevelColor.INFO)
 			.addFields(
 				{ name: 'Bot Version', value: `${packageJSON.version}` },
