@@ -103,6 +103,7 @@ export async function readUserApplication(interaction: CommandInteraction, user:
 	await interaction.deferReply({ ephemeral: true });
 
 	const reloadRange = `B2:E${sheet.rowCount}`;
+	const reloadRangeExperience = `H2:H${sheet.rowCount}`;
 
 	// Liberals smh
 	let pronoun1: string;
@@ -120,6 +121,7 @@ export async function readUserApplication(interaction: CommandInteraction, user:
 
 	// Refresh cache
 	await sheet.loadCells(reloadRange);
+	await sheet.loadCells(reloadRangeExperience);
 
 	// Get plaintext username + discriminator
 	const name = `${user.username}#${user.discriminator}`;
@@ -140,6 +142,7 @@ export async function readUserApplication(interaction: CommandInteraction, user:
 	const why = (await getCell(`C${row}`, reloadRange)).value?.toString() ?? 'No response.';
 	const purpose = (await getCell(`D${row}`, reloadRange)).value?.toString() ?? 'No response.';
 	const mod = (await getCell(`E${row}`, reloadRange)).value?.toString() ?? 'No response.';
+	const experience = (await getCell(`H${row}`, reloadRangeExperience)).value?.toString() ?? 'No response.';
 
 	const embed = new EmbedBuilder()
 		.setColor(LogLevelColor.INFO)
@@ -147,7 +150,8 @@ export async function readUserApplication(interaction: CommandInteraction, user:
 		.addFields(
 			{ name: 'Why do you think you should be granted access?', value: `\`\`\`\n${why}\n\`\`\`` },
 			{ name: 'What are your primary purposes for requesting access?', value: `\`\`\`\n${purpose}\n\`\`\`` },
-			{ name: 'If you are working on a mod, which one?', value: `\`\`\`\n${mod}\n\`\`\`` })
+			{ name: 'If you are working on a mod, which one?', value: `\`\`\`\n${mod}\n\`\`\`` },
+			{ name: 'State your experience, if you have any.', value: `\`\`\`\n${experience}\n\`\`\`` })
 		.setTimestamp();
 	return interaction.followUp({ embeds: [embed], ephemeral: true });
 }
