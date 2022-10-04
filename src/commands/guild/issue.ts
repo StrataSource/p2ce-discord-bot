@@ -28,7 +28,7 @@ async function getSearchEmbed(issues: Array<GitHubIssue>, repo: string, query: s
 
 	let out = '';
 	for (let i = startingPoint; i < stoppingPoint; i++) {
-		out += `[${issues[i].number}](${issues[i].url}): ${issues[i].title}\n`;
+		out += `[${issues[i].number}](${issues[i].html_url}): ${issues[i].title}\n`;
 	}
 
 	// Note: update onButtonPressed if this is ever changed

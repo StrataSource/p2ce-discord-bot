@@ -1,6 +1,7 @@
 export interface GitHubIssue {
 	number: number,
 	url: string,
+	html_url: string,
 	title: string,
 	user: {
 		login: string,
