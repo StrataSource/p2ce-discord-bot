@@ -64,12 +64,32 @@ export function message(client: Client, guildID: string, title: string, color: L
 	getLogChannel(client, guildID)?.send({ embeds: [embed] });
 }
 
-export function error(client: Client, guildID: string, msg: Error) {
-	message(client, guildID, 'ERROR', LogLevelColor.ERROR, `${msg.name}: ${msg.message}`);
+export async function error(client: Client, msg: Error) {
+	const channelID = config.options.log.errors_and_warnings_channel;
+	if (channelID.length === 0) return;
+	const channel = await client.channels.fetch(channelID);
+	const embed = new EmbedBuilder()
+		.setColor(LogLevelColor.ERROR)
+		.setTitle('ERROR')
+		.setDescription(msg.toString())
+		.setTimestamp();
+	if (channel?.isTextBased()) {
+		channel.send({ embeds: [embed] });
+	}
 }
 
-export function warning(client: Client, guildID: string, msg: string) {
-	message(client, guildID, 'WARNING', LogLevelColor.WARNING, msg);
+export async function warning(client: Client, msg: string) {
+	const channelID = config.options.log.errors_and_warnings_channel;
+	if (channelID.length === 0) return;
+	const channel = await client.channels.fetch(channelID);
+	const embed = new EmbedBuilder()
+		.setColor(LogLevelColor.WARNING)
+		.setTitle('WARNING')
+		.setDescription(msg)
+		.setTimestamp();
+	if (channel?.isTextBased()) {
+		channel.send({ embeds: [embed] });
+	}
 }
 
 export function userUpdate(client: Client, guildID: string, user1: User | PartialUser, user2: User) {

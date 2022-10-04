@@ -5,11 +5,11 @@
 	"github_token": "",
 	"google_api_key": "",
 	"key_application_sheet_id": "",
+	"key_distribution_sheet_id": "",
 
 	"options": {
 		"log": {
-			"errors": true,
-			"warnings": true,
+			"errors_and_warnings_channel": "",
 			"user_updates": true,
 			"user_avatar_changes": true,
 			"user_bans": true,

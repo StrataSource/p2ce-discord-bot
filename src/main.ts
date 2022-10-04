@@ -80,18 +80,14 @@ async function main() {
 	});
 
 	// Listen for errors
-	if (config.options.log.errors) {
-		client.on('error', async error => {
-			//todo log.error(client, error);
-		});
-	}
+	client.on('error', async error => {
+		await log.error(client, error);
+	});
 
 	// Listen for warnings
-	if (config.options.log.warnings) {
-		client.on('warn', async warn => {
-			//todo log.warning(client, warn);
-		});
-	}
+	client.on('warn', async warn => {
+		await log.warning(client, warn);
+	});
 
 	// Listen for commands
 	client.on('interactionCreate', async interaction => {
