@@ -35,7 +35,7 @@
 
 	"roles": {
 		"member":      "role id goes here",
-		"beta_tester": "role id goes here",
+		"trusted":     "role id goes here",
 		"team_member": "role id goes here",
 		"moderator":   "role id goes here"
 	},

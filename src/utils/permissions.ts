@@ -7,7 +7,7 @@ import * as config from '../config.json';
 
 export enum PermissionLevel {
 	MEMBER      = 0,
-	BETA_TESTER = 1,
+	TRUSTED     = 1,
 	TEAM_MEMBER = 2,
 	MODERATOR   = 3,
 }
@@ -18,8 +18,8 @@ export function hasPermissionLevel(member: GuildMember | null, permissionLevel: 
 	switch (permissionLevel) {
 	case PermissionLevel.MEMBER:
 		roleId.push(config.roles.member);
-	case PermissionLevel.BETA_TESTER:
-		roleId.push(config.roles.beta_tester);
+	case PermissionLevel.TRUSTED:
+		roleId.push(config.roles.trusted);
 	case PermissionLevel.TEAM_MEMBER:
 		roleId.push(config.roles.team_member);
 	case PermissionLevel.MODERATOR:

@@ -230,8 +230,8 @@ async function main() {
 	// Listen for edited messages
 	if (config.options.log.message_edits) {
 		client.on('messageUpdate', async (oldMessage, newMessage) => {
-			// Only responds to beta testers and members
-			if (!hasPermissionLevel(newMessage.member, PermissionLevel.TEAM_MEMBER)) {
+			// Only responds to trusted users and members
+			if (!hasPermissionLevel(newMessage.member, PermissionLevel.TEAM_MEMBER) && newMessage.guild) {
 				log.messageUpdated(client, oldMessage, newMessage);
 			}
 		});
@@ -244,7 +244,7 @@ async function main() {
 			if (message.channel.isDMBased()) return;
 
 			// Only responds to members
-			if (!hasPermissionLevel(message.member, PermissionLevel.BETA_TESTER)) {
+			if (!hasPermissionLevel(message.member, PermissionLevel.TRUSTED)) {
 				// Check for spam
 				if (config.options.spam.enabled) {
 					messageIsSpam(message).then(spam => {
