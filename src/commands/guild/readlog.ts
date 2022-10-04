@@ -3,7 +3,7 @@ import fs from 'fs';
 import readline from 'readline';
 import events from 'events';
 import { Command } from '../../types/interaction';
-import { LogLevelColor, logPath } from '../../utils/log';
+import { LogLevelColor, getLogPath } from '../../utils/log';
 import { PermissionLevel } from '../../utils/permissions';
 
 const ReadLog: Command = {
@@ -20,10 +20,14 @@ const ReadLog: Command = {
 
 	async execute(interaction: CommandInteraction) {
 		if (!interaction.isChatInputCommand()) return;
+		if (!interaction.inGuild || !interaction.guild) {
+			return interaction.reply({ content: 'This command must be ran in a guild.', ephemeral: true });
+		}
 
 		const numLines = interaction.options.getInteger('lines') ?? 100;
 		let lines: string[] = [];
 
+		const logPath = getLogPath(interaction.guild.id);
 		if (!fs.existsSync(logPath)) {
 			fs.writeFileSync(logPath, '');
 		}

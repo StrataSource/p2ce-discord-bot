@@ -1,7 +1,6 @@
 {
 	"token": "token goes here",
 	"client_id": "client id goes here",
-	"guild": "guild id goes here",
 
 	"github_token": "",
 	"google_api_key": "",
