@@ -7,10 +7,10 @@ import { LogLevelColor, writeToLog } from '../../utils/log';
 
 import * as config from '../../config.json';
 
-const search_skipback    = new ButtonBuilder().setCustomId('search_skipback')   .setLabel('⭰').setStyle(ButtonStyle.Primary);
-const search_pageback    = new ButtonBuilder().setCustomId('search_pageback')   .setLabel('❮').setStyle(ButtonStyle.Primary);
-const search_pageforward = new ButtonBuilder().setCustomId('search_pageforward').setLabel('❯').setStyle(ButtonStyle.Primary);
-const search_skipforward = new ButtonBuilder().setCustomId('search_skipforward').setLabel('⭲').setStyle(ButtonStyle.Primary);
+const search_skipback    = new ButtonBuilder().setCustomId('search_skipback')   .setLabel('⏮️').setStyle(ButtonStyle.Primary);
+const search_pageback    = new ButtonBuilder().setCustomId('search_pageback')   .setLabel('◀️').setStyle(ButtonStyle.Primary);
+const search_pageforward = new ButtonBuilder().setCustomId('search_pageforward').setLabel('▶️').setStyle(ButtonStyle.Primary);
+const search_skipforward = new ButtonBuilder().setCustomId('search_skipforward').setLabel('⏭️').setStyle(ButtonStyle.Primary);
 
 function getMaxPages(length: number) {
 	const maxItems = config.options.github.search_page_length;
