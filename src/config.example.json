@@ -9,14 +9,7 @@
 
 	"options": {
 		"log": {
-			"errors_and_warnings_channel": "",
-			"user_updates": true,
-			"user_avatar_changes": true,
-			"user_bans": true,
-			"user_joins_and_leaves": true,
-			"message_deletes": true,
-			"message_edits": true,
-			"user_exceptions": []
+			"errors_and_warnings_channel": ""
 		},
 
 		"github": {
@@ -24,14 +17,7 @@
 			"search_page_cache_time": 15
 		},
 
-		"spam": {
-			"enabled": true,
-			"max_mentions": 6,
-			"timeout_duration_minutes": 2
-		},
-
 		"misc": {
-			"autorespond": true,
 			"key_check_hours_to_wait": 1,
 			"message_purge_max": 50
 		}

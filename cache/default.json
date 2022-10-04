@@ -1,4 +1,12 @@
 {
+	"log": {
+		"user_updates": true,
+		"user_bans": true,
+		"user_joins_and_leaves": true,
+		"message_deletes": true,
+		"message_edits": true,
+		"user_exceptions": []
+	},
 	"reaction_roles": {},
 	"watched_threads": [],
 	"statistics": {
