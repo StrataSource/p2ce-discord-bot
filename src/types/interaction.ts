@@ -1,10 +1,11 @@
-import { CommandInteraction, ContextMenuCommandBuilder, InteractionResponse, Message, MessageContextMenuCommandInteraction, SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder, UserContextMenuCommandInteraction } from 'discord.js';
+import { ButtonInteraction, CommandInteraction, ContextMenuCommandBuilder, InteractionResponse, Message, MessageContextMenuCommandInteraction, SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder, UserContextMenuCommandInteraction } from 'discord.js';
 import { PermissionLevel } from '../utils/permissions';
 
 export interface CommandBase {
 	permissionLevel: PermissionLevel,
 	data: unknown,
 	execute(interaction: CommandInteraction): Promise<void | InteractionResponse<boolean> | Message<boolean>>,
+	onButtonPressed?(interaction: ButtonInteraction): Promise<void | InteractionResponse<boolean> | Message<boolean>>,
 }
 
 export interface Command extends CommandBase {

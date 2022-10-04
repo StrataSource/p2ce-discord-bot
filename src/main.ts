@@ -115,19 +115,48 @@ async function main() {
 			}
 
 			if (interaction.isContextMenuCommand()) {
-				log.writeToLog(`Context menu "${interaction.commandName}" run by ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`);
+				log.writeToLog(`Context menu "${interaction.commandName}" clicked by ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`);
 			} else {
-				log.writeToLog(`Command "${interaction.commandName}" run by ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`);
+				log.writeToLog(`Command "${interaction.commandName}" ran by ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`);
 			}
 
-			command.execute(interaction).catch(err => {
+			try {
+				await command.execute(interaction);
+			} catch (err) {
 				log.writeToLog((err as Error).toString());
 				if (interaction.deferred) {
-					interaction.followUp(`There was an error while executing this command: ${err}`);
+					await interaction.followUp(`There was an error while executing this command: ${err}`);
 				} else {
-					interaction.reply(`There was an error while executing this command: ${err}`);
+					await interaction.reply(`There was an error while executing this command: ${err}`);
 				}
-			});
+				return;
+			}
+		} else if (interaction.isButton()) {
+			if (interaction.user !== interaction.message.interaction?.user) {
+				await interaction.reply({ content: `You cannot touch someone else's buttons! These buttons are owned by ${interaction.message.interaction?.user}`, ephemeral: true });
+				return;
+			}
+
+			// Cut the command name off at the first space, since that is the top-level name
+			const commandNameFull = interaction.message.interaction.commandName;
+			const spaceIndex = commandNameFull.indexOf(' ');
+			const commandName = commandNameFull.substring(0, spaceIndex < 0 ? commandNameFull.length : spaceIndex);
+			const command = client.commands?.get(commandName);
+			if (!command) return;
+
+			log.writeToLog(`Button with ID "${interaction.customId}" clicked by ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`);
+
+			try {
+				command.onButtonPressed?.(interaction);
+			} catch (err) {
+				log.writeToLog((err as Error).toString());
+				if (interaction.deferred) {
+					await interaction.followUp(`There was an error while pressing this button: ${err}`);
+				} else {
+					await interaction.reply(`There was an error while pressing this button: ${err}`);
+				}
+				return;
+			}
 		}
 	});
 

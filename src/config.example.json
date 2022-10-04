@@ -20,6 +20,11 @@
 			"user_exceptions": []
 		},
 
+		"github": {
+			"search_page_length": 5,
+			"search_page_cache_time": 15
+		},
+
 		"spam": {
 			"enabled": true,
 			"max_mentions": 6,
