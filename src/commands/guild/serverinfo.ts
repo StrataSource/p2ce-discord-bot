@@ -11,8 +11,8 @@ const ServerInfo: Command = {
 		.setDescription('Get information about the current server.'),
 
 	async execute(interaction: CommandInteraction) {
-		if (!interaction.inGuild() || !interaction.guild) {
-			return interaction.reply('This command can only be ran in a server.');
+		if (!interaction.inGuild || !interaction.guild) {
+			return interaction.reply({ content: 'This command must be ran in a guild.', ephemeral: true });
 		}
 
 		const description = (interaction.guild.description && interaction.guild.description.length > 0) ? interaction.guild.description : 'Server has no description.';

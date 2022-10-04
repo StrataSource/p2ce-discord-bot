@@ -192,7 +192,7 @@ const Issue: Command = {
 		try {
 			await interaction.editReply({ embeds: [newEmbed], components: [buttons] });
 		} catch (err) {
-			writeToLog((err as Error).toString());
+			writeToLog(undefined, (err as Error).toString());
 		}
 	}
 };

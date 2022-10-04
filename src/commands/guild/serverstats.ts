@@ -12,9 +12,11 @@ const ServerStats: Command = {
 		.setDescription('Get more detailed statistics about the current server than the /serverinfo command.'),
 
 	async execute(interaction: CommandInteraction) {
-		if (!interaction.inGuild() || !interaction.guild) {
-			return interaction.reply('This command can only be ran in a server.');
+		if (!interaction.inGuild || !interaction.guild) {
+			return interaction.reply({ content: 'This command must be ran in a guild.', ephemeral: true });
 		}
+
+		const data = persist.data(interaction.guild.id);
 
 		// Forum channels are null in djs 14.2, when they're properly added you can change this
 		const channelCount = (await interaction.guild.channels.fetch()).filter(e => (e == null) || (e.isTextBased() || e.isVoiceBased())).size;
@@ -22,8 +24,8 @@ const ServerStats: Command = {
 		// Reminder that @everyone is a role
 		const roleCount = (await interaction.guild.roles.fetch()).size;
 
-		const joins = persist.data.statistics.joins;
-		const leaves = persist.data.statistics.leaves;
+		const joins = data.statistics.joins;
+		const leaves = data.statistics.leaves;
 
 		const embed = new EmbedBuilder()
 			.setColor(LogLevelColor.INFO)

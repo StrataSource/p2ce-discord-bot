@@ -67,8 +67,8 @@ export async function checkUserKeyStatus(interaction: CommandInteraction, user: 
 	const bgColor: any = {};
 	try {
 		Object.assign(bgColor, cell.backgroundColor);
-		// eslint-disable-next-line no-empty
-	} catch (err) {}
+	// eslint-disable-next-line no-empty
+	} catch (ignored) {}
 	if (!Object.hasOwn(bgColor, 'red')) bgColor.red = 0;
 	if (!Object.hasOwn(bgColor, 'green')) bgColor.green = 0;
 	if (!Object.hasOwn(bgColor, 'blue')) bgColor.blue = 0;

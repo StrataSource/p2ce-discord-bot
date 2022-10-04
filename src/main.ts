@@ -17,9 +17,6 @@ import * as config from './config.json';
 import consoleStamp from 'console-stamp';
 consoleStamp(console);
 
-// Load persistent storage
-persist.loadData();
-
 interface P2CEClient extends Client {
 	commands?: Collection<string, CommandBase>,
 }
@@ -27,12 +24,12 @@ interface P2CEClient extends Client {
 async function main() {
 	// You need a token, duh
 	if (!config.token) {
-		log.writeToLog('[ERROR] No token found in config.json!');
+		log.writeToLog(undefined, 'Error: no token found in config.json!');
 		return;
 	}
 
 	const date = new Date();
-	log.writeToLog(`--- START AT ${date.toDateString()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ---`);
+	log.writeToLog(undefined, `--- START AT ${date.toDateString()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ---`);
 
 	// Create client
 	const client: P2CEClient = new Client({
@@ -79,20 +76,20 @@ async function main() {
 	client.on('ready', async () => {
 		client.user?.setActivity('this server', { type: ActivityType.Watching });
 		setTimeout(() => client.user?.setActivity('this server', { type: ActivityType.Watching }), 30e3);
-		log.writeToLog(`[INFO] Logged in as ${client.user?.tag}`);
+		log.writeToLog(undefined, `Logged in as ${client.user?.tag}`);
 	});
 
 	// Listen for errors
 	if (config.options.log.errors) {
 		client.on('error', async error => {
-			log.error(client, error);
+			//todo log.error(client, error);
 		});
 	}
 
 	// Listen for warnings
 	if (config.options.log.warnings) {
 		client.on('warn', async warn => {
-			log.warning(client, warn);
+			//todo log.warning(client, warn);
 		});
 	}
 
@@ -115,15 +112,15 @@ async function main() {
 			}
 
 			if (interaction.isContextMenuCommand()) {
-				log.writeToLog(`Context menu "${interaction.commandName}" clicked by ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`);
+				log.writeToLog(interaction.guild?.id, `Context menu "${interaction.commandName}" clicked by ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`);
 			} else {
-				log.writeToLog(`Command "${interaction.commandName}" ran by ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`);
+				log.writeToLog(interaction.guild?.id, `Command "${interaction.commandName}" ran by ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`);
 			}
 
 			try {
 				await command.execute(interaction);
 			} catch (err) {
-				log.writeToLog((err as Error).toString());
+				log.writeToLog(undefined, (err as Error).toString());
 				if (interaction.deferred) {
 					await interaction.followUp(`There was an error while executing this command: ${err}`);
 				} else {
@@ -144,12 +141,12 @@ async function main() {
 			const command = client.commands?.get(commandName);
 			if (!command) return;
 
-			log.writeToLog(`Button with ID "${interaction.customId}" clicked by ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`);
+			log.writeToLog(interaction.guild?.id, `Button with ID "${interaction.customId}" clicked by ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`);
 
 			try {
 				command.onButtonPressed?.(interaction);
 			} catch (err) {
-				log.writeToLog((err as Error).toString());
+				log.writeToLog(undefined, (err as Error).toString());
 				if (interaction.deferred) {
 					await interaction.followUp(`There was an error while pressing this button: ${err}`);
 				} else {
@@ -162,7 +159,8 @@ async function main() {
 
 	// Listen for added reactions
 	client.on('messageReactionAdd', async (reaction, user) => {
-		if (user.id === config.client_id) return;
+		// If we are reacting, or this is not a guild, bail
+		if (user.id === config.client_id || !reaction.message.guild) return;
 
 		// When a reaction is received, check if the structure is partial
 		if (reaction.partial) {
@@ -170,13 +168,14 @@ async function main() {
 			try {
 				await reaction.fetch();
 			} catch (err) {
-				log.writeToLog((err as Error).toString());
+				log.writeToLog(undefined, (err as Error).toString());
 			}
 		}
 
 		// If persistent storage has the reaction message ID, add requested role to the user
-		if (Object.hasOwn(persist.data.reaction_roles, reaction.message.id)) {
-			persist.data.reaction_roles[reaction.message.id].roles.filter(e => {
+		const data = persist.data(reaction.message.guild.id);
+		if (Object.hasOwn(data.reaction_roles, reaction.message.id)) {
+			data.reaction_roles[reaction.message.id].roles.filter(e => {
 				let name = e.emoji_name;
 				if (name.startsWith('<:') && name.endsWith('>')) {
 					name = name.substring(name.indexOf(':') + 1, name.lastIndexOf(':'));
@@ -190,7 +189,8 @@ async function main() {
 
 	// Listen for removed reactions
 	client.on('messageReactionRemove', async (reaction, user) => {
-		if (user.id === config.client_id) return;
+		// If we are reacting, or this is not a guild, bail
+		if (user.id === config.client_id || !reaction.message.guild) return;
 
 		// When a reaction is received, check if the structure is partial
 		if (reaction.partial) {
@@ -198,13 +198,14 @@ async function main() {
 			try {
 				await reaction.fetch();
 			} catch (err) {
-				log.writeToLog((err as Error).toString());
+				log.writeToLog(undefined, (err as Error).toString());
 			}
 		}
 
 		// If persistent storage has the reaction message ID, remove requested role from the user
-		if (Object.hasOwn(persist.data.reaction_roles, reaction.message.id)) {
-			persist.data.reaction_roles[reaction.message.id].roles.filter(e => {
+		const data = persist.data(reaction.message.guild.id);
+		if (Object.hasOwn(data.reaction_roles, reaction.message.id)) {
+			data.reaction_roles[reaction.message.id].roles.filter(e => {
 				let name = e.emoji_name;
 				if (name.startsWith('<:') && name.endsWith('>')) {
 					name = name.substring(name.indexOf(':') + 1, name.lastIndexOf(':'));
@@ -218,7 +219,8 @@ async function main() {
 
 	// Listen for thread changes
 	client.on('threadUpdate', async (oldThread, newThread) => {
-		if (persist.data.watched_threads.includes(newThread.id) && !oldThread.archived && newThread.archived) {
+		const data = persist.data(newThread.guild.id);
+		if (data.watched_threads.includes(newThread.id) && !oldThread.archived && newThread.archived) {
 			await newThread.setArchived(false);
 		}
 	});
@@ -226,32 +228,33 @@ async function main() {
 	// Listen for thread deletions
 	client.on('threadDelete', async thread => {
 		// Remove deleted threads from watchlist
-		if (persist.data.watched_threads.includes(thread.id)) {
-			persist.data.watched_threads = persist.data.watched_threads.filter((e: string) => e !== thread.id);
-			persist.saveData();
+		const data = persist.data(thread.guild.id);
+		if (data.watched_threads.includes(thread.id)) {
+			data.watched_threads = data.watched_threads.filter((e: string) => e !== thread.id);
+			persist.saveData(thread.guild.id);
 		}
 	});
 
 	// Listen for presence updates
 	if (config.options.log.user_updates) {
 		client.on('userUpdate', async (oldUser, newUser) => {
-			log.userUpdate(client, oldUser, newUser);
+			//todo log.userUpdate(client, oldUser, newUser);
 		});
 	}
 
 	// Listen for banned members
 	if (config.options.log.user_bans) {
 		client.on('guildBanAdd', async ban => {
-			log.userBanned(client, ban);
+			log.userBanned(client, ban.guild.id, ban);
 		});
 	}
 
 	// Listen for deleted messages
 	if (config.options.log.message_deletes) {
 		client.on('messageDelete', async message => {
-			// Only responds to beta testers and members
-			if (!hasPermissionLevel(message.member, PermissionLevel.TEAM_MEMBER) && message.cleanContent) {
-				log.messageDeleted(client, message);
+			// Only responds to trusted users and members
+			if (!hasPermissionLevel(message.member, PermissionLevel.TEAM_MEMBER) && message.cleanContent && message.guild) {
+				log.messageDeleted(client, message.guild.id, message);
 			}
 		});
 	}
@@ -261,7 +264,7 @@ async function main() {
 		client.on('messageUpdate', async (oldMessage, newMessage) => {
 			// Only responds to trusted users and members
 			if (!hasPermissionLevel(newMessage.member, PermissionLevel.TEAM_MEMBER) && newMessage.guild) {
-				log.messageUpdated(client, oldMessage, newMessage);
+				log.messageUpdated(client, newMessage.guild.id, oldMessage, newMessage);
 			}
 		});
 	}
@@ -270,19 +273,18 @@ async function main() {
 	if (config.options.misc.autorespond) {
 		client.on('messageCreate', async message => {
 			// Only respond to messages in guilds
-			if (message.channel.isDMBased()) return;
+			if (message.channel.isDMBased() || !message.guild) return;
 
 			// Only responds to members
 			if (!hasPermissionLevel(message.member, PermissionLevel.TRUSTED)) {
 				// Check for spam
 				if (config.options.spam.enabled) {
-					messageIsSpam(message).then(spam => {
-						if (spam && message.deletable) {
-							message.delete();
-							message.member?.timeout(config.options.spam.timeout_duration_minutes * 1000 * 60, 'Spamming @mentions');
-							log.userSpamResponse(client, message);
-						}
-					});
+					const spam = await messageIsSpam(message);
+					if (spam && message.deletable) {
+						message.delete();
+						message.member?.timeout(config.options.spam.timeout_duration_minutes * 1000 * 60, 'Spamming @mentions');
+						log.userSpamResponse(client, message.guild.id, message);
+					}
 				}
 
 				// Check for response
@@ -302,35 +304,37 @@ async function main() {
 
 	// Listen for members joining
 	client.on('guildMemberAdd', async member => {
+		const data = persist.data(member.guild.id);
 		if (config.options.log.user_joins_and_leaves) {
-			persist.data.statistics.joins++;
-			persist.saveData();
+			data.statistics.joins++;
+			persist.saveData(member.guild.id);
 
-			log.userJoined(client, member);
+			log.userJoined(client, member.guild.id, member);
 		}
 
 		// Add the member role to the user so they can use the server
 		await member.roles.add(config.roles.member);
 	});
 
-	if (config.options.log.user_joins_and_leaves) {
-		// Listen for members leaving
-		client.on('guildMemberRemove', async member => {
-			persist.data.statistics.leaves++;
-			persist.saveData();
+	// Listen for members leaving
+	client.on('guildMemberRemove', async member => {
+		const data = persist.data(member.guild.id);
+		if (config.options.log.user_joins_and_leaves) {
+			data.statistics.leaves++;
+			persist.saveData(member.guild.id);
 
-			log.userLeft(client, member);
-		});
-	}
+			log.userLeft(client, member.guild.id, member);
+		}
+	});
 
 	// Log in
 	await client.login(config.token);
 
 	process.on('SIGINT', () => {
 		const date = new Date();
-		log.writeToLog(`--- STOP AT ${date.toDateString()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ---`);
+		log.writeToLog(undefined, `--- STOP AT ${date.toDateString()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ---`);
 		client.destroy();
-		persist.saveData();
+		persist.saveAll();
 		process.exit();
 	});
 }
@@ -338,9 +342,18 @@ async function main() {
 async function updateCommands() {
 	// You need a token, duh
 	if (!config.token) {
-		console.log('Error: No token found in config.json!');
+		console.log('Error: no token found in config.json!');
 		return;
 	}
+
+	console.log('Logging on...');
+
+	const client = new Client({
+		intents: [
+			IntentsBitField.Flags.Guilds
+		]
+	});
+	await client.login(config.token);
 
 	console.log('Registering commands...');
 
@@ -364,12 +377,16 @@ async function updateCommands() {
 	const rest = new REST({ version: '10' }).setToken(config.token);
 
 	// Update commands for every guild
-	await rest.put(Routes.applicationGuildCommands(config.client_id, config.guild), { body: guildCommands });
-	console.log(`Registered ${guildCommands.length} guild commands for ${config.guild}`);
+	for (const guild of (await client.guilds.fetch()).values()) {
+		await rest.put(Routes.applicationGuildCommands(config.client_id, guild.id), { body: guildCommands });
+		console.log(`Registered ${guildCommands.length} guild commands for ${guild.id}`);
+	}
 
 	// And register global commands
 	await rest.put(Routes.applicationCommands(config.client_id), { body: globalCommands });
-	console.log(`Registered ${globalCommands.length} application commands`);
+	console.log(`Registered ${globalCommands.length} global commands`);
+
+	client.destroy();
 }
 
 if (process.argv.includes('--update-commands')) {
