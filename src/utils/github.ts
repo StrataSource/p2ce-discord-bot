@@ -24,6 +24,7 @@ export async function getIssuesInRepo(repo: string) {
 			repo: repoInfo.name,
 			page: page++,
 			per_page: 50,
+			state: 'all',
 		});
 		for (const issue of issuesRaw.data) {
 			issues.push(issue as GitHubIssue);
@@ -35,6 +36,18 @@ export async function getIssuesInRepo(repo: string) {
 	return issues;
 }
 
-export async function searchIssuesInRepo(repo: string, query: string) {
-	return getIssuesInRepo(repo).then(issues => issues.filter(issue => issue.title.toLowerCase().includes(query.toLowerCase()) || (issue.body && issue.body.toLowerCase().includes(query.toLowerCase()))));
+export async function getIssueInRepo(repo: string, issueID: number): Promise<GitHubIssue | undefined> {
+	const issues = await getIssuesInRepo(repo).then(issues => issues.filter(issue => issue.number === issueID));
+	if (issues.length > 0) {
+		return issues[0];
+	}
+	return undefined;
+}
+
+export async function searchIssuesInRepo(repo: string, query: string, open: boolean | null | undefined = undefined) {
+	return getIssuesInRepo(repo).then(issues => issues.filter(issue => {
+		const inTitle = issue.title.toLowerCase().includes(query.toLowerCase());
+		const inBody = issue.body && issue.body.toLowerCase().includes(query.toLowerCase());
+		return (inTitle || inBody) && (!open || issue.state === 'open');
+	}));
 }

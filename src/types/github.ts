@@ -15,4 +15,7 @@ export interface GitHubIssue {
 		html_url: string | null;
 	} | undefined,
 	body?: string | null | undefined,
+	created_at: string,
+	updated_at: string,
+	closed_at: string,
 }

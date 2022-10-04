@@ -13,6 +13,6 @@ const UserInfo: ContextMenu = {
 	async execute(interaction: UserContextMenuCommandInteraction) {
 		const user = interaction.targetUser;
 		return getUserInfo(interaction, user, true);
-	},
+	}
 };
 export default UserInfo;

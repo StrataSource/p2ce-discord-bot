@@ -1,7 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, CommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { GitHubIssue } from '../../types/github';
 import { Command } from '../../types/interaction';
-import { searchIssuesInRepo } from '../../utils/github';
+import { getIssueInRepo, searchIssuesInRepo } from '../../utils/github';
 import { PermissionLevel } from '../../utils/permissions';
 import { LogLevelColor, writeToLog } from '../../utils/log';
 
@@ -28,7 +28,7 @@ async function getSearchEmbed(issues: Array<GitHubIssue>, repo: string, query: s
 
 	let out = '';
 	for (let i = startingPoint; i < stoppingPoint; i++) {
-		out += `[${issues[i].number}](${issues[i].html_url}): ${issues[i].title}\n`;
+		out += `[${issues[i].number}](${issues[i].html_url}): ${issues[i].state === 'closed' ? '*' : ''}${issues[i].title}${issues[i].state === 'closed' ? '*' : ''}\n`;
 	}
 
 	// Note: update onButtonPressed if this is ever changed
@@ -80,7 +80,10 @@ const Issue: Command = {
 			.addStringOption(option => option
 				.setName('query')
 				.setDescription('The search query')
-				.setRequired(true))),
+				.setRequired(true))
+			.addBooleanOption(option => option
+				.setName('open')
+				.setDescription('If the issue must be open or not (default is to search all issues)'))),
 
 	async execute(interaction: CommandInteraction) {
 		if (!interaction.isChatInputCommand()) return;
@@ -88,12 +91,33 @@ const Issue: Command = {
 		switch (interaction.options.getSubcommand()) {
 		case 'get': {
 			const repo = interaction.options.getString('repo', true);
-			if (repo in config.git_repos) {
-				const repoInfo = (config.git_repos as {[repo: string]: {owner: string, name: string}})[repo];
-				const issueID = interaction.options.getInteger('id', true);
-				return interaction.reply(`https://github.com/${repoInfo.owner}/${repoInfo.name}/issues/${issueID}`);
+			if (!(repo in config.git_repos)) {
+				return interaction.reply({ content: `Could not find repository "${repo}"`, ephemeral: true });
 			}
-			return interaction.reply({ content: `Could not find repository "${repo}"`, ephemeral: true });
+			await interaction.deferReply();
+
+			const issueID = interaction.options.getInteger('id', true);
+			const issue = await getIssueInRepo(repo, issueID);
+			if (!issue) {
+				return interaction.editReply(`Could not find issue #${issueID}`);
+			}
+
+			let description: string;
+			if (issue.body) {
+				description = issue.body.length > 5000 ? issue.body.substring(0, 5000) + '...' : issue.body;
+			} else {
+				description = 'No description';
+			}
+
+			const embed = new EmbedBuilder()
+				.setColor(LogLevelColor.INFO)
+				.setAuthor({ name: issue.user?.login ?? 'Unknown', url: issue.user?.html_url, iconURL: issue.user?.avatar_url })
+				.setTitle(`Issue #${issue.number}: ${issue.title}`)
+				.setDescription(description)
+				.setURL(issue.html_url)
+				.setTimestamp(Date.parse(issue.created_at));
+
+			return interaction.editReply({ embeds: [embed] });
 		}
 
 		case 'search': {
@@ -105,7 +129,7 @@ const Issue: Command = {
 
 			const query = interaction.options.getString('query', true);
 
-			const issues = await searchIssuesInRepo(repo, query);
+			const issues = await searchIssuesInRepo(repo, query, interaction.options.getBoolean('open'));
 
 			const maxPage = getMaxPages(issues.length);
 
@@ -168,7 +192,7 @@ const Issue: Command = {
 		try {
 			await interaction.editReply({ embeds: [newEmbed], components: [buttons] });
 		} catch (err) {
-			writeToLog((err as Error).message);
+			writeToLog((err as Error).toString());
 		}
 	}
 };
