@@ -8,7 +8,7 @@ dist/
 node_modules/
 
 # Generated
-cache/guild_*.json
+db/guild_*.json
 log/
 
 # Config

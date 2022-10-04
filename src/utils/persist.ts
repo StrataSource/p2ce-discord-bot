@@ -4,13 +4,13 @@ import { PersistentData } from '../types/persist';
 const serverData = new Map<string, PersistentData>();
 
 function getDataURL(guildID: string) { 
-	return `./cache/guild_${guildID}.json`;
+	return `./db/guild_${guildID}.json`;
 }
 
 export function loadData(guildID: string) {
 	const dataURL = getDataURL(guildID);
 	if (!fs.existsSync(dataURL)) {
-		fs.writeFileSync(dataURL, fs.readFileSync('./cache/default.json'));
+		fs.writeFileSync(dataURL, fs.readFileSync('./db/default.json'));
 	}
 	serverData.set(guildID, JSON.parse(fs.readFileSync(dataURL).toString()));
 }
