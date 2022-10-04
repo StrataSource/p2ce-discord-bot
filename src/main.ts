@@ -234,7 +234,11 @@ async function main() {
 	// Listen for presence updates
 	if (config.options.log.user_updates) {
 		client.on('userUpdate', async (oldUser, newUser) => {
-			//todo log.userUpdate(client, oldUser, newUser);
+			for (const guild of (await client.guilds.fetch()).values()) {
+				if ((await (await guild.fetch()).members.fetch()).get(newUser.id)) {
+					log.userUpdate(client, guild.id, oldUser, newUser);
+				}
+			}
 		});
 	}
 
@@ -300,11 +304,10 @@ async function main() {
 
 	// Listen for members joining
 	client.on('guildMemberAdd', async member => {
-		const data = persist.data(member.guild.id);
-		if (config.options.log.user_joins_and_leaves) {
-			data.statistics.joins++;
-			persist.saveData(member.guild.id);
+		persist.data(member.guild.id).statistics.joins++;
+		persist.saveData(member.guild.id);
 
+		if (config.options.log.user_joins_and_leaves) {
 			log.userJoined(client, member.guild.id, member);
 		}
 
@@ -314,11 +317,10 @@ async function main() {
 
 	// Listen for members leaving
 	client.on('guildMemberRemove', async member => {
-		const data = persist.data(member.guild.id);
-		if (config.options.log.user_joins_and_leaves) {
-			data.statistics.leaves++;
-			persist.saveData(member.guild.id);
+		persist.data(member.guild.id).statistics.leaves++;
+		persist.saveData(member.guild.id);
 
+		if (config.options.log.user_joins_and_leaves) {
 			log.userLeft(client, member.guild.id, member);
 		}
 	});
