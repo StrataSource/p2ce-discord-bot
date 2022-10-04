@@ -5,11 +5,9 @@ import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import fs from 'fs';
 import { Command, CommandBase, ContextMenu } from './types/interaction';
-import { messageNeedsResponse, priviledgedMessageNeedsResponse } from './utils/autorespond';
 import * as log from './utils/log';
 import { hasPermissionLevel, PermissionLevel } from './utils/permissions';
 import * as persist from './utils/persist';
-import { messageIsSpam } from './utils/spamprevent';
 
 import * as config from './config.json';
 
@@ -232,82 +230,54 @@ async function main() {
 	});
 
 	// Listen for presence updates
-	if (config.options.log.user_updates) {
-		client.on('userUpdate', async (oldUser, newUser) => {
-			for (const guild of (await client.guilds.fetch()).values()) {
-				if ((await (await guild.fetch()).members.fetch()).get(newUser.id)) {
+	client.on('userUpdate', async (oldUser, newUser) => {
+		for (const guild of (await client.guilds.fetch()).values()) {
+			const member = (await (await guild.fetch()).members.fetch()).get(newUser.id);
+			if (member) {
+				const data = persist.data(guild.id);
+				if (data.log.user_updates) {
 					log.userUpdate(client, guild.id, oldUser, newUser);
 				}
 			}
-		});
-	}
+		}
+	});
 
 	// Listen for banned members
-	if (config.options.log.user_bans) {
-		client.on('guildBanAdd', async ban => {
+	client.on('guildBanAdd', async ban => {
+		if (persist.data(ban.guild.id).log.user_bans) {
 			log.userBanned(client, ban.guild.id, ban);
-		});
-	}
+		}
+	});
 
 	// Listen for deleted messages
-	if (config.options.log.message_deletes) {
-		client.on('messageDelete', async message => {
-			// Only responds to trusted users and members
-			if (!hasPermissionLevel(message.member, PermissionLevel.TEAM_MEMBER) && message.cleanContent && message.guild) {
+	client.on('messageDelete', async message => {
+		// Only responds to trusted users and members
+		if (!hasPermissionLevel(message.member, PermissionLevel.TEAM_MEMBER) && message.cleanContent && message.guild) {
+			const data = persist.data(message.guild.id);
+			if (data.log.message_deletes && message.author && !data.log.user_exceptions.includes(message.author.id)) {
 				log.messageDeleted(client, message.guild.id, message);
 			}
-		});
-	}
+		}
+	});
 
 	// Listen for edited messages
-	if (config.options.log.message_edits) {
-		client.on('messageUpdate', async (oldMessage, newMessage) => {
-			// Only responds to trusted users and members
-			if (!hasPermissionLevel(newMessage.member, PermissionLevel.TEAM_MEMBER) && newMessage.guild) {
+	client.on('messageUpdate', async (oldMessage, newMessage) => {
+		// Only responds to trusted users and members
+		if (!hasPermissionLevel(newMessage.member, PermissionLevel.TEAM_MEMBER) && newMessage.guild) {
+			const data = persist.data(newMessage.guild.id);
+			if (data.log.message_edits && newMessage.author && !data.log.user_exceptions.includes(newMessage.author.id)) {
 				log.messageUpdated(client, newMessage.guild.id, oldMessage, newMessage);
 			}
-		});
-	}
-
-	// Listen for messages to respond to
-	if (config.options.misc.autorespond) {
-		client.on('messageCreate', async message => {
-			// Only respond to messages in guilds
-			if (message.channel.isDMBased() || !message.guild) return;
-
-			// Only responds to members
-			if (!hasPermissionLevel(message.member, PermissionLevel.TRUSTED)) {
-				// Check for spam
-				if (config.options.spam.enabled) {
-					const spam = await messageIsSpam(message);
-					if (spam && message.deletable) {
-						message.delete();
-						message.member?.timeout(config.options.spam.timeout_duration_minutes * 1000 * 60, 'Spamming @mentions');
-						log.userSpamResponse(client, message.guild.id, message);
-					}
-				}
-
-				// Check for response
-				const response = messageNeedsResponse(message);
-				if (response) {
-					await message.reply(response);
-				}
-			} else {
-				// This bit will respond to ANY USER
-				const response = priviledgedMessageNeedsResponse(message);
-				if (response) {
-					await message.reply(response);
-				}
-			}
-		});
-	}
+		}
+	});
 
 	// Listen for members joining
 	client.on('guildMemberAdd', async member => {
-		persist.data(member.guild.id).statistics.joins++;
+		const data = persist.data(member.guild.id);
+		data.statistics.joins++;
 		persist.saveData(member.guild.id);
 
-		if (config.options.log.user_joins_and_leaves) {
+		if (data.log.user_joins_and_leaves) {
 			log.userJoined(client, member.guild.id, member);
 		}
 
@@ -317,10 +287,11 @@ async function main() {
 
 	// Listen for members leaving
 	client.on('guildMemberRemove', async member => {
-		persist.data(member.guild.id).statistics.leaves++;
+		const data = persist.data(member.guild.id);
+		data.statistics.leaves++;
 		persist.saveData(member.guild.id);
 
-		if (config.options.log.user_joins_and_leaves) {
+		if (data.log.user_joins_and_leaves) {
 			log.userLeft(client, member.guild.id, member);
 		}
 	});
