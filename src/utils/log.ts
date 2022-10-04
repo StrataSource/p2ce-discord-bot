@@ -52,7 +52,7 @@ export function warning(client: Client, msg: string) {
 }
 
 export function userUpdate(client: Client, user1: User | PartialUser, user2: User) {
-	if (config.options.log.user_exceptions.includes(user2.id)) return;
+	if ((config.options.log.user_exceptions as string[]).includes(user2.id)) return;
 	if (user1.username !== user2.username) {
 		message(client, 'USER', LogLevelColor.INFO, `**${user1.username}#${user1.discriminator}** changed their username to **${user2.username}#${user2.discriminator}**`);
 	}
@@ -79,7 +79,7 @@ export function userSpamResponse(client: Client, msg: Message<boolean> | Partial
 
 export function messageDeleted(client: Client, msg: Message<boolean> | PartialMessage) {
 	if (msg.author?.bot || !msg.author?.username) return;
-	if (config.options.log.user_exceptions.includes(msg.author.id)) return;
+	if ((config.options.log.user_exceptions as string[]).includes(msg.author.id)) return;
 	if (msg.cleanContent) {
 		message(client, 'MESSAGE', LogLevelColor.INFO, `A message from <@${msg.author?.id}> was deleted in ${msg.channel.toString()}\n\nContents: \`\`\`${msg.cleanContent}\`\`\``, msg.author?.avatarURL({ size: 1024 }));
 	} else {
@@ -89,7 +89,7 @@ export function messageDeleted(client: Client, msg: Message<boolean> | PartialMe
 
 export function messageUpdated(client: Client, oldMessage: Message<boolean> | PartialMessage, newMessage: Message<boolean> | PartialMessage) {
 	if (oldMessage.author?.bot || !oldMessage.author?.username) return;
-	if (config.options.log.user_exceptions.includes(oldMessage.author.id)) return;
+	if ((config.options.log.user_exceptions as string[]).includes(oldMessage.author.id)) return;
 	if (oldMessage.cleanContent !== newMessage.cleanContent) {
 		message(client, 'MESSAGE', LogLevelColor.INFO, `[A message](${newMessage.url}) from <@${newMessage.author?.id}> was edited in ${oldMessage.channel.toString()}\n\nBefore: \`\`\`${oldMessage.cleanContent}\`\`\`\nAfter: \`\`\`${newMessage.cleanContent}\`\`\``, newMessage.author?.avatarURL({ size: 1024 }));
 	}
