@@ -21,15 +21,17 @@ const Info: Command = {
 			.setAuthor({
 				name: username,
 				url: 'https://github.com/ChaosInitiative/p2ce-discord-bot',
-				iconURL: interaction.client.user?.displayAvatarURL()?.toString()
+				iconURL: interaction.client.user?.displayAvatarURL(),
 			})
 			.setDescription('This server\'s robotic helper and moral compass.')
 			.setColor(LogLevelColor.INFO)
 			.addFields(
-				{ name: 'Bot Version', value: `${packageJSON.version}` },
-				{ name: 'Discord.JS Version', value: (packageJSON.dependencies as { 'discord.js': string })['discord.js'].substring(1) },
-				{ name: 'Node.JS Version', value: process.versions.node },
-				{ name: 'Memory Usage', value: `${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)} MB` })
+				{ name: 'Version', value: `${packageJSON.version}`, inline: true },
+				{ name: 'Discord.JS', value: (packageJSON.dependencies as { 'discord.js': string })['discord.js'].substring(1), inline: true },
+				{ name: 'Node.JS', value: process.versions.node, inline: true },
+				{ name: 'Memory Usage', value: `${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)} MB`, inline: true },
+				{ name: 'Uptime', value: `${(interaction.client.uptime / 1000 / 60 / 60).toFixed(3)} hours`, inline: true },
+				{ name: 'Servers', value: `${(await interaction.client.guilds.fetch()).size}`, inline: true })
 			.setTimestamp();
 
 		return interaction.reply({ embeds: [embed] });
