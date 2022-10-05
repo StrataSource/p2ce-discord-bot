@@ -1,4 +1,4 @@
-import { ActionRowBuilder, CommandInteraction, EmbedBuilder, SelectMenuBuilder, SelectMenuOptionBuilder, SlashCommandBuilder } from 'discord.js';
+import { ActionRowBuilder, ChannelType, CommandInteraction, EmbedBuilder, SelectMenuBuilder, SelectMenuOptionBuilder, SlashCommandBuilder } from 'discord.js';
 import fs from 'fs';
 import readline from 'readline';
 import events from 'events';
@@ -25,7 +25,15 @@ const Log: Command = {
 				.setMaxValue(50)))
 		.addSubcommand(subcommand => subcommand
 			.setName('options')
-			.setDescription('Configure what is logged.')),
+			.setDescription('Configure what is logged.'))
+		.addSubcommand(subcommand => subcommand
+			.setName('channel')
+			.setDescription('Set the channel log messages go to.')
+			.addChannelOption(option => option
+				.setName('channel')
+				.setDescription('The new channel log messages will go to')
+				.addChannelTypes(ChannelType.GuildText)
+				.setRequired(true))),
 
 	async execute(interaction: CommandInteraction, callbacks: Callbacks) {
 		if (!interaction.isChatInputCommand()) return;
@@ -115,6 +123,13 @@ const Log: Command = {
 			});
 
 			return interaction.reply({ content: 'Log options:', components: [selectMenu], ephemeral: true });
+		}
+
+		case 'channel': {
+			data.config.log.channel = interaction.options.getChannel('channel', true).id;
+			persist.saveData(interaction.guild.id);
+
+			return interaction.reply({ content: 'Configuration has been updated!', ephemeral: true });
 		}
 		}
 	}
