@@ -11,16 +11,16 @@ export enum LogLevelColor {
 	ERROR     = '#ff0000',
 }
 
-export function getLogFilepath(guildID: string | undefined) {
-	return `./log/${guildID ? `guild_${guildID}` : 'all'}.txt`;
-}
-
-export function getLogChannel(client: Client, guildID: string): GuildTextBasedChannel | undefined {
+function getLogChannel(client: Client, guildID: string): GuildTextBasedChannel | undefined {
 	const channel = client.guilds.resolve(guildID)?.channels.resolve(persist.data(guildID).config.log.channel);
 	if (!channel || !(channel.isTextBased() || channel.isThread())) {
 		return undefined;
 	}
 	return channel;
+}
+
+export function getLogFilepath(guildID: string | undefined) {
+	return `./log/${guildID ? `guild_${guildID}` : 'all'}.txt`;
 }
 
 export function writeToLog(guildID: string | undefined, message: string, sendToConsole = true) {
@@ -116,16 +116,16 @@ export function userLeft(client: Client, guildID: string, member: GuildMember | 
 
 export function messageDeleted(client: Client, guildID: string, msg: Message<boolean> | PartialMessage) {
 	if (msg.author?.bot || !msg.author?.username) return;
-	if (msg.cleanContent) {
-		message(client, guildID, 'MESSAGE', LogLevelColor.INFO, `A message from <@${msg.author?.id}> was deleted in ${msg.channel.toString()}\n\nContents: \`\`\`${msg.cleanContent}\`\`\``, msg.author?.avatarURL({ size: 1024 }));
+	if (msg.content) {
+		message(client, guildID, 'MESSAGE', LogLevelColor.INFO, `A message from <@${msg.author?.id}> was deleted in ${msg.channel.toString()}.\n\nContents:\n${msg.content}`, msg.author?.avatarURL({ size: 1024 }));
 	} else {
-		message(client, guildID, 'MESSAGE', LogLevelColor.INFO, `A message from <@${msg.author?.id}> was deleted in ${msg.channel.toString()}\n\nThe message did not contain any text.`, msg.author?.avatarURL({ size: 1024 }));
+		message(client, guildID, 'MESSAGE', LogLevelColor.INFO, `A message from <@${msg.author?.id}> was deleted in ${msg.channel.toString()}.\n\nThe message did not contain any text.`, msg.author?.avatarURL({ size: 1024 }));
 	}
 }
 
 export function messageUpdated(client: Client, guildID: string, oldMessage: Message<boolean> | PartialMessage, newMessage: Message<boolean> | PartialMessage) {
 	if (oldMessage.author?.bot || !oldMessage.author?.username) return;
-	if (oldMessage.cleanContent !== newMessage.cleanContent) {
-		message(client, guildID, 'MESSAGE', LogLevelColor.INFO, `[A message](${newMessage.url}) from <@${newMessage.author?.id}> was edited in ${oldMessage.channel.toString()}\n\nBefore: ${oldMessage.cleanContent}\nAfter: ${newMessage.cleanContent}`, newMessage.author?.avatarURL({ size: 1024 }));
+	if (oldMessage.content !== newMessage.content) {
+		message(client, guildID, 'MESSAGE', LogLevelColor.INFO, `[A message](${newMessage.url}) from <@${newMessage.author?.id}> was edited in ${oldMessage.channel.toString()}.\n\nBefore:\n${oldMessage.content}\n\nAfter:\n${newMessage.content}`, newMessage.author?.avatarURL({ size: 1024 }));
 	}
 }
