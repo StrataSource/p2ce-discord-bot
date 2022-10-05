@@ -1,6 +1,10 @@
-import { ActionRowBuilder, CommandInteraction, SelectMenuBuilder, SelectMenuOptionBuilder, SlashCommandBuilder } from 'discord.js';
+import { ActionRowBuilder, CommandInteraction, EmbedBuilder, SelectMenuBuilder, SelectMenuOptionBuilder, SlashCommandBuilder } from 'discord.js';
+import fs from 'fs';
+import readline from 'readline';
+import events from 'events';
 import { Callbacks } from '../../types/client';
 import { Command } from '../../types/interaction';
+import { LogLevelColor, getLogFilepath } from '../../utils/log';
 import { PermissionLevel } from '../../utils/permissions';
 
 import * as persist from '../../utils/persist';
@@ -10,7 +14,15 @@ const Log: Command = {
 
 	data: new SlashCommandBuilder()
 		.setName('log')
-		.setDescription('Configure logging in this guild.')
+		.setDescription('Logging in this guild.')
+		.addSubcommand(subcommand => subcommand
+			.setName('read')
+			.setDescription('Read the latest entries in the log file for this guild.')
+			.addIntegerOption(option => option
+				.setName('lines')
+				.setDescription('Number of lines to read')
+				.setMinValue(1)
+				.setMaxValue(50)))
 		.addSubcommand(subcommand => subcommand
 			.setName('options')
 			.setDescription('Configure what is logged.')),
@@ -21,11 +33,38 @@ const Log: Command = {
 			return interaction.reply({ content: 'This command must be ran in a guild.', ephemeral: true });
 		}
 
-		await interaction.deferReply({ ephemeral: true });
-
 		const data = persist.data(interaction.guild.id);
 
 		switch (interaction.options.getSubcommand()) {
+		case 'read': {
+			const numLines = interaction.options.getInteger('lines') ?? 50;
+			let lines: string[] = [];
+
+			const logPath = getLogFilepath(interaction.guild.id);
+			if (!fs.existsSync(logPath)) {
+				fs.writeFileSync(logPath, '');
+			}
+
+			const reader = readline.createInterface({
+				input: fs.createReadStream(logPath),
+				crlfDelay: Infinity
+			});
+			reader.on('line', line => {
+				lines.push(line);
+				if (lines.length > numLines) {
+					lines = lines.slice(1);
+				}
+			});
+			await events.once(reader, 'close');
+
+			const embed = new EmbedBuilder()
+				.setColor(LogLevelColor.IMPORTANT)
+				.setTitle('LATEST LOG ENTRIES')
+				.setDescription(`\`\`\`\n${lines.join('\n')}\n\`\`\``)
+				.setTimestamp();
+			return interaction.reply({ embeds: [embed] });
+		}
+
 		case 'options': {
 			const selectMenu = new ActionRowBuilder<SelectMenuBuilder>()
 				.addComponents(
@@ -75,7 +114,7 @@ const Log: Command = {
 				return interaction.reply({ content: 'Configuration has been updated!', ephemeral: true });
 			});
 
-			return interaction.editReply({ content: 'Log options:', components: [selectMenu] });
+			return interaction.reply({ content: 'Log options:', components: [selectMenu], ephemeral: true });
 		}
 		}
 	}
