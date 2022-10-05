@@ -7,7 +7,7 @@ function getDataURL(guildID: string) {
 	return `./db/guild_${guildID}.json`;
 }
 
-export function loadData(guildID: string) {
+function loadData(guildID: string) {
 	const dataURL = getDataURL(guildID);
 	if (!fs.existsSync(dataURL)) {
 		fs.writeFileSync(dataURL, fs.readFileSync('./db/default.json'));

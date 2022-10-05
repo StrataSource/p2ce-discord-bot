@@ -37,7 +37,7 @@ const KeyApp: Command = {
 			if (USER_DB_CHECK.has(interaction.user.id) && (USER_DB_CHECK.get(interaction.user.id) ?? 0) > Date.now()) {
 				return interaction.reply({ content: `You have already checked the status of your application recently. Please check again <t:${((USER_DB_CHECK.get(interaction.user.id) ?? 0) / 1000).toFixed(0)}:R>.`, ephemeral: true});
 			} else {
-				USER_DB_CHECK.set(interaction.user.id, Date.now() + (1000 * 60 * 60 * config.options.misc.key_check_hours_to_wait));
+				USER_DB_CHECK.set(interaction.user.id, Date.now() + (1000 * 60 * 60 * config.keyapp.hours_to_wait));
 			}
 
 			try {
@@ -52,7 +52,7 @@ const KeyApp: Command = {
 			if (USER_DB_READ.has(interaction.user.id) && (USER_DB_READ.get(interaction.user.id) ?? 0) > Date.now()) {
 				return interaction.reply({ content: `You have already read your application recently. Please check again <t:${((USER_DB_READ.get(interaction.user.id) ?? 0) / 1000).toFixed(0)}:R>.`, ephemeral: true});
 			} else {
-				USER_DB_READ.set(interaction.user.id, Date.now() + (1000 * 60 * 60 * config.options.misc.key_check_hours_to_wait));
+				USER_DB_READ.set(interaction.user.id, Date.now() + (1000 * 60 * 60 * config.keyapp.hours_to_wait));
 			}
 
 			try {

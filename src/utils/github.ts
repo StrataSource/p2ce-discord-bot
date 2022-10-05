@@ -31,7 +31,7 @@ export async function getIssuesInRepo(repo: string) {
 		}
 		empty = (issuesRaw.data.length === 0);
 
-		ISSUE_CACHE.set(repo, { issues: issues, time: Date.now() + (config.options.github.search_page_cache_time * 1000 * 60) });
+		ISSUE_CACHE.set(repo, { issues: issues, time: Date.now() + (config.github.search_page_cache_time * 1000 * 60) });
 	}
 	return issues;
 }

@@ -7,31 +7,23 @@
 	"key_application_sheet_id": "",
 	"key_distribution_sheet_id": "",
 
-	"options": {
-		"log": {
-			"errors_and_warnings_channel": ""
-		},
+	"log": {
+		"errors_and_warnings_channel": ""
+	},
 
-		"github": {
-			"search_page_length": 5,
-			"search_page_cache_time": 15
-		},
+	"github": {
+		"search_page_length": 5,
+		"search_page_cache_time": 15
+	},
 
-		"misc": {
-			"key_check_hours_to_wait": 1,
-			"message_purge_max": 50
-		}
+	"keyapp": {
+		"hours_to_wait": 1
 	},
 
 	"roles": {
 		"member":      "role id goes here",
-		"trusted":     "role id goes here",
 		"team_member": "role id goes here",
 		"moderator":   "role id goes here"
-	},
-
-	"channels": {
-		"log": "channel id goes here"
 	},
 
 	"messages": {

@@ -1,4 +1,5 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, CommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import { Callbacks } from '../../types/client';
 import { GitHubIssue } from '../../types/github';
 import { Command } from '../../types/interaction';
 import { getIssueInRepo, searchIssuesInRepo } from '../../utils/github';
@@ -7,18 +8,18 @@ import { LogLevelColor, writeToLog } from '../../utils/log';
 
 import * as config from '../../config.json';
 
-const search_skipback    = new ButtonBuilder().setCustomId('search_skipback')   .setLabel('⏮️').setStyle(ButtonStyle.Secondary);
-const search_pageback    = new ButtonBuilder().setCustomId('search_pageback')   .setLabel('◀️').setStyle(ButtonStyle.Secondary);
-const search_pageforward = new ButtonBuilder().setCustomId('search_pageforward').setLabel('▶️').setStyle(ButtonStyle.Secondary);
-const search_skipforward = new ButtonBuilder().setCustomId('search_skipforward').setLabel('⏭️').setStyle(ButtonStyle.Secondary);
+const search_skipback    = new ButtonBuilder().setCustomId('issue_search_skipback')   .setLabel('⏮️').setStyle(ButtonStyle.Secondary);
+const search_pageback    = new ButtonBuilder().setCustomId('issue_search_pageback')   .setLabel('◀️').setStyle(ButtonStyle.Secondary);
+const search_pageforward = new ButtonBuilder().setCustomId('issue_search_pageforward').setLabel('▶️').setStyle(ButtonStyle.Secondary);
+const search_skipforward = new ButtonBuilder().setCustomId('issue_search_skipforward').setLabel('⏭️').setStyle(ButtonStyle.Secondary);
 
 function getMaxPages(length: number) {
-	const maxItems = config.options.github.search_page_length;
+	const maxItems = config.github.search_page_length;
 	return Math.trunc((length - 0.5) / maxItems) + 1;
 }
 
 async function getSearchEmbed(issues: Array<GitHubIssue>, repo: string, query: string, page: number, maxPage: number) {
-	const maxItems = config.options.github.search_page_length;
+	const maxItems = config.github.search_page_length;
 
 	const startingPoint = (page - 1) * maxItems;
 	let stoppingPoint = page * maxItems;
@@ -85,7 +86,7 @@ const Issue: Command = {
 				.setName('open')
 				.setDescription('If the issue must be open or not (default is to search all issues)'))),
 
-	async execute(interaction: CommandInteraction) {
+	async execute(interaction: CommandInteraction, callbacks: Callbacks) {
 		if (!interaction.isChatInputCommand()) return;
 
 		switch (interaction.options.getSubcommand()) {
@@ -143,57 +144,61 @@ const Issue: Command = {
 					search_pageforward.setDisabled(maxPage === 1),
 					search_skipforward.setDisabled(maxPage === 1));
 
+			const onButtonPressed = async (interaction: ButtonInteraction) => {
+				// HACKY DISGUSTING HACK BEGIN
+				if (interaction.message.embeds.length === 0) {
+					// Can't access the embed, someone deleted it
+					return interaction.reply({ content: 'Cannot access message embed.', ephemeral: true });
+				}
+				const repo = interaction.message.embeds[0].fields[0].value;
+				const query = interaction.message.embeds[0].fields[1].value;
+				const pageInfo = (interaction.message.embeds[0].footer?.text ?? 'Page 1 / 1').split(' ');
+				let page = parseInt(pageInfo[1]);
+				const maxPage = parseInt(pageInfo[3]);
+				// HACKY DISGUSTING HACK END
+
+				switch (interaction.customId) {
+				case 'issue_search_skipback':
+					page = 1;
+					break;
+				case 'issue_search_pageback':
+					page--;
+					if (page < 1) page = 1;
+					break;
+				case 'issue_search_pageforward':
+					page++;
+					if (page > maxPage) page = maxPage;
+					break;
+				case 'issue_search_skipforward':
+					page = maxPage;
+					break;
+				}
+		
+				await interaction.deferUpdate();
+		
+				const newEmbed = await getSearchEmbed(await searchIssuesInRepo(repo, query), repo, query, page, maxPage);
+		
+				const buttons = new ActionRowBuilder<ButtonBuilder>()
+					.addComponents(
+						search_skipback.setDisabled(page === 1),
+						search_pageback.setDisabled(page === 1),
+						search_pageforward.setDisabled(maxPage === page),
+						search_skipforward.setDisabled(maxPage === page));
+		
+				try {
+					await interaction.editReply({ embeds: [newEmbed], components: [buttons] });
+				} catch (err) {
+					writeToLog(undefined, (err as Error).toString());
+				}
+			};
+			callbacks.addButtonCallback('issue_search_skipback', onButtonPressed);
+			callbacks.addButtonCallback('issue_search_pageback', onButtonPressed);
+			callbacks.addButtonCallback('issue_search_pageforward', onButtonPressed);
+			callbacks.addButtonCallback('issue_search_skipforward', onButtonPressed);
+
 			return interaction.editReply({ embeds: [embed], components: [buttons] });
 		}
 		}
 	},
-
-	async onButtonPressed(interaction: ButtonInteraction) {
-		// HACKY DISGUSTING HACK BEGIN
-		if (interaction.message.embeds.length === 0) {
-			// Can't access the embed, someone deleted it
-			return interaction.reply({ content: 'Cannot access message embed.', ephemeral: true });
-		}
-		const repo = interaction.message.embeds[0].fields[0].value;
-		const query = interaction.message.embeds[0].fields[1].value;
-		const pageInfo = (interaction.message.embeds[0].footer?.text ?? 'Page 1 / 1').split(' ');
-		let page = parseInt(pageInfo[1]);
-		const maxPage = parseInt(pageInfo[3]);
-		// HACKY DISGUSTING HACK END
-
-		switch (interaction.customId) {
-		case 'search_skipback':
-			page = 1;
-			break;
-		case 'search_pageback':
-			page--;
-			if (page < 1) page = 1;
-			break;
-		case 'search_pageforward':
-			page++;
-			if (page > maxPage) page = maxPage;
-			break;
-		case 'search_skipforward':
-			page = maxPage;
-			break;
-		}
-
-		await interaction.deferUpdate();
-
-		const newEmbed = await getSearchEmbed(await searchIssuesInRepo(repo, query), repo, query, page, maxPage);
-
-		const buttons = new ActionRowBuilder<ButtonBuilder>()
-			.addComponents(
-				search_skipback.setDisabled(page === 1),
-				search_pageback.setDisabled(page === 1),
-				search_pageforward.setDisabled(maxPage === page),
-				search_skipforward.setDisabled(maxPage === page));
-
-		try {
-			await interaction.editReply({ embeds: [newEmbed], components: [buttons] });
-		} catch (err) {
-			writeToLog(undefined, (err as Error).toString());
-		}
-	}
 };
 export default Issue;

@@ -2,9 +2,8 @@ import { CacheType, CommandInteraction, EmbedBuilder, SlashCommandBuilder } from
 import { Command } from '../../types/interaction';
 import { LogLevelColor } from '../../utils/log';
 import { PermissionLevel } from '../../utils/permissions';
-import * as persist from '../../utils/persist';
 
-import * as config from '../../config.json';
+import * as persist from '../../utils/persist';
 
 const ReactionRole: Command = {
 	permissionLevel: PermissionLevel.MODERATOR,
