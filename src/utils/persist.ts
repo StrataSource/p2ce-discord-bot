@@ -1,34 +1,34 @@
 import fs from 'fs';
 import { PersistentData } from '../types/persist';
 
-const serverData = new Map<string, PersistentData>();
+const guildData = new Map<string, PersistentData>();
 
-function getDataURL(guildID: string) { 
+export function getDataFilepath(guildID: string) { 
 	return `./db/guild_${guildID}.json`;
 }
 
 function loadData(guildID: string) {
-	const dataURL = getDataURL(guildID);
-	if (!fs.existsSync(dataURL)) {
-		fs.writeFileSync(dataURL, fs.readFileSync('./db/default.json'));
+	const dataPath = getDataFilepath(guildID);
+	if (!fs.existsSync(dataPath)) {
+		fs.writeFileSync(dataPath, fs.readFileSync('./db/default.json'));
 	}
-	serverData.set(guildID, JSON.parse(fs.readFileSync(dataURL).toString()));
+	guildData.set(guildID, JSON.parse(fs.readFileSync(dataPath).toString()));
 }
 
 export function data(guildID: string): PersistentData {
-	if (!serverData.has(guildID)) {
+	if (!guildData.has(guildID)) {
 		loadData(guildID);
 	}
 	// thanks TypeScript
-	return serverData.get(guildID) ?? ({} as PersistentData);
+	return guildData.get(guildID) ?? ({} as PersistentData);
 }
 
 export function saveData(guildID: string) {
-	fs.writeFileSync(getDataURL(guildID), JSON.stringify(data(guildID), undefined, '\t') + '\n');
+	fs.writeFileSync(getDataFilepath(guildID), JSON.stringify(data(guildID), undefined, '\t') + '\n');
 }
 
 export function saveAll() {
-	for (const guildID of serverData.keys()) {
+	for (const guildID of guildData.keys()) {
 		saveData(guildID);
 	}
 }

@@ -162,13 +162,17 @@ async function main() {
 	// Listen for joined guilds
 	client.on('guildCreate', async guild => {
 		await updateCommandsForGuild(guild.id);
+
 		log.writeToLog(guild.id, `Joined guild ${guild.id}`);
 	});
 
 	// Listen for left guilds
 	client.on('guildDelete', async guild => {
 		log.writeToLog(guild.id, `Left guild ${guild.id}`);
-		//todo: delete log and db
+
+		// Delete log and database files
+		fs.rmSync(log.getLogFilepath(guild.id));
+		fs.rmSync(persist.getDataFilepath(guild.id));
 	});
 
 	// Listen for commands
