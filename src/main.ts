@@ -16,26 +16,22 @@ import * as persist from './utils/persist';
 import consoleStamp from 'console-stamp';
 consoleStamp(console);
 
-export async function updateCommands(client?: Client | undefined/*, guildID?: string | undefined*/) {
-	const createNewClient = !client;
-
-	if (!client) {
-		// You need a token, duh
-		if (!config.token) {
-			log.writeToLog(undefined, 'Error updating commands: no token found in config.json!');
-			return;
-		}
-
-		const date = new Date();
-		log.writeToLog(undefined, `--- UPDATE COMMANDS FOR ALL GUILDS START AT ${date.toDateString()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ---`);
-
-		client = new Client({
-			intents: [
-				IntentsBitField.Flags.Guilds
-			]
-		});
-		await client.login(config.token);
+async function updateCommands() {
+	// You need a token, duh
+	if (!config.token) {
+		log.writeToLog(undefined, 'Error updating commands: no token found in config.json!');
+		return;
 	}
+
+	const dateStart = new Date();
+	log.writeToLog(undefined, `--- UPDATE COMMANDS FOR ALL GUILDS START AT ${dateStart.toDateString()} ${dateStart.getHours()}:${dateStart.getMinutes()}:${dateStart.getSeconds()} ---`);
+
+	const client = new Client({
+		intents: [
+			IntentsBitField.Flags.Guilds
+		]
+	});
+	await client.login(config.token);
 
 	const guildCommands = [];
 	for (const file of fs.readdirSync('./build/commands/guild').filter(file => file.endsWith('.js'))) {
@@ -66,11 +62,30 @@ export async function updateCommands(client?: Client | undefined/*, guildID?: st
 	await rest.put(Routes.applicationCommands(config.client_id), { body: globalCommands });
 	log.writeToLog(undefined, `Registered ${globalCommands.length} global commands`);
 
-	if (createNewClient) {
-		const date = new Date();
-		log.writeToLog(undefined, `--- UPDATE COMMANDS FOR ALL GUILDS END AT ${date.toDateString()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ---`);
-		client.destroy();
+	const dateEnd = new Date();
+	log.writeToLog(undefined, `--- UPDATE COMMANDS FOR ALL GUILDS END AT ${dateEnd.toDateString()} ${dateEnd.getHours()}:${dateEnd.getMinutes()}:${dateEnd.getSeconds()} ---`);
+	client.destroy();
+}
+
+async function updateCommandsForGuild(guildID: string) {
+	const guildCommands = [];
+	for (const file of fs.readdirSync('./build/commands/guild').filter(file => file.endsWith('.js'))) {
+		guildCommands.push((await import(`./commands/guild/${file}`)).default.data.toJSON());
 	}
+
+	// Context menus are assumed to be guild-based
+	//for (const file of fs.readdirSync('./build/commands/context_menus/message').filter(file => file.endsWith('.js'))) {
+	//	guildCommands.push((await import(`./commands/context_menus/message/${file}`)).default.data.toJSON());
+	//}
+	for (const file of fs.readdirSync('./build/commands/context_menus/user').filter(file => file.endsWith('.js'))) {
+		guildCommands.push((await import(`./commands/context_menus/user/${file}`)).default.data.toJSON());
+	}
+
+	const rest = new REST({ version: '10' }).setToken(config.token);
+
+	// Update commands for this guild
+	await rest.put(Routes.applicationGuildCommands(config.client_id, guildID), { body: guildCommands });
+	log.writeToLog(undefined, `Registered ${guildCommands.length} guild commands for ${guildID}`);
 }
 
 async function main() {
@@ -142,6 +157,18 @@ async function main() {
 	// Listen for warnings
 	client.on('warn', async warn => {
 		await log.warning(client, warn);
+	});
+
+	// Listen for joined guilds
+	client.on('guildCreate', async guild => {
+		await updateCommandsForGuild(guild.id);
+		log.writeToLog(guild.id, `Joined guild ${guild.id}`);
+	});
+
+	// Listen for left guilds
+	client.on('guildDelete', async guild => {
+		log.writeToLog(guild.id, `Left guild ${guild.id}`);
+		//todo: delete log and db
 	});
 
 	// Listen for commands
