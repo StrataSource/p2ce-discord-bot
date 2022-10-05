@@ -2,19 +2,76 @@
 
 import { ActivityType, Client, Collection, GuildMember, IntentsBitField, Partials } from 'discord.js';
 import { REST } from '@discordjs/rest';
-import { Routes } from 'discord-api-types/v9';
+import { Routes } from 'discord-api-types/v10';
 import fs from 'fs';
 import { Callbacks, MoralityCoreClient } from './types/client';
 import { Command, ContextMenu } from './types/interaction';
-import * as log from './utils/log';
 import { hasPermissionLevel, PermissionLevel } from './utils/permissions';
 
 import * as config from './config.json';
+import * as log from './utils/log';
 import * as persist from './utils/persist';
 
 // Make console output better
 import consoleStamp from 'console-stamp';
 consoleStamp(console);
+
+export async function updateCommands(client?: Client | undefined/*, guildID?: string | undefined*/) {
+	const createNewClient = !client;
+
+	if (!client) {
+		// You need a token, duh
+		if (!config.token) {
+			log.writeToLog(undefined, 'Error updating commands: no token found in config.json!');
+			return;
+		}
+
+		const date = new Date();
+		log.writeToLog(undefined, `--- UPDATE COMMANDS FOR ALL GUILDS START AT ${date.toDateString()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ---`);
+
+		client = new Client({
+			intents: [
+				IntentsBitField.Flags.Guilds
+			]
+		});
+		await client.login(config.token);
+	}
+
+	const guildCommands = [];
+	for (const file of fs.readdirSync('./build/commands/guild').filter(file => file.endsWith('.js'))) {
+		guildCommands.push((await import(`./commands/guild/${file}`)).default.data.toJSON());
+	}
+	const globalCommands = [];
+	for (const file of fs.readdirSync('./build/commands/global').filter(file => file.endsWith('.js'))) {
+		globalCommands.push((await import(`./commands/global/${file}`)).default.data.toJSON());
+	}
+
+	// Context menus are assumed to be guild-based
+	//for (const file of fs.readdirSync('./build/commands/context_menus/message').filter(file => file.endsWith('.js'))) {
+	//	guildCommands.push((await import(`./commands/context_menus/message/${file}`)).default.data.toJSON());
+	//}
+	for (const file of fs.readdirSync('./build/commands/context_menus/user').filter(file => file.endsWith('.js'))) {
+		guildCommands.push((await import(`./commands/context_menus/user/${file}`)).default.data.toJSON());
+	}
+
+	const rest = new REST({ version: '10' }).setToken(config.token);
+
+	// Update commands for every guild
+	for (const guild of (await client.guilds.fetch()).values()) {
+		await rest.put(Routes.applicationGuildCommands(config.client_id, guild.id), { body: guildCommands });
+		log.writeToLog(undefined, `Registered ${guildCommands.length} guild commands for ${guild.id}`);
+	}
+
+	// And register global commands
+	await rest.put(Routes.applicationCommands(config.client_id), { body: globalCommands });
+	log.writeToLog(undefined, `Registered ${globalCommands.length} global commands`);
+
+	if (createNewClient) {
+		const date = new Date();
+		log.writeToLog(undefined, `--- UPDATE COMMANDS FOR ALL GUILDS END AT ${date.toDateString()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ---`);
+		client.destroy();
+	}
+}
 
 async function main() {
 	// You need a token, duh
@@ -24,7 +81,7 @@ async function main() {
 	}
 
 	const date = new Date();
-	log.writeToLog(undefined, `--- START AT ${date.toDateString()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ---`);
+	log.writeToLog(undefined, `--- BOT START AT ${date.toDateString()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ---`);
 
 	// Create client
 	const client = new MoralityCoreClient({
@@ -59,12 +116,12 @@ async function main() {
 
 	// Register context menus
 	//for (const file of fs.readdirSync('./build/commands/context_menus/message').filter(file => file.endsWith('.js'))) {
-	//	const context_menu: ContextMenu = (await import(`./commands/context_menus/message/${file}`)).default;
-	//	client.commands.set(context_menu.data.name, context_menu);
+	//	const contextMenu: ContextMenu = (await import(`./commands/context_menus/message/${file}`)).default;
+	//	client.commands.set(contextMenu.data.name, contextMenu);
 	//}
 	for (const file of fs.readdirSync('./build/commands/context_menus/user').filter(file => file.endsWith('.js'))) {
-		const context_menu: ContextMenu = (await import(`./commands/context_menus/user/${file}`)).default;
-		client.commands.set(context_menu.data.name, context_menu);
+		const contextMenu: ContextMenu = (await import(`./commands/context_menus/user/${file}`)).default;
+		client.commands.set(contextMenu.data.name, contextMenu);
 	}
 
 	// Add callback holders
@@ -95,13 +152,25 @@ async function main() {
 
 			// Check if the user has the required permission level
 			// This is a backup to Discord's own permissions stuff in case that breaks
-			if (!interaction.channel?.isDMBased() && !hasPermissionLevel(interaction.member as GuildMember, command.permissionLevel)) {
-				if (interaction.deferred) {
-					await interaction.followUp('You do not have permission to execute this command!');
-					return;
-				} else {
-					await interaction.reply({ content: 'You do not have permission to execute this command!', ephemeral: true });
-					return;
+			if (!interaction.channel?.isDMBased() && interaction.guild) {
+				if (!hasPermissionLevel(interaction.member as GuildMember, command.permissionLevel)) {
+					if (interaction.deferred) {
+						await interaction.followUp('You do not have permission to execute this command!');
+						return;
+					} else {
+						await interaction.reply({ content: 'You do not have permission to execute this command!', ephemeral: true });
+						return;
+					}
+				}
+
+				if (!persist.data(interaction.guild.id).first_time_setup && !command.canBeExecutedWithoutPriorGuildSetup) {
+					if (interaction.deferred) {
+						await interaction.followUp('Command could not be executed! Please ask a server administrator to run </setup:0>.');
+						return;
+					} else {
+						await interaction.reply('Command could not be executed! Please ask a server administrator to run </setup:0>.');
+						return;
+					}
 				}
 			}
 
@@ -249,7 +318,7 @@ async function main() {
 	// Listen for deleted messages
 	client.on('messageDelete', async message => {
 		// Only responds to members
-		if (!hasPermissionLevel(message.member, PermissionLevel.TEAM_MEMBER) && message.cleanContent && message.guild) {
+		if (message.member && !hasPermissionLevel(message.member, PermissionLevel.TEAM_MEMBER) && message.cleanContent && message.guild) {
 			const data = persist.data(message.guild.id);
 			if (data.config.log.options.message_deletes && message.author && !data.config.log.user_exceptions.includes(message.author.id)) {
 				log.messageDeleted(client, message.guild.id, message);
@@ -260,7 +329,7 @@ async function main() {
 	// Listen for edited messages
 	client.on('messageUpdate', async (oldMessage, newMessage) => {
 		// Only responds to members
-		if (!hasPermissionLevel(newMessage.member, PermissionLevel.TEAM_MEMBER) && newMessage.guild) {
+		if (newMessage.member && !hasPermissionLevel(newMessage.member, PermissionLevel.TEAM_MEMBER) && newMessage.guild) {
 			const data = persist.data(newMessage.guild.id);
 			if (data.config.log.options.message_edits && newMessage.author && !data.config.log.user_exceptions.includes(newMessage.author.id)) {
 				log.messageUpdated(client, newMessage.guild.id, oldMessage, newMessage);
@@ -274,12 +343,14 @@ async function main() {
 		data.statistics.joins++;
 		persist.saveData(member.guild.id);
 
+		// Add autoroles
+		for (const roleID of data.autoroles) {
+			await member.roles.add(roleID);
+		}
+
 		if (data.config.log.options.user_joins_and_leaves) {
 			log.userJoined(client, member.guild.id, member);
 		}
-
-		// Add the member role to the user so they can use the server
-		await member.roles.add(config.roles.member);
 	});
 
 	// Listen for members leaving
@@ -298,61 +369,11 @@ async function main() {
 
 	process.on('SIGINT', () => {
 		const date = new Date();
-		log.writeToLog(undefined, `--- STOP AT ${date.toDateString()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ---`);
+		log.writeToLog(undefined, `--- BOT END AT ${date.toDateString()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ---`);
 		client.destroy();
 		persist.saveAll();
 		process.exit();
 	});
-}
-
-async function updateCommands() {
-	// You need a token, duh
-	if (!config.token) {
-		console.log('Error: no token found in config.json!');
-		return;
-	}
-
-	console.log('Logging on...');
-
-	const client = new Client({
-		intents: [
-			IntentsBitField.Flags.Guilds
-		]
-	});
-	await client.login(config.token);
-
-	console.log('Registering commands...');
-
-	const guildCommands = [];
-	for (const file of fs.readdirSync('./build/commands/guild').filter(file => file.endsWith('.js'))) {
-		guildCommands.push((await import(`./commands/guild/${file}`)).default.data.toJSON());
-	}
-	const globalCommands = [];
-	for (const file of fs.readdirSync('./build/commands/global').filter(file => file.endsWith('.js'))) {
-		globalCommands.push((await import(`./commands/global/${file}`)).default.data.toJSON());
-	}
-
-	// Context menus are assumed to be guild-based
-	//for (const file of fs.readdirSync('./build/commands/context_menus/message').filter(file => file.endsWith('.js'))) {
-	//	guildCommands.push((await import(`./commands/context_menus/message/${file}`)).default.data.toJSON());
-	//}
-	for (const file of fs.readdirSync('./build/commands/context_menus/user').filter(file => file.endsWith('.js'))) {
-		guildCommands.push((await import(`./commands/context_menus/user/${file}`)).default.data.toJSON());
-	}
-
-	const rest = new REST({ version: '10' }).setToken(config.token);
-
-	// Update commands for every guild
-	for (const guild of (await client.guilds.fetch()).values()) {
-		await rest.put(Routes.applicationGuildCommands(config.client_id, guild.id), { body: guildCommands });
-		console.log(`Registered ${guildCommands.length} guild commands for ${guild.id}`);
-	}
-
-	// And register global commands
-	await rest.put(Routes.applicationCommands(config.client_id), { body: globalCommands });
-	console.log(`Registered ${globalCommands.length} global commands`);
-
-	client.destroy();
 }
 
 if (process.argv.includes('--update-commands')) {

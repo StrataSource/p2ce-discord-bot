@@ -4,6 +4,7 @@ import { Callbacks } from './client';
 
 export interface CommandBase {
 	permissionLevel: PermissionLevel,
+	canBeExecutedWithoutPriorGuildSetup?: boolean | undefined,
 	data: unknown,
 	execute(interaction: CommandInteraction, callbacks?: Callbacks): Promise<void | InteractionResponse<boolean> | Message<boolean>>,
 }

@@ -12,8 +12,13 @@ export interface PersistentData {
 			},
 			channel: string,
 			user_exceptions: string[],
+		},
+		roles: {
+			moderator: string,
+			team_member?: string | undefined,
 		}
 	},
+	autoroles: string[],
 	reaction_roles: {
 		[message: string]: {
 			channel: string,

@@ -72,7 +72,7 @@ const Log: Command = {
 				}
 				persist.saveData(interaction.guild.id);
 
-				return interaction.reply({ content: 'Configuration has been updated.', ephemeral: true });
+				return interaction.reply({ content: 'Configuration has been updated!', ephemeral: true });
 			});
 
 			return interaction.editReply({ content: 'Log options:', components: [selectMenu] });
