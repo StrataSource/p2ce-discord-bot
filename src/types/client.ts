@@ -14,11 +14,15 @@ export class Callbacks {
 	}
 
 	addButtonCallback(buttonID: string, callback: ButtonCallback) {
-		this.#buttonCallbacks.set(buttonID, callback);
+		if (!this.#buttonCallbacks.has(buttonID)) {
+			this.#buttonCallbacks.set(buttonID, callback);
+		}
 	}
 
 	addSelectMenuCallback(menuID: string, callback: SelectMenuCallback) {
-		this.#menuCallbacks.set(menuID, callback);
+		if (!this.#menuCallbacks.has(menuID)) {
+			this.#menuCallbacks.set(menuID, callback);
+		}
 	}
 
 	runButtonCallback(buttonID: string, interaction: ButtonInteraction) {
