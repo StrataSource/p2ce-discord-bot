@@ -1,7 +1,7 @@
 {
-	"first_time_setup": false,
-	"enable_p2ce_commands": false,
 	"config": {
+		"first_time_setup": false,
+		"enable_p2ce_commands": false,
 		"log": {
 			"options": {
 				"user_updates": true,

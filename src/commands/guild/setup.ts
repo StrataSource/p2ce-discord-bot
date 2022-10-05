@@ -42,13 +42,13 @@ const Setup: Command = {
 
 		const data = persist.data(interaction.guild.id);
 
-		const firstRun = !data.first_time_setup;
+		const firstRun = !data.config.first_time_setup;
 
 		data.config.log.channel = interaction.options.getChannel('log_channel', true).id;
 		data.config.roles.moderator = interaction.options.getRole('moderator_role', true).id;
 		data.config.roles.team_member = interaction.options.getRole('team_member_role')?.id;
-		data.enable_p2ce_commands = interaction.options.getBoolean('p2ce_commands') ?? false;
-		data.first_time_setup = true;
+		data.config.enable_p2ce_commands = interaction.options.getBoolean('p2ce_commands') ?? false;
+		data.config.first_time_setup = true;
 		persist.saveData(interaction.guild.id);
 
 		await interaction.deferReply({ ephemeral: true });
