@@ -41,6 +41,7 @@ const Setup: Command = {
 		data.config.log.channel = interaction.options.getChannel('log_channel', true).id;
 		data.config.roles.moderator = interaction.options.getRole('moderator_role', true).id;
 		data.config.roles.team_member = interaction.options.getRole('team_member_role')?.id;
+		persist.saveData(interaction.guild.id);
 
 		if (!data.first_time_setup) {
 			data.first_time_setup = true;
