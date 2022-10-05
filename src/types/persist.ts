@@ -1,6 +1,7 @@
 // Modify this interface when adding new data things, or don't if you hate TypeScript and everything it stands for
 export interface PersistentData {
 	first_time_setup: boolean,
+	enable_p2ce_commands: boolean,
 	config: {
 		log: {
 			options: {

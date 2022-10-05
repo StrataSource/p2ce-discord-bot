@@ -6,6 +6,7 @@ import { checkUserKeyStatus } from '../../shared/keyapp';
 
 const KeyAppAdminCheck: ContextMenu = {
 	permissionLevel: PermissionLevel.TEAM_MEMBER,
+	isP2CEOnly: true,
 
 	data: new ContextMenuCommandBuilder()
 		.setName('Check Key App')

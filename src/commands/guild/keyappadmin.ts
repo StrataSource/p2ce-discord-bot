@@ -6,6 +6,7 @@ import { checkUserKeyStatus, readUserApplication } from '../shared/keyapp';
 
 const KeyAppAdmin: Command = {
 	permissionLevel: PermissionLevel.TEAM_MEMBER,
+	isP2CEOnly: true,
 
 	data: new SlashCommandBuilder()
 		.setName('keyappadmin')
