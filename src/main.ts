@@ -108,7 +108,7 @@ async function main() {
 			// Check if the user has the required permission level
 			// This is a backup to Discord's own permissions stuff in case that breaks
 			if (!interaction.channel?.isDMBased() && interaction.guild) {
-				if (!persist.data(interaction.guild.id).first_time_setup && !command.canBeExecutedWithoutPriorGuildSetup) {
+				if (!persist.data(interaction.guild.id).config.first_time_setup && !command.canBeExecutedWithoutPriorGuildSetup) {
 					if (interaction.deferred) {
 						await interaction.followUp('Command could not be executed! Please ask a server administrator to run </setup:0>.');
 						return;

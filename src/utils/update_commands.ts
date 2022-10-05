@@ -46,10 +46,10 @@ export async function updateCommands() {
 	for (const guild of (await client.guilds.fetch()).values()) {
 		const data = persist.data(guild.id);
 		let filteredCommands = guildCommands;
-		if (!data.enable_p2ce_commands) {
+		if (!data.config.enable_p2ce_commands) {
 			filteredCommands = filteredCommands.filter(cmd => !Object.hasOwn(cmd, 'isP2CEOnly') || !cmd.isP2CEOnly);
 		}
-		if (!data.first_time_setup) {
+		if (!data.config.first_time_setup) {
 			filteredCommands = filteredCommands.filter(cmd => Object.hasOwn(cmd, 'canBeExecutedWithoutPriorGuildSetup') && cmd.canBeExecutedWithoutPriorGuildSetup);
 		}
 		filteredCommands = filteredCommands.map(cmd => cmd.data.toJSON());
@@ -82,10 +82,10 @@ export async function updateCommandsForGuild(guildID: string) {
 
 	const data = persist.data(guildID);
 	let filteredCommands = guildCommands;
-	if (!data.enable_p2ce_commands) {
+	if (!data.config.enable_p2ce_commands) {
 		filteredCommands = filteredCommands.filter(cmd => !Object.hasOwn(cmd, 'isP2CEOnly') || !cmd.isP2CEOnly);
 	}
-	if (!data.first_time_setup) {
+	if (!data.config.first_time_setup) {
 		filteredCommands = filteredCommands.filter(cmd => Object.hasOwn(cmd, 'canBeExecutedWithoutPriorGuildSetup') && cmd.canBeExecutedWithoutPriorGuildSetup);
 	}
 	filteredCommands = filteredCommands.map(cmd => cmd.data.toJSON());
