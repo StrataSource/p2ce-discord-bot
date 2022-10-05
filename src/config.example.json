@@ -21,7 +21,7 @@
 	},
 
 	"messages": {
-		"coop": "this response is required in code"
+		"id": "A message that gets printed"
 	},
 
 	"git_repos": {
