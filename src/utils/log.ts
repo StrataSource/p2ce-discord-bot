@@ -2,6 +2,7 @@ import { Client, GuildBan, GuildTextBasedChannel, Message, EmbedBuilder, Partial
 import fs from 'fs';
 
 import * as config from '../config.json';
+import * as persist from '../utils/persist';
 
 export enum LogLevelColor {
 	INFO      = '#2f3136',
@@ -10,8 +11,16 @@ export enum LogLevelColor {
 	ERROR     = '#ff0000',
 }
 
-export function getLogPath(guildID: string | undefined) {
+export function getLogFilepath(guildID: string | undefined) {
 	return `./log/${guildID ? `guild_${guildID}` : 'all'}.txt`;
+}
+
+export function getLogChannel(client: Client, guildID: string): GuildTextBasedChannel | undefined {
+	const channel = client.guilds.resolve(guildID)?.channels.resolve(persist.data(guildID).config.log.channel);
+	if (!channel || !(channel.isTextBased() || channel.isThread())) {
+		return undefined;
+	}
+	return channel;
 }
 
 export function writeToLog(guildID: string | undefined, message: string, sendToConsole = true) {
@@ -27,7 +36,7 @@ export function writeToLog(guildID: string | undefined, message: string, sendToC
 
 	// Write it to the guild log
 	if (guildID) {
-		const logGuildPath = getLogPath(guildID);
+		const logGuildPath = getLogFilepath(guildID);
 		if (!fs.existsSync(logGuildPath)) {
 			fs.writeFileSync(logGuildPath, '');
 		}
@@ -35,19 +44,11 @@ export function writeToLog(guildID: string | undefined, message: string, sendToC
 	}
 
 	// Write all messages to the main log too
-	const logAllPath = getLogPath(undefined);
+	const logAllPath = getLogFilepath(undefined);
 	if (!fs.existsSync(logAllPath)) {
 		fs.writeFileSync(logAllPath, '');
 	}
 	fs.appendFileSync(logAllPath, `${guildID ? `{${guildID}} ` : ''}${message}\n`);
-}
-
-export function getLogChannel(client: Client, guildID: string): GuildTextBasedChannel | undefined {
-	const channel = client.guilds.resolve(guildID)?.channels.resolve(config.channels.log);
-	if (!channel || !(channel.isTextBased() || channel.isThread())) {
-		return undefined;
-	}
-	return channel;
 }
 
 export function message(client: Client, guildID: string, title: string, color: LogLevelColor, msg: string, thumb: string | null = null) {
@@ -65,7 +66,7 @@ export function message(client: Client, guildID: string, title: string, color: L
 }
 
 export async function error(client: Client, msg: Error) {
-	const channelID = config.options.log.errors_and_warnings_channel;
+	const channelID = config.log.errors_and_warnings_channel;
 	if (channelID.length === 0) return;
 	const channel = await client.channels.fetch(channelID);
 	const embed = new EmbedBuilder()
@@ -79,7 +80,7 @@ export async function error(client: Client, msg: Error) {
 }
 
 export async function warning(client: Client, msg: string) {
-	const channelID = config.options.log.errors_and_warnings_channel;
+	const channelID = config.log.errors_and_warnings_channel;
 	if (channelID.length === 0) return;
 	const channel = await client.channels.fetch(channelID);
 	const embed = new EmbedBuilder()
@@ -125,6 +126,6 @@ export function messageDeleted(client: Client, guildID: string, msg: Message<boo
 export function messageUpdated(client: Client, guildID: string, oldMessage: Message<boolean> | PartialMessage, newMessage: Message<boolean> | PartialMessage) {
 	if (oldMessage.author?.bot || !oldMessage.author?.username) return;
 	if (oldMessage.cleanContent !== newMessage.cleanContent) {
-		message(client, guildID, 'MESSAGE', LogLevelColor.INFO, `[A message](${newMessage.url}) from <@${newMessage.author?.id}> was edited in ${oldMessage.channel.toString()}\n\nBefore: \`\`\`${oldMessage.cleanContent}\`\`\`\nAfter: \`\`\`${newMessage.cleanContent}\`\`\``, newMessage.author?.avatarURL({ size: 1024 }));
+		message(client, guildID, 'MESSAGE', LogLevelColor.INFO, `[A message](${newMessage.url}) from <@${newMessage.author?.id}> was edited in ${oldMessage.channel.toString()}\n\nBefore: ${oldMessage.cleanContent}\nAfter: ${newMessage.cleanContent}`, newMessage.author?.avatarURL({ size: 1024 }));
 	}
 }

@@ -3,7 +3,7 @@ import fs from 'fs';
 import readline from 'readline';
 import events from 'events';
 import { Command } from '../../types/interaction';
-import { LogLevelColor, getLogPath } from '../../utils/log';
+import { LogLevelColor, getLogFilepath } from '../../utils/log';
 import { PermissionLevel } from '../../utils/permissions';
 
 const ReadLog: Command = {
@@ -27,7 +27,7 @@ const ReadLog: Command = {
 		const numLines = interaction.options.getInteger('lines') ?? 100;
 		let lines: string[] = [];
 
-		const logPath = getLogPath(interaction.guild.id);
+		const logPath = getLogFilepath(interaction.guild.id);
 		if (!fs.existsSync(logPath)) {
 			fs.writeFileSync(logPath, '');
 		}

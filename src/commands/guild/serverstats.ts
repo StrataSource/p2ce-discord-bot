@@ -2,6 +2,7 @@ import { CommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.j
 import { Command } from '../../types/interaction';
 import { LogLevelColor } from '../../utils/log';
 import { PermissionLevel } from '../../utils/permissions';
+
 import * as persist from '../../utils/persist';
 
 const ServerStats: Command = {

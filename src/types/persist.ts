@@ -1,12 +1,18 @@
 // Modify this interface when adding new data things, or don't if you hate TypeScript and everything it stands for
 export interface PersistentData {
-	log: {
-		user_updates: boolean,
-		user_bans: boolean,
-		user_joins_and_leaves: boolean,
-		message_deletes: boolean,
-		message_edits: boolean,
-		user_exceptions: string[],
+	first_time_setup: boolean,
+	config: {
+		log: {
+			options: {
+				user_updates: boolean,
+				user_bans: boolean,
+				user_joins_and_leaves: boolean,
+				message_deletes: boolean,
+				message_edits: boolean
+			},
+			channel: string,
+			user_exceptions: string[],
+		}
 	},
 	reaction_roles: {
 		[message: string]: {

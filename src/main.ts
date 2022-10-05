@@ -4,20 +4,17 @@ import { ActivityType, Client, Collection, GuildMember, IntentsBitField, Partial
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import fs from 'fs';
-import { Command, CommandBase, ContextMenu } from './types/interaction';
+import { Callbacks, MoralityCoreClient } from './types/client';
+import { Command, ContextMenu } from './types/interaction';
 import * as log from './utils/log';
 import { hasPermissionLevel, PermissionLevel } from './utils/permissions';
-import * as persist from './utils/persist';
 
 import * as config from './config.json';
+import * as persist from './utils/persist';
 
 // Make console output better
 import consoleStamp from 'console-stamp';
 consoleStamp(console);
-
-interface P2CEClient extends Client {
-	commands?: Collection<string, CommandBase>,
-}
 
 async function main() {
 	// You need a token, duh
@@ -30,7 +27,7 @@ async function main() {
 	log.writeToLog(undefined, `--- START AT ${date.toDateString()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ---`);
 
 	// Create client
-	const client: P2CEClient = new Client({
+	const client = new MoralityCoreClient({
 		intents: new IntentsBitField([
 			IntentsBitField.Flags.Guilds,
 			IntentsBitField.Flags.GuildEmojisAndStickers,
@@ -69,6 +66,9 @@ async function main() {
 		const context_menu: ContextMenu = (await import(`./commands/context_menus/user/${file}`)).default;
 		client.commands.set(context_menu.data.name, context_menu);
 	}
+
+	// Add callback holders
+	client.callbacks = new Callbacks();
 
 	// Run this when the client is ready
 	client.on('ready', async () => {
@@ -112,7 +112,7 @@ async function main() {
 			}
 
 			try {
-				await command.execute(interaction);
+				await command.execute(interaction, client.callbacks);
 			} catch (err) {
 				log.writeToLog(undefined, (err as Error).toString());
 				if (interaction.deferred) {
@@ -122,23 +122,20 @@ async function main() {
 				}
 				return;
 			}
-		} else if (interaction.isButton()) {
+		} else if (interaction.isButton() || interaction.isSelectMenu()) {
 			if (interaction.user !== interaction.message.interaction?.user) {
 				await interaction.reply({ content: `You cannot touch someone else's buttons! These buttons are owned by ${interaction.message.interaction?.user}`, ephemeral: true });
 				return;
 			}
 
-			// Cut the command name off at the first space, since that is the top-level name
-			const commandNameFull = interaction.message.interaction.commandName;
-			const spaceIndex = commandNameFull.indexOf(' ');
-			const commandName = commandNameFull.substring(0, spaceIndex < 0 ? commandNameFull.length : spaceIndex);
-			const command = client.commands?.get(commandName);
-			if (!command) return;
-
-			log.writeToLog(interaction.guild?.id, `Button with ID "${interaction.customId}" clicked by ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`);
+			log.writeToLog(interaction.guild?.id, `Action row item with ID "${interaction.customId}" clicked by ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`);
 
 			try {
-				command.onButtonPressed?.(interaction);
+				if (interaction.isButton()) {
+					await client.callbacks.runButtonCallback(interaction.customId, interaction);
+				} else if (interaction.isSelectMenu()) {
+					await client.callbacks.runSelectMenuCallback(interaction.customId, interaction);
+				}
 			} catch (err) {
 				log.writeToLog(undefined, (err as Error).toString());
 				if (interaction.deferred) {
@@ -235,7 +232,7 @@ async function main() {
 			const member = (await (await guild.fetch()).members.fetch()).get(newUser.id);
 			if (member) {
 				const data = persist.data(guild.id);
-				if (data.log.user_updates) {
+				if (data.config.log.options.user_updates) {
 					log.userUpdate(client, guild.id, oldUser, newUser);
 				}
 			}
@@ -244,17 +241,17 @@ async function main() {
 
 	// Listen for banned members
 	client.on('guildBanAdd', async ban => {
-		if (persist.data(ban.guild.id).log.user_bans) {
+		if (persist.data(ban.guild.id).config.log.options.user_bans) {
 			log.userBanned(client, ban.guild.id, ban);
 		}
 	});
 
 	// Listen for deleted messages
 	client.on('messageDelete', async message => {
-		// Only responds to trusted users and members
+		// Only responds to members
 		if (!hasPermissionLevel(message.member, PermissionLevel.TEAM_MEMBER) && message.cleanContent && message.guild) {
 			const data = persist.data(message.guild.id);
-			if (data.log.message_deletes && message.author && !data.log.user_exceptions.includes(message.author.id)) {
+			if (data.config.log.options.message_deletes && message.author && !data.config.log.user_exceptions.includes(message.author.id)) {
 				log.messageDeleted(client, message.guild.id, message);
 			}
 		}
@@ -262,10 +259,10 @@ async function main() {
 
 	// Listen for edited messages
 	client.on('messageUpdate', async (oldMessage, newMessage) => {
-		// Only responds to trusted users and members
+		// Only responds to members
 		if (!hasPermissionLevel(newMessage.member, PermissionLevel.TEAM_MEMBER) && newMessage.guild) {
 			const data = persist.data(newMessage.guild.id);
-			if (data.log.message_edits && newMessage.author && !data.log.user_exceptions.includes(newMessage.author.id)) {
+			if (data.config.log.options.message_edits && newMessage.author && !data.config.log.user_exceptions.includes(newMessage.author.id)) {
 				log.messageUpdated(client, newMessage.guild.id, oldMessage, newMessage);
 			}
 		}
@@ -277,7 +274,7 @@ async function main() {
 		data.statistics.joins++;
 		persist.saveData(member.guild.id);
 
-		if (data.log.user_joins_and_leaves) {
+		if (data.config.log.options.user_joins_and_leaves) {
 			log.userJoined(client, member.guild.id, member);
 		}
 
@@ -291,7 +288,7 @@ async function main() {
 		data.statistics.leaves++;
 		persist.saveData(member.guild.id);
 
-		if (data.log.user_joins_and_leaves) {
+		if (data.config.log.options.user_joins_and_leaves) {
 			log.userLeft(client, member.guild.id, member);
 		}
 	});
