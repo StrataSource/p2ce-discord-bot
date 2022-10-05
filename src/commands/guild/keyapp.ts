@@ -12,6 +12,7 @@ const USER_DB_READ = new Collection<string, number>();
 
 const KeyApp: Command = {
 	permissionLevel: PermissionLevel.EVERYONE,
+	isP2CEOnly: true,
 
 	data: new SlashCommandBuilder()
 		.setName('keyapp')

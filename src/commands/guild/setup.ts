@@ -1,6 +1,7 @@
 import { ChannelType, CommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
 import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';
+import { updateCommandsForGuild } from '../../utils/update_commands';
 
 import * as persist from '../../utils/persist';
 
@@ -23,7 +24,10 @@ const Setup: Command = {
 			.setRequired(true))
 		.addRoleOption(option => option
 			.setName('team_member_role')
-			.setDescription('The role that team members have. They can run a few more commands than regular guild members.')),
+			.setDescription('The role that team members have. They can run a few more commands than regular guild members.'))
+		.addBooleanOption(option => option
+			.setName('p2ce_commands')
+			.setDescription('Register commands used on the P2CE Discord server.')),
 
 	async execute(interaction: CommandInteraction) {
 		if (!interaction.isChatInputCommand()) return;
@@ -38,17 +42,22 @@ const Setup: Command = {
 
 		const data = persist.data(interaction.guild.id);
 
+		const firstRun = !data.first_time_setup;
+
 		data.config.log.channel = interaction.options.getChannel('log_channel', true).id;
 		data.config.roles.moderator = interaction.options.getRole('moderator_role', true).id;
 		data.config.roles.team_member = interaction.options.getRole('team_member_role')?.id;
+		data.enable_p2ce_commands = interaction.options.getBoolean('p2ce_commands') ?? false;
+		data.first_time_setup = true;
 		persist.saveData(interaction.guild.id);
 
-		if (!data.first_time_setup) {
-			data.first_time_setup = true;
-			persist.saveData(interaction.guild.id);
-			return interaction.reply({ content: 'Your guild is set up! All commands are now available.', ephemeral: true });
+		await interaction.deferReply({ ephemeral: true });
+		await updateCommandsForGuild(interaction.guild.id);
+
+		if (firstRun) {
+			return interaction.editReply('Your guild is set up! All commands are now available.');
 		}
-		return interaction.reply({ content: 'Configuration has been updated!', ephemeral: true });
+		return interaction.editReply('Configuration has been updated!');
 	}
 };
 export default Setup;

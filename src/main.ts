@@ -1,12 +1,11 @@
 // noinspection JSIgnoredPromiseFromCall
 
-import { ActivityType, Client, Collection, GuildMember, IntentsBitField, Partials } from 'discord.js';
-import { REST } from '@discordjs/rest';
-import { Routes } from 'discord-api-types/v10';
+import { ActivityType, Collection, GuildMember, IntentsBitField, Partials } from 'discord.js';
 import fs from 'fs';
 import { Callbacks, MoralityCoreClient } from './types/client';
 import { Command, ContextMenu } from './types/interaction';
 import { hasPermissionLevel, PermissionLevel } from './utils/permissions';
+import { updateCommands, updateCommandsForGuild } from './utils/update_commands';
 
 import * as config from './config.json';
 import * as log from './utils/log';
@@ -15,78 +14,6 @@ import * as persist from './utils/persist';
 // Make console output better
 import consoleStamp from 'console-stamp';
 consoleStamp(console);
-
-async function updateCommands() {
-	// You need a token, duh
-	if (!config.token) {
-		log.writeToLog(undefined, 'Error updating commands: no token found in config.json!');
-		return;
-	}
-
-	const dateStart = new Date();
-	log.writeToLog(undefined, `--- UPDATE COMMANDS FOR ALL GUILDS START AT ${dateStart.toDateString()} ${dateStart.getHours()}:${dateStart.getMinutes()}:${dateStart.getSeconds()} ---`);
-
-	const client = new Client({
-		intents: [
-			IntentsBitField.Flags.Guilds
-		]
-	});
-	await client.login(config.token);
-
-	const guildCommands = [];
-	for (const file of fs.readdirSync('./build/commands/guild').filter(file => file.endsWith('.js'))) {
-		guildCommands.push((await import(`./commands/guild/${file}`)).default.data.toJSON());
-	}
-	const globalCommands = [];
-	for (const file of fs.readdirSync('./build/commands/global').filter(file => file.endsWith('.js'))) {
-		globalCommands.push((await import(`./commands/global/${file}`)).default.data.toJSON());
-	}
-
-	// Context menus are assumed to be guild-based
-	//for (const file of fs.readdirSync('./build/commands/context_menus/message').filter(file => file.endsWith('.js'))) {
-	//	guildCommands.push((await import(`./commands/context_menus/message/${file}`)).default.data.toJSON());
-	//}
-	for (const file of fs.readdirSync('./build/commands/context_menus/user').filter(file => file.endsWith('.js'))) {
-		guildCommands.push((await import(`./commands/context_menus/user/${file}`)).default.data.toJSON());
-	}
-
-	const rest = new REST({ version: '10' }).setToken(config.token);
-
-	// Update commands for every guild
-	for (const guild of (await client.guilds.fetch()).values()) {
-		await rest.put(Routes.applicationGuildCommands(config.client_id, guild.id), { body: guildCommands });
-		log.writeToLog(undefined, `Registered ${guildCommands.length} guild commands for ${guild.id}`);
-	}
-
-	// And register global commands
-	await rest.put(Routes.applicationCommands(config.client_id), { body: globalCommands });
-	log.writeToLog(undefined, `Registered ${globalCommands.length} global commands`);
-
-	const dateEnd = new Date();
-	log.writeToLog(undefined, `--- UPDATE COMMANDS FOR ALL GUILDS END AT ${dateEnd.toDateString()} ${dateEnd.getHours()}:${dateEnd.getMinutes()}:${dateEnd.getSeconds()} ---`);
-	client.destroy();
-}
-
-async function updateCommandsForGuild(guildID: string) {
-	const guildCommands = [];
-	for (const file of fs.readdirSync('./build/commands/guild').filter(file => file.endsWith('.js'))) {
-		guildCommands.push((await import(`./commands/guild/${file}`)).default.data.toJSON());
-	}
-
-	// Context menus are assumed to be guild-based
-	//for (const file of fs.readdirSync('./build/commands/context_menus/message').filter(file => file.endsWith('.js'))) {
-	//	guildCommands.push((await import(`./commands/context_menus/message/${file}`)).default.data.toJSON());
-	//}
-	for (const file of fs.readdirSync('./build/commands/context_menus/user').filter(file => file.endsWith('.js'))) {
-		guildCommands.push((await import(`./commands/context_menus/user/${file}`)).default.data.toJSON());
-	}
-
-	const rest = new REST({ version: '10' }).setToken(config.token);
-
-	// Update commands for this guild
-	await rest.put(Routes.applicationGuildCommands(config.client_id, guildID), { body: guildCommands });
-	log.writeToLog(undefined, `Registered ${guildCommands.length} guild commands for ${guildID}`);
-}
 
 async function main() {
 	// You need a token, duh
@@ -113,8 +40,9 @@ async function main() {
 		partials: [
 			Partials.Channel,
 			Partials.Message,
-			Partials.GuildMember,
 			Partials.Reaction,
+			Partials.User,
+			Partials.GuildMember,
 		]
 	});
 
@@ -168,11 +96,7 @@ async function main() {
 
 	// Listen for left guilds
 	client.on('guildDelete', async guild => {
-		log.writeToLog(guild.id, `Left guild ${guild.id}`);
-
-		// Delete log and database files
-		fs.rmSync(log.getLogFilepath(guild.id));
-		fs.rmSync(persist.getDataFilepath(guild.id));
+		log.writeToLog(undefined, `Left guild ${guild.id}`);
 	});
 
 	// Listen for commands

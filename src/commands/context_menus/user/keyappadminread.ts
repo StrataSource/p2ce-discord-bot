@@ -6,6 +6,7 @@ import { readUserApplication } from '../../shared/keyapp';
 
 const KeyAppAdminRead: ContextMenu = {
 	permissionLevel: PermissionLevel.TEAM_MEMBER,
+	isP2CEOnly: true,
 
 	data: new ContextMenuCommandBuilder()
 		.setName('Read Key App')
