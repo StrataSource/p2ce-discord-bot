@@ -7,14 +7,15 @@ import { PermissionLevel } from '../../utils/permissions';
 const packageJSON: { version: number, dependencies: unknown } = require('../../../package.json');
 
 const Info: Command = {
-	permissionLevel: PermissionLevel.MEMBER,
+	permissionLevel: PermissionLevel.EVERYONE,
+	canBeExecutedWithoutPriorGuildSetup: true,
 
 	data: new SlashCommandBuilder()
 		.setName('info')
 		.setDescription('Responds with information about the bot.'),
 
 	async execute(interaction: CommandInteraction) {
-		const username = interaction.guild?.members.cache.get(interaction.client.user?.id ?? '')?.nickname ?? interaction.client.user?.username ?? '';
+		const username = interaction.client.user?.username ?? 'Morality Core';
 
 		const embed = new EmbedBuilder()
 			.setAuthor({

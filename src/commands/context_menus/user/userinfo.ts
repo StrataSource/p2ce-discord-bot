@@ -4,7 +4,7 @@ import { PermissionLevel } from '../../../utils/permissions';
 import { getUserInfo } from '../../shared/userinfo';
 
 const UserInfo: ContextMenu = {
-	permissionLevel: PermissionLevel.MEMBER,
+	permissionLevel: PermissionLevel.EVERYONE,
 
 	data: new ContextMenuCommandBuilder()
 		.setName('User Info')

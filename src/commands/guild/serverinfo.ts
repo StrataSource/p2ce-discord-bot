@@ -4,7 +4,7 @@ import { LogLevelColor } from '../../utils/log';
 import { PermissionLevel } from '../../utils/permissions';
 
 const ServerInfo: Command = {
-	permissionLevel: PermissionLevel.MEMBER,
+	permissionLevel: PermissionLevel.EVERYONE,
 
 	data: new SlashCommandBuilder()
 		.setName('serverinfo')

@@ -45,7 +45,7 @@ async function getSearchEmbed(issues: Array<GitHubIssue>, repo: string, query: s
 }
 
 const Issue: Command = {
-	permissionLevel: PermissionLevel.MEMBER,
+	permissionLevel: PermissionLevel.EVERYONE,
 
 	data: new SlashCommandBuilder()
 		.setName('issue')

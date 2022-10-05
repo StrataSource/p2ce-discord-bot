@@ -20,12 +20,6 @@
 		"hours_to_wait": 1
 	},
 
-	"roles": {
-		"member":      "role id goes here",
-		"team_member": "role id goes here",
-		"moderator":   "role id goes here"
-	},
-
 	"messages": {
 		"coop": "this response is required in code"
 	},

@@ -21,7 +21,8 @@ function replaceText(text: string, from: string[], to: string[]) {
 }
 
 const Fun: Command = {
-	permissionLevel: PermissionLevel.MEMBER,
+	permissionLevel: PermissionLevel.EVERYONE,
+	canBeExecutedWithoutPriorGuildSetup: true,
 
 	data: new SlashCommandBuilder()
 		.setName('fun')

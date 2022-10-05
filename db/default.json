@@ -11,8 +11,12 @@
 			},
 			"channel": "",
 			"user_exceptions": []
+		},
+		"roles": {
+			"moderator": ""
 		}
 	},
+	"autoroles": [],
 	"reaction_roles": {},
 	"watched_threads": [],
 	"statistics": {

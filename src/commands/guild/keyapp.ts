@@ -11,7 +11,7 @@ const USER_DB_CHECK = new Collection<string, number>();
 const USER_DB_READ = new Collection<string, number>();
 
 const KeyApp: Command = {
-	permissionLevel: PermissionLevel.MEMBER,
+	permissionLevel: PermissionLevel.EVERYONE,
 
 	data: new SlashCommandBuilder()
 		.setName('keyapp')
