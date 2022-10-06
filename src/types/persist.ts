@@ -20,6 +20,12 @@ export interface PersistentData {
 		}
 	},
 	autoroles: string[],
+	github_repos: {
+		[id: string]: {
+			owner: string,
+			name: string,
+		},
+	},
 	reaction_roles: {
 		[message: string]: {
 			channel: string,
@@ -28,6 +34,9 @@ export interface PersistentData {
 				role: string,
 			}>,
 		},
+	},
+	responses: {
+		[response_id: string]: string,
 	},
 	watched_threads: Array<string>,
 	statistics: {

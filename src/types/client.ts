@@ -1,16 +1,19 @@
-import { ButtonInteraction, Client, ClientOptions, Collection, InteractionResponse, Message, SelectMenuInteraction } from 'discord.js';
+import { ButtonInteraction, Client, ClientOptions, Collection, InteractionResponse, Message, ModalSubmitInteraction, SelectMenuInteraction } from 'discord.js';
 import { CommandBase } from './interaction';
 
 type ButtonCallback = (interaction: ButtonInteraction) => Promise<void | Message<boolean> | InteractionResponse<boolean>>;
 type SelectMenuCallback = (interaction: SelectMenuInteraction) => Promise<void | Message<boolean> | InteractionResponse<boolean>>;
+type ModalCallback = (interaction: ModalSubmitInteraction) => void;
 
 export class Callbacks {
 	#buttonCallbacks: Map<string, ButtonCallback>;
 	#menuCallbacks: Map<string, SelectMenuCallback>;
+	#modalCallbacks: Map<string, ModalCallback>;
 
 	constructor() {
 		this.#buttonCallbacks = new Map<string, ButtonCallback>();
 		this.#menuCallbacks = new Map<string, SelectMenuCallback>();
+		this.#modalCallbacks = new Map<string, ModalCallback>();
 	}
 
 	addButtonCallback(buttonID: string, callback: ButtonCallback) {
@@ -25,6 +28,12 @@ export class Callbacks {
 		}
 	}
 
+	addModalCallback(modalID: string, callback: ModalCallback) {
+		if (!this.#modalCallbacks.has(modalID)) {
+			this.#modalCallbacks.set(modalID, callback);
+		}
+	}
+
 	runButtonCallback(buttonID: string, interaction: ButtonInteraction) {
 		return this.#buttonCallbacks.get(buttonID)?.(interaction);
 	}
@@ -33,12 +42,20 @@ export class Callbacks {
 		return this.#menuCallbacks.get(menuID)?.(interaction);
 	}
 
+	runModalCallback(modalID: string, interaction: ModalSubmitInteraction) {
+		return this.#modalCallbacks.get(modalID)?.(interaction);
+	}
+
 	removeButtonCallback(buttonID: string) {
 		this.#buttonCallbacks.delete(buttonID);
 	}
 
 	removeSelectMenuCallback(menuID: string) {
 		this.#menuCallbacks.delete(menuID);
+	}
+
+	removeModalCallback(modalID: string) {
+		this.#modalCallbacks.delete(modalID);
 	}
 }
 
