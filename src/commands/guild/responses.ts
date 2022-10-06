@@ -80,7 +80,7 @@ const Responses: Command = {
 
 		case 'list': {
 			const out: string[] = [];
-			for (const responseID of Object.keys(data.github_repos)) {
+			for (const responseID of Object.keys(data.responses)) {
 				out.push(`- \`${responseID}\``);
 			}
 			const desc = out.join('\n\n');
