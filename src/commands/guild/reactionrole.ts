@@ -34,7 +34,7 @@ const ReactionRole: Command = {
 			.setName('list')
 			.setDescription('List all current reaction role messages.'))
 		.addSubcommand(subcommand => subcommand
-			.setName('clear')
+			.setName('remove')
 			.setDescription('Remove all reaction roles from the given message.')
 			.addStringOption(option => option
 				.setName('message')
@@ -108,7 +108,7 @@ const ReactionRole: Command = {
 			return interaction.reply({ embeds: [embed] });
 		}
 
-		case 'clear': {
+		case 'remove': {
 			const message = interaction.options.getString('message', true);
 			if (!Object.hasOwn(data.reaction_roles, message)) {
 				return interaction.reply({ content: 'Message given does not have any reaction roles!', ephemeral: true });

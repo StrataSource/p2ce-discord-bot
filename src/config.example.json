@@ -13,21 +13,10 @@
 
 	"github": {
 		"search_page_length": 5,
-		"search_page_cache_time": 15
+		"search_page_cache_time": 5
 	},
 
 	"keyapp": {
 		"hours_to_wait": 1
-	},
-
-	"messages": {
-		"id": "A message that gets printed"
-	},
-
-	"git_repos": {
-		"repo": {
-			"owner": "RepoOwner",
-			"name": "RepoName"
-		}
 	}
 }

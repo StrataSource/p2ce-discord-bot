@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, CommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import { ActionRowBuilder, AutocompleteInteraction, ButtonBuilder, ButtonInteraction, ButtonStyle, CommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { Callbacks } from '../../types/client';
 import { GitHubIssue } from '../../types/github';
 import { Command } from '../../types/interaction';
@@ -7,6 +7,7 @@ import { PermissionLevel } from '../../utils/permissions';
 import { LogLevelColor, writeToLog } from '../../utils/log';
 
 import * as config from '../../config.json';
+import * as persist from '../../utils/persist';
 
 const search_skipback    = new ButtonBuilder().setCustomId('issue_search_skipback')   .setLabel('⏮️').setStyle(ButtonStyle.Secondary);
 const search_pageback    = new ButtonBuilder().setCustomId('issue_search_pageback')   .setLabel('◀️').setStyle(ButtonStyle.Secondary);
@@ -53,15 +54,13 @@ const Issue: Command = {
 		.addSubcommand(subcommand => subcommand
 			.setName('get')
 			.setDescription('Replies with a link to the given issue')
-			.addStringOption(option => {
-				option.setName('repo')
-					.setDescription('The repository the issue is in')
-					.setRequired(true);
-
-				// Update commands when this part of the config changes
-				Object.keys(config.git_repos).forEach(id => option.addChoices({ name: id, value: id }));
-				return option;
-			})
+			.addStringOption(option => option
+				.setName('repo')
+				.setDescription('The repository the issue is in')
+				.setMinLength(1)
+				.setMaxLength(50)
+				.setAutocomplete(true)
+				.setRequired(true))
 			.addIntegerOption(option => option
 				.setName('id')
 				.setDescription('The issue number')
@@ -69,15 +68,13 @@ const Issue: Command = {
 		.addSubcommand(subcommand => subcommand
 			.setName('search')
 			.setDescription('Search for an issue on the given repository')
-			.addStringOption(option => {
-				option.setName('repo')
-					.setDescription('The repository the issue is in')
-					.setRequired(true);
-
-				// Update commands when this part of the config changes
-				Object.keys(config.git_repos).forEach(id => option.addChoices({ name: id, value: id }));
-				return option;
-			})
+			.addStringOption(option => option
+				.setName('repo')
+				.setDescription('The repository the issue is in')
+				.setMinLength(1)
+				.setMaxLength(50)
+				.setAutocomplete(true)
+				.setRequired(true))
 			.addStringOption(option => option
 				.setName('query')
 				.setDescription('The search query')
@@ -86,19 +83,42 @@ const Issue: Command = {
 				.setName('open')
 				.setDescription('If the issue must be open or not (default is to search all issues)'))),
 
+	getAutocompleteOptions(interaction: AutocompleteInteraction) {
+		if (!interaction.inGuild() || !interaction.guild?.id) return [];
+
+		const data = persist.data(interaction.guild.id);
+		const out: { name: string, value: string }[] = [];
+
+		switch (interaction.options.getSubcommand()) {
+		case 'get':
+		case 'search': {
+			for (const id of Object.keys(data.github_repos)) {
+				out.push({ name: id, value: id });
+			}
+			return out;
+		}
+		}
+		return [];
+	},
+
 	async execute(interaction: CommandInteraction, callbacks: Callbacks) {
 		if (!interaction.isChatInputCommand()) return;
+		if (!interaction.inGuild || !interaction.guild) {
+			return interaction.reply({ content: 'This command must be ran in a guild.', ephemeral: true });
+		}
+
+		const data = persist.data(interaction.guild.id);
 
 		switch (interaction.options.getSubcommand()) {
 		case 'get': {
 			const repo = interaction.options.getString('repo', true);
-			if (!(repo in config.git_repos)) {
-				return interaction.reply({ content: `Could not find repository "${repo}"`, ephemeral: true });
+			if (!(repo in data.github_repos)) {
+				return interaction.reply({ content: `Could not find repository with ID "${repo}"`, ephemeral: true });
 			}
 			await interaction.deferReply();
 
 			const issueID = interaction.options.getInteger('id', true);
-			const issue = await getIssueInRepo(repo, issueID);
+			const issue = await getIssueInRepo(interaction.guild.id, repo, issueID);
 			if (!issue) {
 				return interaction.editReply(`Could not find issue #${issueID}`);
 			}
@@ -123,14 +143,14 @@ const Issue: Command = {
 
 		case 'search': {
 			const repo = interaction.options.getString('repo', true);
-			if (!(repo in config.git_repos)) {
-				return interaction.reply(`Could not find repository "${repo}"`);
+			if (!(repo in data.github_repos)) {
+				return interaction.reply(`Could not find repository with ID "${repo}"`);
 			}
 			await interaction.deferReply();
 
 			const query = interaction.options.getString('query', true);
 
-			const issues = await searchIssuesInRepo(repo, query, interaction.options.getBoolean('open'));
+			const issues = await searchIssuesInRepo(interaction.guild.id, repo, query, interaction.options.getBoolean('open'));
 
 			const maxPage = getMaxPages(issues.length);
 
@@ -145,6 +165,10 @@ const Issue: Command = {
 					search_skipforward.setDisabled(maxPage === 1));
 
 			const onButtonPressed = async (interaction: ButtonInteraction) => {
+				if (!interaction.inGuild || !interaction.guild) {
+					return interaction.reply({ content: 'This button must be clicked in a guild.', ephemeral: true });
+				}
+
 				// HACKY DISGUSTING HACK BEGIN
 				if (interaction.message.embeds.length === 0) {
 					// Can't access the embed, someone deleted it
@@ -176,7 +200,7 @@ const Issue: Command = {
 		
 				await interaction.deferUpdate();
 		
-				const newEmbed = await getSearchEmbed(await searchIssuesInRepo(repo, query), repo, query, page, maxPage);
+				const newEmbed = await getSearchEmbed(await searchIssuesInRepo(interaction.guild.id, repo, query), repo, query, page, maxPage);
 		
 				const buttons = new ActionRowBuilder<ButtonBuilder>()
 					.addComponents(

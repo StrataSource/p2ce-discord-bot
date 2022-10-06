@@ -169,6 +169,28 @@ async function main() {
 				}
 				return;
 			}
+		} else if (interaction.isAutocomplete()) {
+			const command = client.commands?.get(interaction.commandName);
+			if (!command) {
+				await interaction.respond([]);
+				return;
+			}
+
+			let options = (command as Command).getAutocompleteOptions?.(interaction);
+			if (!options) {
+				await interaction.respond([]);
+				return;
+			}
+
+			// Only display options that correspond to what has been typed already
+			options = options.filter(option => option.name.startsWith(interaction.options.getFocused()));
+
+			// Max number of choices is 25
+			if (options.length > 25) {
+				await interaction.respond(options.slice(0, 25));
+			} else {
+				await interaction.respond(options);
+			}
 		}
 	});
 
