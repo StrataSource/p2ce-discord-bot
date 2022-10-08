@@ -5,6 +5,7 @@
 		"log": {
 			"options": {
 				"user_updates": true,
+				"user_avatar_updates": true,
 				"user_bans": true,
 				"user_joins_and_leaves": true,
 				"message_deletes": true,

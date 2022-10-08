@@ -281,6 +281,9 @@ async function main() {
 				if (data.config.log.options.user_updates) {
 					log.userUpdate(client, guild.id, oldUser, newUser);
 				}
+				if (data.config.log.options.user_avatar_updates) {
+					log.userAvatarUpdate(client, guild.id, oldUser, newUser);
+				}
 			}
 		}
 	});

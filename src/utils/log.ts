@@ -97,6 +97,9 @@ export function userUpdate(client: Client, guildID: string, user1: User | Partia
 	if (user1.username !== user2.username) {
 		message(client, guildID, 'USER', LogLevelColor.INFO, `**${user1.username}#${user1.discriminator}** changed their username to **${user2.username}#${user2.discriminator}**`);
 	}
+}
+
+export function userAvatarUpdate(client: Client, guildID: string, user1: User | PartialUser, user2: User) {
 	if (user1.avatar !== user2.avatar) {
 		message(client, guildID, 'USER', LogLevelColor.INFO, `<@${user1.id}> changed their avatar`, user2.avatarURL({ size: 1024 }));
 	}

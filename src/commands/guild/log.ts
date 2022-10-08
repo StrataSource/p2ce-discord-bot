@@ -81,10 +81,15 @@ const Log: Command = {
 						.setPlaceholder('Logging options')
 						.addOptions(
 							new SelectMenuOptionBuilder()
-								.setLabel('User Updates')
-								.setDescription('Log when a member\'s username or avatar changes')
+								.setLabel('User Name Updates')
+								.setDescription('Log when a member\'s username changes')
 								.setDefault(data.config.log.options.user_updates)
 								.setValue('user_updates'),
+							new SelectMenuOptionBuilder()
+								.setLabel('User Avatar Updates')
+								.setDescription('Log when a member\'s avatar changes')
+								.setDefault(data.config.log.options.user_avatar_updates)
+								.setValue('user_avatar_updates'),
 							new SelectMenuOptionBuilder()
 								.setLabel('User Bans')
 								.setDescription('Log when a member is banned')
@@ -106,7 +111,7 @@ const Log: Command = {
 								.setDefault(data.config.log.options.message_deletes)
 								.setValue('message_deletes'))
 						.setMinValues(0)
-						.setMaxValues(5));
+						.setMaxValues(6));
 
 			callbacks.addSelectMenuCallback('log_options', async interaction => {
 				if (!interaction.inGuild || !interaction.guild) {

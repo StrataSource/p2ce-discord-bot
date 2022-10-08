@@ -6,6 +6,7 @@ export interface PersistentData {
 		log: {
 			options: {
 				user_updates: boolean,
+				user_avatar_updates: boolean,
 				user_bans: boolean,
 				user_joins_and_leaves: boolean,
 				message_deletes: boolean,
