@@ -16,11 +16,7 @@ const ReactionRole: Command = {
 			.setDescription('Add a reaction role to a message. Will turn it into a reaction role message if it isn\'t already.')
 			.addStringOption(option => option
 				.setName('message')
-				.setDescription('The ID of the message to add the reaction to')
-				.setRequired(true))
-			.addChannelOption(option => option
-				.setName('channel')
-				.setDescription('The channel the message is in')
+				.setDescription('The link to the message to add the reaction to')
 				.setRequired(true))
 			.addStringOption(option => option
 				.setName('emoji')
@@ -54,24 +50,34 @@ const ReactionRole: Command = {
 
 		switch (interaction.options.getSubcommand()) {
 		case 'add': {
-			const message = interaction.options.getString('message', true);
-			const channel = interaction.options.getChannel('channel', true);
+			const messageLink = interaction.options.getString('message', true);
 			const emoji = interaction.options.getString('emoji', true);
 			const role = interaction.options.getRole('role', true);
 
-			const discordChannel = interaction.guild.channels.resolve(channel.id);
+			const messageLinkRegex = /(?:https?:\/\/)?(?:(?:www\.)|(?:canary\.))?(?:(?:discord\.(?:gg|io|me|li|com))|(?:discordapp\.com\/))\/channels\/(\d+)\/(\d+)\/(\d+)\/?/;
+			const messageLinkData = messageLink.match(messageLinkRegex);
+			if (!messageLinkData || messageLinkData.length < 4) {
+				return interaction.reply({ content: 'Message link provided is malformed.', ephemeral: true });
+			}
+			if (messageLinkData[1] !== interaction.guild.id) {
+				return interaction.reply({ content: 'The message link provided leads to a different guild!', ephemeral: true });
+			}
+			const channelID = messageLinkData[2];
+			const messageID = messageLinkData[3];
+
+			const discordChannel = interaction.guild.channels.resolve(channelID);
 			if (discordChannel?.isTextBased()) {
 				try {
-					await discordChannel.messages.react(message, emoji);
+					await discordChannel.messages.react(messageID, emoji);
 				} catch (err) {
 					return interaction.reply({ content: 'Could not react to message with given emoji. The emoji may not be valid, or the message may not exist.', ephemeral: true });
 				}
 			}
 
 			// Add message if it's not a reaction role message
-			if (!Object.hasOwn(data.reaction_roles, message)) {
-				data.reaction_roles[message] = {
-					channel: channel.id,
+			if (!Object.hasOwn(data.reaction_roles, messageID)) {
+				data.reaction_roles[messageID] = {
+					channel: channelID,
 					roles: [
 						{
 							emoji_name: emoji,
@@ -80,7 +86,7 @@ const ReactionRole: Command = {
 					]
 				};
 			} else {
-				data.reaction_roles[message]['roles'].push({
+				data.reaction_roles[messageID]['roles'].push({
 					emoji_name: emoji,
 					role: role.id
 				});
