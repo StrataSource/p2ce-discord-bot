@@ -111,6 +111,7 @@ export function userJoined(client: Client, guildID: string, member: GuildMember 
 }
 
 export function userLeft(client: Client, guildID: string, member: GuildMember | PartialGuildMember) {
+	if (member.id === client.user?.id) return;
 	message(client, guildID, 'USER', LogLevelColor.INFO, `<@${member.id}> (${member.user.username}#${member.user.discriminator}) left the server 😭`, member.avatarURL({ size: 1024 }));
 }
 
