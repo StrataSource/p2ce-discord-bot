@@ -37,7 +37,7 @@ const Log: Command = {
 
 	async execute(interaction: CommandInteraction, callbacks: Callbacks) {
 		if (!interaction.isChatInputCommand()) return;
-		if (!interaction.inGuild || !interaction.guild) {
+		if (!interaction.inGuild() || !interaction.guild) {
 			return interaction.reply({ content: 'This command must be ran in a guild.', ephemeral: true });
 		}
 
@@ -114,7 +114,7 @@ const Log: Command = {
 						.setMaxValues(6));
 
 			callbacks.addSelectMenuCallback('log_options', async interaction => {
-				if (!interaction.inGuild || !interaction.guild) {
+				if (!interaction.inGuild() || !interaction.guild) {
 					return interaction.reply({ content: 'This only works in a guild!', ephemeral: true });
 				}
 

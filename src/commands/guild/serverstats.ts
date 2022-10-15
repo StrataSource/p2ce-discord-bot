@@ -13,7 +13,7 @@ const ServerStats: Command = {
 		.setDescription('Get more detailed statistics about the current server than the /serverinfo command.'),
 
 	async execute(interaction: CommandInteraction) {
-		if (!interaction.inGuild || !interaction.guild) {
+		if (!interaction.inGuild() || !interaction.guild) {
 			return interaction.reply({ content: 'This command must be ran in a guild.', ephemeral: true });
 		}
 

@@ -103,7 +103,7 @@ const Issue: Command = {
 
 	async execute(interaction: CommandInteraction, callbacks: Callbacks) {
 		if (!interaction.isChatInputCommand()) return;
-		if (!interaction.inGuild || !interaction.guild) {
+		if (!interaction.inGuild() || !interaction.guild) {
 			return interaction.reply({ content: 'This command must be ran in a guild.', ephemeral: true });
 		}
 
@@ -165,7 +165,7 @@ const Issue: Command = {
 					search_skipforward.setDisabled(maxPage === 1));
 
 			const onButtonPressed = async (interaction: ButtonInteraction) => {
-				if (!interaction.inGuild || !interaction.guild) {
+				if (!interaction.inGuild() || !interaction.guild) {
 					return interaction.reply({ content: 'This button must be clicked in a guild.', ephemeral: true });
 				}
 

@@ -15,11 +15,14 @@ const BanID: Command = {
 
 	async execute(interaction: CommandInteraction) {
 		if (!interaction.isChatInputCommand()) return;
+		if (!interaction.inGuild() || !interaction.guild) {
+			return interaction.reply({ content: 'This command must be ran in a guild.', ephemeral: true });
+		}
 
 		const id = interaction.options.getString('id', true);
 
-		interaction.client.users.fetch(id)
-			.then(clientUser => interaction.guild?.bans.create(clientUser));
+		const user = await interaction.client.users.fetch(id);
+		await interaction.guild.bans.create(user);
 
 		return interaction.reply({ content: `Banned user with ID ${id}`, ephemeral: true });
 	}
