@@ -13,7 +13,11 @@ const Warn: Command = {
 		.addStringOption(option => option
 			.setName('id')
 			.setDescription('The user ID to warn')
-			.setRequired(true)),
+			.setRequired(true))
+		.addBooleanOption( option => option
+			.setName('clear')
+			.setDescription('Clears this user\'s warnings')
+		),
 
 	async execute(interaction: CommandInteraction) {
 		if (!interaction.isChatInputCommand()) return;
@@ -24,9 +28,16 @@ const Warn: Command = {
 		const id = interaction.options.getString('id', true);
 		const warns = persist.data( interaction.guildId ).moderation.warns;
 
-		warns[id] = id in warns ? warns[id] + 1 : 1;
+		if ( interaction.options.getBoolean('clear', false) == true ) {
+			const amount = warns[id];
+			delete warns[id];
 
-		return interaction.reply({ content: `Warned user with ID ${id}, this is their ${warns[id]} warn.`, ephemeral: false });
+			return interaction.reply({ content: `Cleared ${amount} warns for user with ID ${id}.`, ephemeral: false });
+		} else {
+			warns[id] = id in warns ? warns[id] + 1 : 1;
+
+			return interaction.reply({ content: `Warned user with ID ${id}, this is their ${warns[id]} warn.`, ephemeral: false });
+		}
 	}
 };
 export default Warn;
