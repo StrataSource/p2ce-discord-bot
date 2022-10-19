@@ -44,4 +44,9 @@ export interface PersistentData {
 		joins: number,
 		leaves: number,
 	},
+	moderation: {
+		warns: {
+			[user: string]: number
+		}
+	}
 }
