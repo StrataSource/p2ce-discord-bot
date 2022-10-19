@@ -3,7 +3,7 @@ import { LogLevelColor } from '../../utils/log';
 import * as persist from '../../utils/persist';
 
 export async function getUserInfo(interaction: CommandInteraction, user: User | PartialUser, ephemeral: boolean) {
-	const warns = interaction.guildId != null ? `${persist.data(interaction.guildId).moderation.warns[user.id]}` : 'N/D';
+	const warns = interaction.guildId != null ? `${persist.data(interaction.guildId).moderation.warns[user.id].length}` : 'N/D';
 	const embed = new EmbedBuilder()
 		.setColor(LogLevelColor.INFO)
 		.setAuthor({ name: `${user.username}#${user.discriminator}`, iconURL: user.avatarURL({ size: 1024 }) ?? undefined })

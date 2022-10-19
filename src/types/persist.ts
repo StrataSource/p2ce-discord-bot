@@ -46,7 +46,11 @@ export interface PersistentData {
 	},
 	moderation: {
 		warns: {
-			[user: string]: number
+			[user: string]: Array<{
+				date: string, // date of the warning, as a UTC string
+				reason: string, // reason of the warning
+				author: string // who executed the warning
+			}>
 		}
 	}
 }
