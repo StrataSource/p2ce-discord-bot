@@ -1,6 +1,7 @@
 import {CommandInteraction, EmbedBuilder, SlashCommandBuilder} from 'discord.js';
 import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';
+import { format } from '../../utils/utils';
 
 import * as persist from '../../utils/persist';
 import {LogLevelColor} from '../../utils/log';
@@ -33,6 +34,9 @@ const Warn: Command = {
 				.setName('reason')
 				.setDescription('The reason of the warning')
 				.setRequired(true))
+			.addBooleanOption(option => option
+				.setName('dm-offender')
+				.setDescription('If the offender should be DM\'d, default to true'))
 		)
 		.addSubcommand(subcommand => subcommand
 			.setName('clear')
@@ -57,7 +61,7 @@ const Warn: Command = {
 		case 'list': {
 			const embed = new EmbedBuilder()
 				.setColor(LogLevelColor.INFO)
-				.setAuthor({ name: `${user.username}#${user.discriminator}`, iconURL: user.avatarURL({ size: 1024 }) ?? undefined })
+				.setAuthor({ name: format(user), iconURL: user.avatarURL({ size: 1024 }) ?? undefined })
 				.setTitle( `User ID: \`${user.id}\`` )
 				.setFooter({ text: `Joined at <t:${(user.createdAt.getTime() / 1000).toFixed(0)}:D>` })
 				.setTimestamp();
@@ -66,7 +70,7 @@ const Warn: Command = {
 				const issuer = await ( await interaction.guild.members.fetch(warn.author) ).user.fetch();
 				embed.addFields( {
 					name: warn.date,
-					value: `**Reason**\n\`${warn.reason}\`\n\n**Issuer**\n\`${issuer.username}#${user.discriminator}\``
+					value: `**Reason**\n\`${warn.reason}\`\n\n**Issuer**\n\`${format(issuer)}\``
 				});
 			}
 
@@ -78,11 +82,25 @@ const Warn: Command = {
 		case 'add': {
 			if ( !( id in warns ) )
 				warns[id] = [];
+
+			const date = new Date();
+			const reason = interaction.options.getString('reason', true);
 			warns[id].push({
-				date: new Date().toUTCString(),
-				reason: interaction.options.getString('reason', true),
+				date: date.toUTCString(),
+				reason: reason,
 				author: interaction.user.id
 			});
+
+			if ( interaction.options.getBoolean('dm-offender', false) != false ) {
+				const embed = new EmbedBuilder()
+					.setColor(LogLevelColor.WARNING)
+					.setTitle( `Hi ${user.id}!` )
+					.setFields({ name: 'You have been warned for the following reason:', value: `\`${reason}\`` })
+					.setFooter({ text: `Issued at <t:${( date.getTime() / 1000).toFixed(0)}:D> by ${format(interaction.user)} in ${interaction.guild.name}` })
+					.setTimestamp();
+
+				await user.send({ embeds: [embed] });
+			}
 
 			return interaction.reply({
 				content: `Warned user with ID ${id}, this is their ${warns[id].length} warn.`,
