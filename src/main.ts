@@ -1,6 +1,7 @@
 // noinspection JSIgnoredPromiseFromCall
 
 import fs from 'fs';
+import { ActivityType, Collection, GuildMember, IntentsBitField, Partials } from 'discord.js';
 import { Callbacks, MoralityCoreClient } from './types/client';
 import { Command, ContextMenu } from './types/interaction';
 import { hasPermissionLevel, PermissionLevel } from './utils/permissions';
