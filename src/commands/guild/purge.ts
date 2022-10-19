@@ -1,9 +1,6 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, TextChannel } from 'discord.js';
-import { Command } from '../../types/command';
+import { CommandInteraction, SlashCommandBuilder, TextChannel } from 'discord.js';
+import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';
-
-import * as config from '../../config.json';
 
 const Purge: Command = {
 	permissionLevel: PermissionLevel.MODERATOR,
@@ -15,7 +12,7 @@ const Purge: Command = {
 			.setName('amount')
 			.setDescription('The amount of messages to delete')
 			.setMinValue(1)
-			.setMaxValue(config.options.misc.message_purge_max)
+			.setMaxValue(100)
 			.setRequired(true)),
 
 	async execute(interaction: CommandInteraction) {

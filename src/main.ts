@@ -1,41 +1,31 @@
 // noinspection JSIgnoredPromiseFromCall
 
-import { ActivityType, Client, Collection, GuildMember, IntentsBitField, Partials } from 'discord.js';
-import { REST } from '@discordjs/rest';
-import { Routes } from 'discord-api-types/v9';
 import fs from 'fs';
-import { Command } from './types/command';
-import { messageNeedsResponse, priviledgedMessageNeedsResponse } from './utils/autorespond';
-import * as log from './utils/log';
+import { Callbacks, MoralityCoreClient } from './types/client';
+import { Command, ContextMenu } from './types/interaction';
 import { hasPermissionLevel, PermissionLevel } from './utils/permissions';
-import * as persist from './utils/persist';
-import { messageIsSpam } from './utils/spamprevent';
+import { updateCommands, updateCommandsForGuild } from './utils/update_commands';
 
 import * as config from './config.json';
+import * as log from './utils/log';
+import * as persist from './utils/persist';
 
 // Make console output better
 import consoleStamp from 'console-stamp';
 consoleStamp(console);
 
-// Load persistent storage
-persist.loadData();
-
-interface P2CEClient extends Client {
-	commands?: Collection<string, Command>;
-}
-
 async function main() {
 	// You need a token, duh
 	if (!config.token) {
-		log.writeToLog('[ERROR] No token found in config.json!');
+		log.writeToLog(undefined, 'Error: no token found in config.json!');
 		return;
 	}
 
 	const date = new Date();
-	log.writeToLog(`--- START AT ${date.toDateString()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ---`);
+	log.writeToLog(undefined, `--- BOT START AT ${date.toDateString()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ---`);
 
 	// Create client
-	const client: P2CEClient = new Client({
+	const client = new MoralityCoreClient({
 		intents: new IntentsBitField([
 			IntentsBitField.Flags.Guilds,
 			IntentsBitField.Flags.GuildEmojisAndStickers,
@@ -49,8 +39,9 @@ async function main() {
 		partials: [
 			Partials.Channel,
 			Partials.Message,
-			Partials.GuildMember,
 			Partials.Reaction,
+			Partials.User,
+			Partials.GuildMember,
 		]
 	});
 
@@ -65,63 +56,147 @@ async function main() {
 		client.commands.set(command.data.name, command);
 	}
 
+	// Register context menus
+	//for (const file of fs.readdirSync('./build/commands/context_menus/message').filter(file => file.endsWith('.js'))) {
+	//	const contextMenu: ContextMenu = (await import(`./commands/context_menus/message/${file}`)).default;
+	//	client.commands.set(contextMenu.data.name, contextMenu);
+	//}
+	for (const file of fs.readdirSync('./build/commands/context_menus/user').filter(file => file.endsWith('.js'))) {
+		const contextMenu: ContextMenu = (await import(`./commands/context_menus/user/${file}`)).default;
+		client.commands.set(contextMenu.data.name, contextMenu);
+	}
+
+	// Add callback holders
+	client.callbacks = new Callbacks();
+
 	// Run this when the client is ready
 	client.on('ready', async () => {
 		client.user?.setActivity('this server', { type: ActivityType.Watching });
 		setTimeout(() => client.user?.setActivity('this server', { type: ActivityType.Watching }), 30e3);
-		log.writeToLog(`[INFO] Logged in as ${client.user?.tag}`);
+		log.writeToLog(undefined, `Logged in as ${client.user?.tag}`);
 	});
 
 	// Listen for errors
-	if (config.options.log.errors) {
-		client.on('error', async error => {
-			log.error(client, error);
-		});
-	}
+	client.on('error', async error => {
+		await log.error(client, error);
+	});
 
 	// Listen for warnings
-	if (config.options.log.warnings) {
-		client.on('warn', async warn => {
-			log.warning(client, warn);
-		});
-	}
+	client.on('warn', async warn => {
+		await log.warning(client, warn);
+	});
+
+	// Listen for joined guilds
+	client.on('guildCreate', async guild => {
+		await updateCommandsForGuild(guild.id);
+
+		log.writeToLog(guild.id, `Joined guild ${guild.id}`);
+	});
+
+	// Listen for left guilds
+	client.on('guildDelete', async guild => {
+		log.writeToLog(undefined, `Left guild ${guild.id}`);
+	});
 
 	// Listen for commands
 	client.on('interactionCreate', async interaction => {
-		if (!interaction.isChatInputCommand()) return;
+		if (interaction.isChatInputCommand() || interaction.isContextMenuCommand()) {
+			const command = client.commands?.get(interaction.commandName);
+			if (!command) return;
 
-		const command = client.commands?.get(interaction.commandName);
-		if (!command) return;
+			// Check if the user has the required permission level
+			// This is a backup to Discord's own permissions stuff in case that breaks
+			if (!interaction.channel?.isDMBased() && interaction.guild) {
+				if (!persist.data(interaction.guild.id).config.first_time_setup && !command.canBeExecutedWithoutPriorGuildSetup) {
+					if (interaction.deferred) {
+						await interaction.followUp('Command could not be executed! Please ask a server administrator to run </setup:0>.');
+						return;
+					} else {
+						await interaction.reply('Command could not be executed! Please ask a server administrator to run </setup:0>.');
+						return;
+					}
+				}
 
-		// Check if the user has the required permission level
-		// This is a backup to Discord's own permissions stuff in case that breaks
-		if (!interaction.channel?.isDMBased() && !hasPermissionLevel(interaction.member as GuildMember, command.permissionLevel)) {
-			if (interaction.deferred) {
-				await interaction.followUp('You do not have permission to execute this command!');
-				return;
+				if (!hasPermissionLevel(interaction.member as GuildMember, command.permissionLevel)) {
+					if (interaction.deferred) {
+						await interaction.followUp('You do not have permission to execute this command!');
+						return;
+					} else {
+						await interaction.reply({ content: 'You do not have permission to execute this command!', ephemeral: true });
+						return;
+					}
+				}
+			}
+
+			if (interaction.isContextMenuCommand()) {
+				log.writeToLog(interaction.guild?.id, `Context menu "${interaction.commandName}" clicked by ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`);
 			} else {
-				await interaction.reply({
-					content: 'You do not have permission to execute this command!',
-					ephemeral: true
-				});
+				log.writeToLog(interaction.guild?.id, `Command "${interaction.commandName}" ran by ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`);
+			}
+
+			try {
+				await command.execute(interaction, client.callbacks);
+			} catch (err) {
+				log.writeToLog(undefined, (err as Error).toString());
+				if (interaction.deferred) {
+					await interaction.followUp(`There was an error while executing this command: ${err}`);
+				} else {
+					await interaction.reply(`There was an error while executing this command: ${err}`);
+				}
 				return;
+			}
+		} else if (interaction.isButton() || interaction.isSelectMenu()) {
+			if (interaction.user !== interaction.message.interaction?.user) {
+				await interaction.reply({ content: `You cannot touch someone else's buttons! These buttons are owned by ${interaction.message.interaction?.user}`, ephemeral: true });
+				return;
+			}
+
+			log.writeToLog(interaction.guild?.id, `Action row item with ID "${interaction.customId}" clicked by ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`);
+
+			try {
+				if (interaction.isButton()) {
+					await client.callbacks.runButtonCallback(interaction.customId, interaction);
+				} else if (interaction.isSelectMenu()) {
+					await client.callbacks.runSelectMenuCallback(interaction.customId, interaction);
+				}
+			} catch (err) {
+				log.writeToLog(undefined, (err as Error).toString());
+				if (interaction.deferred) {
+					await interaction.followUp(`There was an error while pressing this button: ${err}`);
+				} else {
+					await interaction.reply(`There was an error while pressing this button: ${err}`);
+				}
+				return;
+			}
+		} else if (interaction.isAutocomplete()) {
+			const command = client.commands?.get(interaction.commandName);
+			if (!command) {
+				await interaction.respond([]);
+				return;
+			}
+
+			let options = (command as Command).getAutocompleteOptions?.(interaction);
+			if (!options) {
+				await interaction.respond([]);
+				return;
+			}
+
+			// Only display options that correspond to what has been typed already
+			options = options.filter(option => option.name.startsWith(interaction.options.getFocused()));
+
+			// Max number of choices is 25
+			if (options.length > 25) {
+				await interaction.respond(options.slice(0, 25));
+			} else {
+				await interaction.respond(options);
 			}
 		}
-
-		log.writeToLog(`/${interaction.commandName} run by ${interaction.user.username}#${interaction.user.discriminator}`);
-		command.execute(interaction).catch(err => {
-			log.writeToLog((err as Error).toString());
-			if (interaction.deferred) {
-				interaction.followUp(`There was an error while executing this command: ${err}`);
-			} else {
-				interaction.reply(`There was an error while executing this command: ${err}`);
-			}
-		});
 	});
 
 	// Listen for added reactions
 	client.on('messageReactionAdd', async (reaction, user) => {
-		if (user.id === config.client_id) return;
+		// If we are reacting, or this is not a guild, bail
+		if (user.id === config.client_id || !reaction.message.guild) return;
 
 		// When a reaction is received, check if the structure is partial
 		if (reaction.partial) {
@@ -129,13 +204,14 @@ async function main() {
 			try {
 				await reaction.fetch();
 			} catch (err) {
-				log.writeToLog((err as Error).toString());
+				log.writeToLog(undefined, (err as Error).toString());
 			}
 		}
 
 		// If persistent storage has the reaction message ID, add requested role to the user
-		if (Object.hasOwn(persist.data.reaction_roles, reaction.message.id)) {
-			persist.data.reaction_roles[reaction.message.id].roles.filter(e => {
+		const data = persist.data(reaction.message.guild.id);
+		if (Object.hasOwn(data.reaction_roles, reaction.message.id)) {
+			data.reaction_roles[reaction.message.id].roles.filter(e => {
 				let name = e.emoji_name;
 				if (name.startsWith('<:') && name.endsWith('>')) {
 					name = name.substring(name.indexOf(':') + 1, name.lastIndexOf(':'));
@@ -149,7 +225,8 @@ async function main() {
 
 	// Listen for removed reactions
 	client.on('messageReactionRemove', async (reaction, user) => {
-		if (user.id === config.client_id) return;
+		// If we are reacting, or this is not a guild, bail
+		if (user.id === config.client_id || !reaction.message.guild) return;
 
 		// When a reaction is received, check if the structure is partial
 		if (reaction.partial) {
@@ -157,13 +234,14 @@ async function main() {
 			try {
 				await reaction.fetch();
 			} catch (err) {
-				log.writeToLog((err as Error).toString());
+				log.writeToLog(undefined, (err as Error).toString());
 			}
 		}
 
 		// If persistent storage has the reaction message ID, remove requested role from the user
-		if (Object.hasOwn(persist.data.reaction_roles, reaction.message.id)) {
-			persist.data.reaction_roles[reaction.message.id].roles.filter(e => {
+		const data = persist.data(reaction.message.guild.id);
+		if (Object.hasOwn(data.reaction_roles, reaction.message.id)) {
+			data.reaction_roles[reaction.message.id].roles.filter(e => {
 				let name = e.emoji_name;
 				if (name.startsWith('<:') && name.endsWith('>')) {
 					name = name.substring(name.indexOf(':') + 1, name.lastIndexOf(':'));
@@ -177,7 +255,8 @@ async function main() {
 
 	// Listen for thread changes
 	client.on('threadUpdate', async (oldThread, newThread) => {
-		if (persist.data.watched_threads.includes(newThread.id) && !oldThread.archived && newThread.archived) {
+		const data = persist.data(newThread.guild.id);
+		if (data.watched_threads.includes(newThread.id) && !oldThread.archived && newThread.archived) {
 			await newThread.setArchived(false);
 		}
 	});
@@ -185,139 +264,95 @@ async function main() {
 	// Listen for thread deletions
 	client.on('threadDelete', async thread => {
 		// Remove deleted threads from watchlist
-		if (persist.data.watched_threads.includes(thread.id)) {
-			persist.data.watched_threads = persist.data.watched_threads.filter((e: string) => e !== thread.id);
-			persist.saveData();
+		const data = persist.data(thread.guild.id);
+		if (data.watched_threads.includes(thread.id)) {
+			data.watched_threads = data.watched_threads.filter((e: string) => e !== thread.id);
+			persist.saveData(thread.guild.id);
 		}
 	});
 
 	// Listen for presence updates
-	if (config.options.log.user_updates) {
-		client.on('userUpdate', async (oldUser, newUser) => {
-			log.userUpdate(client, oldUser, newUser);
-		});
-	}
+	client.on('userUpdate', async (oldUser, newUser) => {
+		for (const guild of (await client.guilds.fetch()).values()) {
+			const member = (await (await guild.fetch()).members.fetch()).get(newUser.id);
+			if (member) {
+				const data = persist.data(guild.id);
+				if (data.config.log.options.user_updates) {
+					log.userUpdate(client, guild.id, oldUser, newUser);
+				}
+				if (data.config.log.options.user_avatar_updates) {
+					log.userAvatarUpdate(client, guild.id, oldUser, newUser);
+				}
+			}
+		}
+	});
 
 	// Listen for banned members
-	if (config.options.log.user_bans) {
-		client.on('guildBanAdd', async ban => {
-			log.userBanned(client, ban);
-		});
-	}
+	client.on('guildBanAdd', async ban => {
+		if (persist.data(ban.guild.id).config.log.options.user_bans) {
+			log.userBanned(client, ban.guild.id, ban);
+		}
+	});
 
 	// Listen for deleted messages
-	if (config.options.log.message_deletes) {
-		client.on('messageDelete', async message => {
-			// Only responds to beta testers and members
-			if (!hasPermissionLevel(message.member, PermissionLevel.TEAM_MEMBER) && message.cleanContent) {
-				log.messageDeleted(client, message);
+	client.on('messageDelete', async message => {
+		// Only responds to members
+		if (message.member && !hasPermissionLevel(message.member, PermissionLevel.TEAM_MEMBER) && message.cleanContent && message.guild) {
+			const data = persist.data(message.guild.id);
+			if (data.config.log.options.message_deletes && message.author && !data.config.log.user_exceptions.includes(message.author.id)) {
+				log.messageDeleted(client, message.guild.id, message);
 			}
-		});
-	}
+		}
+	});
 
 	// Listen for edited messages
-	if (config.options.log.message_edits) {
-		client.on('messageUpdate', async (oldMessage, newMessage) => {
-			// Only responds to beta testers and members
-			if (!hasPermissionLevel(newMessage.member, PermissionLevel.TEAM_MEMBER)) {
-				log.messageUpdated(client, oldMessage, newMessage);
+	client.on('messageUpdate', async (oldMessage, newMessage) => {
+		// Only responds to members
+		if (newMessage.member && !hasPermissionLevel(newMessage.member, PermissionLevel.TEAM_MEMBER) && newMessage.guild) {
+			const data = persist.data(newMessage.guild.id);
+			if (data.config.log.options.message_edits && newMessage.author && !data.config.log.user_exceptions.includes(newMessage.author.id)) {
+				log.messageUpdated(client, newMessage.guild.id, oldMessage, newMessage);
 			}
-		});
-	}
-
-	// Listen for messages to respond to
-	if (config.options.misc.autorespond) {
-		client.on('messageCreate', async message => {
-			// Only respond to messages in guilds
-			if (message.channel.isDMBased()) return;
-
-			// Only responds to members
-			if (!hasPermissionLevel(message.member, PermissionLevel.BETA_TESTER)) {
-				// Check for spam
-				if (config.options.spam.enabled) {
-					messageIsSpam(message).then(spam => {
-						if (spam && message.deletable) {
-							message.delete();
-							message.member?.timeout(config.options.spam.timeout_duration_minutes * 1000 * 60, 'Spamming @mentions');
-							log.userSpamResponse(client, message);
-						}
-					});
-				}
-
-				// Check for response
-				const response = messageNeedsResponse(message);
-				if (response) {
-					await message.reply(response);
-				}
-			} else {
-				// This bit will respond to ANY USER
-				const response = priviledgedMessageNeedsResponse(message);
-				if (response) {
-					await message.reply(response);
-				}
-			}
-		});
-	}
+		}
+	});
 
 	// Listen for members joining
 	client.on('guildMemberAdd', async member => {
-		if (config.options.log.user_joins_and_leaves) {
-			// No logging here, it's unnecessary
-			persist.data.statistics.joins++;
-			persist.saveData();
+		const data = persist.data(member.guild.id);
+		data.statistics.joins++;
+		persist.saveData(member.guild.id);
+
+		// Add autoroles
+		for (const roleID of data.autoroles) {
+			await member.roles.add(roleID);
 		}
-		await member.roles.add( config.roles.member );
+
+		if (data.config.log.options.user_joins_and_leaves) {
+			log.userJoined(client, member.guild.id, member);
+		}
 	});
 
-	if (config.options.log.user_joins_and_leaves) {
-		// Listen for members leaving
-		client.on('guildMemberRemove', async member => {
-			persist.data.statistics.leaves++;
-			persist.saveData();
+	// Listen for members leaving
+	client.on('guildMemberRemove', async member => {
+		const data = persist.data(member.guild.id);
+		data.statistics.leaves++;
+		persist.saveData(member.guild.id);
 
-			log.userLeft(client, member);
-		});
-	}
+		if (data.config.log.options.user_joins_and_leaves) {
+			log.userLeft(client, member.guild.id, member);
+		}
+	});
 
 	// Log in
 	await client.login(config.token);
 
 	process.on('SIGINT', () => {
 		const date = new Date();
-		log.writeToLog(`--- STOP AT ${date.toDateString()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ---`);
+		log.writeToLog(undefined, `--- BOT END AT ${date.toDateString()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ---`);
 		client.destroy();
-		persist.saveData();
+		persist.saveAll();
 		process.exit();
 	});
-}
-
-async function updateCommands() {
-	// You need a token, duh
-	if (!config.token) {
-		console.log('Error: No token found in config.json!');
-		return;
-	}
-
-	console.log('Registering commands...');
-
-	const guildCommands = [];
-	for (const file of fs.readdirSync('./build/commands/guild').filter(file => file.endsWith('.js'))) {
-		guildCommands.push((await import(`./commands/guild/${file}`)).default.data.toJSON());
-	}
-	const globalCommands = [];
-	for (const file of fs.readdirSync('./build/commands/global').filter(file => file.endsWith('.js'))) {
-		globalCommands.push((await import(`./commands/global/${file}`)).default.data.toJSON());
-	}
-
-	const rest = new REST({ version: '10' }).setToken(config.token);
-
-	// Update commands for every guild
-	await rest.put(Routes.applicationGuildCommands(config.client_id, config.guild), { body: guildCommands });
-	console.log(`Registered ${guildCommands.length} guild commands for ${config.guild}`);
-
-	// And register global commands
-	await rest.put(Routes.applicationCommands(config.client_id), { body: globalCommands });
-	console.log(`Registered ${globalCommands.length} application commands`);
 }
 
 if (process.argv.includes('--update-commands')) {

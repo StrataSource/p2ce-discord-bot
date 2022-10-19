@@ -1,36 +1,34 @@
 import fs from 'fs';
+import { PersistentData } from '../types/persist';
 
-import * as config from '../config.json';
+const guildData = new Map<string, PersistentData>();
 
-// Modify this interface when adding new data things, or don't if you hate TypeScript and everything it stands for
-export interface PersistentData {
-	reaction_roles: {
-		[message: string]: {
-			channel: string,
-			roles: Array<{
-				emoji_name: string,
-				role: string,
-			}>,
-		},
-	};
-	watched_threads: Array<string>;
-	statistics: {
-		joins: number,
-		leaves: number
-	}
+export function getDataFilepath(guildID: string) { 
+	return `./db/guild_${guildID}.json`;
 }
 
-export let data: PersistentData;
-
-const dataURL = `./data_${config.guild}.json`;
-
-export function loadData() {
-	if (!fs.existsSync(dataURL)) {
-		fs.writeFileSync(dataURL, fs.readFileSync('./data.default.json'));
+function loadData(guildID: string) {
+	const dataPath = getDataFilepath(guildID);
+	if (!fs.existsSync(dataPath)) {
+		fs.writeFileSync(dataPath, fs.readFileSync('./db/default.json'));
 	}
-	data = JSON.parse(fs.readFileSync(dataURL).toString());
+	guildData.set(guildID, JSON.parse(fs.readFileSync(dataPath).toString()));
 }
 
-export function saveData() {
-	fs.writeFileSync(dataURL, JSON.stringify(data, undefined, '\t') + '\n');
+export function data(guildID: string): PersistentData {
+	if (!guildData.has(guildID)) {
+		loadData(guildID);
+	}
+	// thanks TypeScript
+	return guildData.get(guildID) ?? ({} as PersistentData);
+}
+
+export function saveData(guildID: string) {
+	fs.writeFileSync(getDataFilepath(guildID), JSON.stringify(data(guildID), undefined, '\t') + '\n');
+}
+
+export function saveAll() {
+	for (const guildID of guildData.keys()) {
+		saveData(guildID);
+	}
 }

@@ -1,6 +1,5 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction } from 'discord.js';
-import { Command } from '../../types/command';
+import { CommandInteraction, SlashCommandBuilder } from 'discord.js';
+import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';
 
 const Say: Command = {

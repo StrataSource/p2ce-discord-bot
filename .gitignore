@@ -1,11 +1,16 @@
+# IDE
 .idea/
 .vscode/
 
+# Build
 build/
 dist/
 node_modules/
 
+# Generated
+db/guild_*.json
+log/
+
+# Config
 config.json
 config_*.json
-data_*.json
-log_*.txt

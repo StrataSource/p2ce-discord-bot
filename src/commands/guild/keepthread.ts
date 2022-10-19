@@ -1,8 +1,8 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { ChannelType, CommandInteraction, EmbedBuilder, GuildBasedChannel } from 'discord.js';
-import { Command } from '../../types/command';
+import { ChannelType, CommandInteraction, EmbedBuilder, GuildBasedChannel, SlashCommandBuilder } from 'discord.js';
+import { Command } from '../../types/interaction';
 import { LogLevelColor } from '../../utils/log';
 import { PermissionLevel } from '../../utils/permissions';
+
 import * as persist from '../../utils/persist';
 
 const KeepThread: Command = {
@@ -33,6 +33,11 @@ const KeepThread: Command = {
 
 	async execute(interaction: CommandInteraction) {
 		if (!interaction.isChatInputCommand()) return;
+		if (!interaction.inGuild() || !interaction.guild) {
+			return interaction.reply({ content: 'This command must be ran in a guild.', ephemeral: true });
+		}
+
+		const data = persist.data(interaction.guild.id);
 
 		switch (interaction.options.getSubcommand()) {
 		case 'add': {
@@ -41,17 +46,17 @@ const KeepThread: Command = {
 				return interaction.reply({ content: 'Channel given is not a thread!', ephemeral: true });
 			}
 
-			if (!persist.data.watched_threads.includes(thread.id)) {
-				persist.data.watched_threads.push(thread.id);
+			if (!data.watched_threads.includes(thread.id)) {
+				data.watched_threads.push(thread.id);
 			}
-			persist.saveData();
+			persist.saveData(interaction.guild.id);
 
 			return interaction.reply({ content: `Watching thread <#${thread.id}>!`, ephemeral: true });
 		}
 
 		case 'list': {
 			let desc = '';
-			for (const id of persist.data.watched_threads) {
+			for (const id of data.watched_threads) {
 				desc += `- <#${id}>\n`;
 			}
 
@@ -69,10 +74,10 @@ const KeepThread: Command = {
 				return interaction.reply({ content: 'Channel given is not a thread!', ephemeral: true });
 			}
 
-			if (persist.data.watched_threads.includes(thread.id)) {
-				persist.data.watched_threads = persist.data.watched_threads.filter(e => e !== thread.id);
+			if (data.watched_threads.includes(thread.id)) {
+				data.watched_threads = data.watched_threads.filter(e => e !== thread.id);
 			}
-			persist.saveData();
+			persist.saveData(interaction.guild.id);
 
 			return interaction.reply({ content: `No longer watching thread <#${thread.id}>.`, ephemeral: true });
 		}

@@ -1,0 +1,30 @@
+{
+	"config": {
+		"first_time_setup": false,
+		"enable_p2ce_commands": false,
+		"log": {
+			"options": {
+				"user_updates": true,
+				"user_avatar_updates": true,
+				"user_bans": true,
+				"user_joins_and_leaves": true,
+				"message_deletes": true,
+				"message_edits": true
+			},
+			"channel": "",
+			"user_exceptions": []
+		},
+		"roles": {
+			"moderator": ""
+		}
+	},
+	"autoroles": [],
+	"github_repos": {},
+	"reaction_roles": {},
+	"responses": {},
+	"watched_threads": [],
+	"statistics": {
+		"joins": 0,
+		"leaves": 0
+	}
+}

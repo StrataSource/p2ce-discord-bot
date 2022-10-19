@@ -1,11 +1,10 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, EmbedBuilder } from 'discord.js';
-import { Command } from '../../types/command';
+import { CommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import { Command } from '../../types/interaction';
 import { LogLevelColor } from '../../utils/log';
 import { PermissionLevel } from '../../utils/permissions';
 
 const ServerInfo: Command = {
-	permissionLevel: PermissionLevel.MEMBER,
+	permissionLevel: PermissionLevel.EVERYONE,
 
 	data: new SlashCommandBuilder()
 		.setName('serverinfo')
@@ -13,15 +12,10 @@ const ServerInfo: Command = {
 
 	async execute(interaction: CommandInteraction) {
 		if (!interaction.inGuild() || !interaction.guild) {
-			return interaction.reply('This command can only be ran in a server.');
+			return interaction.reply({ content: 'This command must be ran in a guild.', ephemeral: true });
 		}
 
 		const description = (interaction.guild.description && interaction.guild.description.length > 0) ? interaction.guild.description : 'Server has no description.';
-
-		let emojis = (await interaction.guild.emojis.fetch()).map(e => e).join(' ');
-		if (emojis.length == 0) {
-			emojis = 'This server has no emojis.';
-		}
 
 		const creator = await interaction.guild.fetchOwner();
 
@@ -37,7 +31,6 @@ const ServerInfo: Command = {
 			.setDescription(description)
 			.setThumbnail(interaction.guild.iconURL({ size: 1024 }))
 			.addFields(
-				{ name: 'Server Emoji', value: emojis },
 				{ name: 'Created On', value: `<t:${Math.round(interaction.guild.createdTimestamp / 1000)}:f>`, inline: true },
 				{ name: 'Created By', value: `<@${creator.user.id}>`, inline: true },
 				{ name: 'Partner Server', value: `${interaction.guild.partnered ? 'Yes' : 'No'}`, inline: true },

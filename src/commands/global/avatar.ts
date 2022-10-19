@@ -1,11 +1,11 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, EmbedBuilder } from 'discord.js';
-import { Command } from '../../types/command';
+import { CommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import { Command } from '../../types/interaction';
 import { LogLevelColor } from '../../utils/log';
 import { PermissionLevel } from '../../utils/permissions';
 
 const Avatar: Command = {
-	permissionLevel: PermissionLevel.MEMBER,
+	permissionLevel: PermissionLevel.EVERYONE,
+	canBeExecutedWithoutPriorGuildSetup: true,
 
 	data: new SlashCommandBuilder()
 		.setName('avatar')
