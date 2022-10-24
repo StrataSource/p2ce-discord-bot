@@ -39,7 +39,7 @@
 	"devDependencies": {
 		"@types/node": "^18.8.0",
 		"@types/node-fetch": "^2.5.7",
-		"@typescript-eslint/eslint-plugin": "^5.36.2",
+		"@typescript-eslint/eslint-plugin": "^5.40.1",
 		"@typescript-eslint/parser": "^5.40.1",
 		"discord-api-types": "^0.37.14",
 		"eslint": "^8.23.0",
