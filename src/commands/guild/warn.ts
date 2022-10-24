@@ -21,8 +21,7 @@ const Warn: Command = {
 				.setRequired(true))
 			.addBooleanOption(option => option
 				.setName('ephemeral')
-				.setDescription('If the reply is ephemeral or not, defaults to false'))
-		)
+				.setDescription('If the reply is ephemeral or not, defaults to false')))
 		.addSubcommand(subcommand => subcommand
 			.setName('add')
 			.setDescription('Warns the user with the given ID.')
@@ -36,16 +35,14 @@ const Warn: Command = {
 				.setRequired(true))
 			.addBooleanOption(option => option
 				.setName('dm_offender')
-				.setDescription('If the offender should be DM\'d, default to true'))
-		)
+				.setDescription('If the offender should be DM\'d, default to true')))
 		.addSubcommand(subcommand => subcommand
 			.setName('clear')
 			.setDescription('Clear an user\'s warning record.')
 			.addUserOption(option => option
 				.setName('user')
 				.setDescription('The user to clear the warning record of')
-				.setRequired(true))
-		),
+				.setRequired(true))),
 
 	async execute(interaction: CommandInteraction) {
 		if (!interaction.isChatInputCommand()) return;
@@ -80,8 +77,9 @@ const Warn: Command = {
 			});
 		}
 		case 'add': {
-			if (!(id in warns))
+			if (!(id in warns)) {
 				warns[id] = [];
+			}
 
 			const date = new Date();
 			const reason = interaction.options.getString('reason', true);
