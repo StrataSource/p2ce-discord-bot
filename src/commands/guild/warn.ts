@@ -2,9 +2,9 @@ import { CommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.j
 import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';
 import { format } from '../../utils/utils';
+import { LogLevelColor } from '../../utils/log';
 
 import * as persist from '../../utils/persist';
-import { LogLevelColor } from '../../utils/log';
 
 const Warn: Command = {
 	permissionLevel: PermissionLevel.MODERATOR,
