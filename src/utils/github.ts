@@ -8,7 +8,7 @@ import * as persist from '../utils/persist';
 const octokit = new Octokit({ auth: config.github_token });
 
 // This will and should be lost when the bot restarts
-const ISSUE_CACHE = new Map<string, { issues: Array<GitHubIssue>, time: number }>();
+const ISSUE_CACHE = new Map<string, { issues: GitHubIssue[], time: number }>();
 
 export async function getIssuesInRepo(guildID: string, repo: string) {
 	const identifier = `${guildID}_${repo}`;
@@ -17,7 +17,7 @@ export async function getIssuesInRepo(guildID: string, repo: string) {
 	}
 
 	const repoInfo = persist.data(guildID).github_repos[repo];
-	const issues: Array<GitHubIssue> = [];
+	const issues: GitHubIssue[] = [];
 	let empty = false;
 	let page = 1;
 	while (!empty) {

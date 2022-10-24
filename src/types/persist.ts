@@ -27,13 +27,22 @@ export interface PersistentData {
 			name: string,
 		},
 	},
+	moderation: {
+		warns: {
+			[user: string]: {
+				date: number,
+				reason: string,
+				issuer: string,
+			}[],
+		},
+	},
 	reaction_roles: {
 		[message: string]: {
 			channel: string,
-			roles: Array<{
+			roles: {
 				emoji_name: string,
 				role: string,
-			}>,
+			}[],
 		},
 	},
 	responses: {
@@ -43,14 +52,5 @@ export interface PersistentData {
 	statistics: {
 		joins: number,
 		leaves: number,
-	},
-	moderation: {
-		warns: {
-			[user: string]: Array<{
-				date: string, // date of the warning, as a UTC string
-				reason: string, // reason of the warning
-				author: string, // who executed the warning
-			}>,
-		},
 	},
 }

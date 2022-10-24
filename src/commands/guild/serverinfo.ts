@@ -2,6 +2,7 @@ import { CommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.j
 import { Command } from '../../types/interaction';
 import { LogLevelColor } from '../../utils/log';
 import { PermissionLevel } from '../../utils/permissions';
+import { formatDate } from '../../utils/utils';
 
 const ServerInfo: Command = {
 	permissionLevel: PermissionLevel.EVERYONE,
@@ -31,7 +32,7 @@ const ServerInfo: Command = {
 			.setDescription(description)
 			.setThumbnail(interaction.guild.iconURL({ size: 1024 }))
 			.addFields(
-				{ name: 'Created On', value: `<t:${Math.round(interaction.guild.createdTimestamp / 1000)}:f>`, inline: true },
+				{ name: 'Created On', value: `<t:${formatDate(interaction.guild.createdAt)}:f>`, inline: true },
 				{ name: 'Created By', value: `<@${creator.user.id}>`, inline: true },
 				{ name: 'Partner Server', value: `${interaction.guild.partnered ? 'Yes' : 'No'}`, inline: true },
 				{ name: 'Users', value: `${interaction.guild.memberCount}`, inline: true },
