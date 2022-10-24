@@ -6,6 +6,7 @@
 build/
 dist/
 node_modules/
+yarn.lock
 
 # Generated
 db/guild_*.json
@@ -14,4 +15,3 @@ log/
 # Config
 config.json
 config_*.json
-yarn.lock
