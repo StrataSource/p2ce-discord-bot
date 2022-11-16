@@ -75,7 +75,7 @@ const Warn: Command = {
 						.setColor(LogLevelColor.WARNING)
 						.setTitle('WARN')
 						.setFields({ name: 'You have been warned for the following reason:', value: `\`${reason}\`` })
-						.setFooter({ text: `Issued in "${interaction.guild.name}" at ${formatDate( Date.now() )}` })
+						.setFooter({ text: `Issued in "${interaction.guild.name}"` })
 						.setTimestamp();
 
 					await user.send({ embeds: [embed] });
