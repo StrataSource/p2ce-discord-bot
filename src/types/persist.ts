@@ -35,6 +35,12 @@ export interface PersistentData {
 				issuer: string,
 			}[],
 		},
+		tempban: Array<{
+			time: number,
+			user: string,
+			reason: string,
+			issuer: string,
+		}>
 	},
 	reaction_roles: {
 		[message: string]: {
