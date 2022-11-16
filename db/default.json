@@ -20,6 +20,9 @@
 	},
 	"autoroles": [],
 	"github_repos": {},
+	"moderation": {
+		"warns": {}
+	},
 	"reaction_roles": {},
 	"responses": {},
 	"watched_threads": [],

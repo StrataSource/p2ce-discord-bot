@@ -27,13 +27,22 @@ export interface PersistentData {
 			name: string,
 		},
 	},
+	moderation: {
+		warns: {
+			[user: string]: {
+				date: number,
+				reason: string,
+				issuer: string,
+			}[],
+		},
+	},
 	reaction_roles: {
 		[message: string]: {
 			channel: string,
-			roles: Array<{
+			roles: {
 				emoji_name: string,
 				role: string,
-			}>,
+			}[],
 		},
 	},
 	responses: {

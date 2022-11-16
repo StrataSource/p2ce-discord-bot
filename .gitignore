@@ -6,6 +6,7 @@
 build/
 dist/
 node_modules/
+yarn.lock
 
 # Generated
 db/guild_*.json

@@ -1,7 +1,8 @@
 import { CommandInteraction, SlashCommandBuilder } from 'discord.js';
+import { uwuify } from 'owoify-js';
 import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';
-import { uwuify } from 'owoify-js';
+import { escapeSpecialCharacters } from '../../utils/utils';
 
 const regular      = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
 const square       = ['\\🅰','\\🅱','🅲','🅳','🅴','🅵','🅶','🅷','🅸','🅹','🅺','🅻','🅼','🅽','\\🅾','\\🅿','🆀','🆁','🆂','🆃','🆄','🆅','🆆','🆇','🆈','🆉','\\🅰','\\🅱','🅲','🅳','🅴','🅵','🅶','🅷','🅸','🅹','🅺','🅻','🅼','🅽','\\🅾','\\🅿','🆀','🆁','🆂','🆃','🆄','🆅','🆆','🆇','🆈','🆉'];
@@ -151,7 +152,7 @@ const Fun: Command = {
 			}
 		
 			case 'uwuify': {
-				return interaction.reply(uwuify(text));
+				return interaction.reply(escapeSpecialCharacters(uwuify(text)));
 			}
 			}
 		}

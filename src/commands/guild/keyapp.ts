@@ -3,6 +3,7 @@ import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';
 import { isSheetLoaded } from '../../utils/sheet';
 import { checkUserKeyStatus, readUserApplication } from '../shared/keyapp';
+import { formatDate } from '../../utils/utils';
 
 import * as config from '../../config.json';
 
@@ -36,7 +37,7 @@ const KeyApp: Command = {
 		switch (interaction.options.getSubcommand()) {
 		case 'check': {
 			if (USER_DB_CHECK.has(interaction.user.id) && (USER_DB_CHECK.get(interaction.user.id) ?? 0) > Date.now()) {
-				return interaction.reply({ content: `You have already checked the status of your application recently. Please check again <t:${((USER_DB_CHECK.get(interaction.user.id) ?? 0) / 1000).toFixed(0)}:R>.`, ephemeral: true});
+				return interaction.reply({ content: `You have already checked the status of your application recently. Please check again <t:${formatDate(USER_DB_CHECK.get(interaction.user.id) ?? 0)}:R>.`, ephemeral: true});
 			} else {
 				USER_DB_CHECK.set(interaction.user.id, Date.now() + (1000 * 60 * 60 * config.keyapp.hours_to_wait));
 			}
@@ -51,7 +52,7 @@ const KeyApp: Command = {
 
 		case 'read': {
 			if (USER_DB_READ.has(interaction.user.id) && (USER_DB_READ.get(interaction.user.id) ?? 0) > Date.now()) {
-				return interaction.reply({ content: `You have already read your application recently. Please check again <t:${((USER_DB_READ.get(interaction.user.id) ?? 0) / 1000).toFixed(0)}:R>.`, ephemeral: true});
+				return interaction.reply({ content: `You have already read your application recently. Please check again <t:${formatDate(USER_DB_READ.get(interaction.user.id) ?? 0)}:R>.`, ephemeral: true});
 			} else {
 				USER_DB_READ.set(interaction.user.id, Date.now() + (1000 * 60 * 60 * config.keyapp.hours_to_wait));
 			}
