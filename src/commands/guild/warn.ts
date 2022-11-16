@@ -2,7 +2,7 @@ import { CommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.j
 import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';
 import { LogLevelColor } from '../../utils/log';
-import { formatDate, formatUserRaw } from '../../utils/utils';
+import { formatDate } from '../../utils/utils';
 
 import * as persist from '../../utils/persist';
 import { getWarnList } from '../shared/warnlist';
@@ -75,7 +75,7 @@ const Warn: Command = {
 					.setColor(LogLevelColor.WARNING)
 					.setTitle('WARN')
 					.setFields({ name: 'You have been warned for the following reason:', value: `\`${reason}\`` })
-					.setFooter({ text: `Issued by ${formatUserRaw(interaction.user)} in "${interaction.guild.name}"` })
+					.setFooter({ text: `Issued in "${interaction.guild.name}" at ${formatDate( Date.now() )}` })
 					.setTimestamp();
 
 				await user.send({ embeds: [embed] });
