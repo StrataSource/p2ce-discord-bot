@@ -2,7 +2,6 @@ import { CommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.j
 import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';
 import { LogLevelColor } from '../../utils/log';
-import { formatDate } from '../../utils/utils';
 
 import * as persist from '../../utils/persist';
 import { getWarnList } from '../shared/warnlist';
