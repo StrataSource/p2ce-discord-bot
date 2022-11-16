@@ -15,3 +15,4 @@ log/
 # Config
 config.json
 config_*.json
+yarn.lock
