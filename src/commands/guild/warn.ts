@@ -2,7 +2,7 @@ import { CommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.j
 import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';
 import { LogLevelColor } from '../../utils/log';
-import { formatDate, formatUserRaw } from '../../utils/utils';
+import { formatDate } from '../../utils/utils';
 
 import * as persist from '../../utils/persist';
 import { getWarnList } from '../shared/warnlist';
@@ -56,49 +56,49 @@ const Warn: Command = {
 		const user = interaction.options.getUser('user', true);
 
 		switch (interaction.options.getSubcommand()) {
-		case 'add': {
-			if (!(user.id in data.moderation.warns)) {
-				data.moderation.warns[user.id] = [];
+			case 'add': {
+				if (!(user.id in data.moderation.warns)) {
+					data.moderation.warns[user.id] = [];
+					persist.saveData(interaction.guild.id);
+				}
+
+				const reason = interaction.options.getString('reason', true);
+				data.moderation.warns[user.id].push({
+					date: Date.now(),
+					reason: reason,
+					issuer: interaction.user.id,
+				});
 				persist.saveData(interaction.guild.id);
+
+				if (interaction.options.getBoolean('dm_offender', false) ?? true) {
+					const embed = new EmbedBuilder()
+						.setColor(LogLevelColor.WARNING)
+						.setTitle('WARN')
+						.setFields({ name: 'You have been warned for the following reason:', value: `\`${reason}\`` })
+						.setFooter({ text: `Issued in "${interaction.guild.name}" at ${formatDate( Date.now() )}` })
+						.setTimestamp();
+
+					await user.send({ embeds: [embed] });
+				}
+
+				return interaction.reply({ content: `Warned ${user}, this is warn \\#${data.moderation.warns[user.id].length}.`, ephemeral: true });
 			}
 
-			const reason = interaction.options.getString('reason', true);
-			data.moderation.warns[user.id].push({
-				date: Date.now(),
-				reason: reason,
-				issuer: interaction.user.id,
-			});
-			persist.saveData(interaction.guild.id);
-
-			if (interaction.options.getBoolean('dm_offender', false) ?? true) {
-				const embed = new EmbedBuilder()
-					.setColor(LogLevelColor.WARNING)
-					.setTitle('WARN')
-					.setFields({ name: 'You have been warned for the following reason:', value: `\`${reason}\`` })
-					.setFooter({ text: `Issued by ${formatUserRaw(interaction.user)} in "${interaction.guild.name}"` })
-					.setTimestamp();
-
-				await user.send({ embeds: [embed] });
+			case 'list': {
+				return getWarnList(interaction, interaction.guild, user, interaction.options.getBoolean('ephemeral', false) ?? false);
 			}
 
-			return interaction.reply({ content: `Warned ${user}, this is warn \\#${data.moderation.warns[user.id].length}.`, ephemeral: true });
-		}
+			case 'clear': {
+				if (!Object.hasOwn(data.moderation.warns, user.id)) {
+					return interaction.reply({ content: `${user} has no warns to clear.`, ephemeral: true });
+				}
 
-		case 'list': {
-			return getWarnList(interaction, interaction.guild, user, interaction.options.getBoolean('ephemeral', false) ?? false);
-		}
+				const amount = data.moderation.warns[user.id].length;
+				delete data.moderation.warns[user.id];
+				persist.saveData(interaction.guild.id);
 
-		case 'clear': {
-			if (!Object.hasOwn(data.moderation.warns, user.id)) {
-				return interaction.reply({ content: `${user} has no warns to clear.`, ephemeral: true });
+				return interaction.reply({ content: `Cleared ${amount} warns for ${user}.`, ephemeral: true });
 			}
-
-			const amount = data.moderation.warns[user.id].length;
-			delete data.moderation.warns[user.id];
-			persist.saveData(interaction.guild.id);
-
-			return interaction.reply({ content: `Cleared ${amount} warns for ${user}.`, ephemeral: true });
-		}
 		}
 	}
 };
