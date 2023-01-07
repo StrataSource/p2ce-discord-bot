@@ -1,4 +1,10 @@
 {
+	"autoroles": [],
+	"compat": {
+		"pluralkit": {
+			"accounts": []
+		}
+	},
 	"config": {
 		"first_time_setup": false,
 		"enable_p2ce_commands": false,
@@ -18,7 +24,6 @@
 			"moderator": ""
 		}
 	},
-	"autoroles": [],
 	"github_repos": {},
 	"moderation": {
 		"warns": {}

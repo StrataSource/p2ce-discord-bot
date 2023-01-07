@@ -326,6 +326,16 @@ async function main() {
 		}
 	});
 
+	// Listen for deleted messages
+	client.on('messageDelete', async message => {
+		// Only responds to members
+		if (message.member && !hasPermissionLevel(message.member, PermissionLevel.TEAM_MEMBER) && message.cleanContent && message.guild) {
+			if (persist.data(message.guild.id).config.log.options.message_deletes && await pluralkit.shouldLog(message)) {
+				log.messageDeleted(client, message.guild.id, message);
+			}
+		}
+	});
+
 	// Listen for members joining
 	client.on('guildMemberAdd', async member => {
 		const data = persist.data(member.guild.id);

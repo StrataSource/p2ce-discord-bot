@@ -1,5 +1,11 @@
 // Modify this interface when adding new data things, or don't if you hate TypeScript and everything it stands for
 export interface PersistentData {
+	autoroles: string[],
+	compat: {
+		pluralkit: {
+			accounts: string[];
+		}
+	},
 	config: {
 		first_time_setup: boolean,
 		enable_p2ce_commands: boolean,
@@ -20,7 +26,6 @@ export interface PersistentData {
 			team_member?: string | undefined,
 		}
 	},
-	autoroles: string[],
 	github_repos: {
 		[id: string]: {
 			owner: string,
