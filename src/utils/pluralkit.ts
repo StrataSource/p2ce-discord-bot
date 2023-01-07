@@ -29,6 +29,7 @@ export async function shouldLog(message: Message | PartialMessage) {
 		// if not, ask the pk API if the message is from a system we might not be aware of
 		if (await isSystemMessage(message)) {
 			data.compat.pluralkit.accounts.push(message.author.id);
+			persist.saveData(message.guild.id);
 			return false;
 		} else {
 			// add author to the session cache, so we do fewer calls to the API
