@@ -14,7 +14,6 @@ import * as pluralkit from './utils/pluralkit';
 
 // Make console output better
 import consoleStamp from 'console-stamp';
-import {isSystemMessage} from "./utils/pluralkit";
 
 consoleStamp(console);
 
