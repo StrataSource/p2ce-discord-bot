@@ -55,6 +55,7 @@ export interface PersistentData {
 	},
 	compat: {
 		pluralkit: {
+			cache_timeout: string, // a `days-hours-minutes`-formatted string
 			accounts: string[];
 		}
 	}

@@ -1,9 +1,10 @@
-import {Message, PartialMessage} from 'discord.js';
+import {Collection, Message, PartialMessage} from 'discord.js';
 import * as persist from './persist';
+import {stringToTime} from './utils';
 
 
 // TODO: When scheduler is implemented make the cache reset after x time
-const cache: string[] = [];
+const cache: Collection<string, number> = new Collection();
 
 export async function isSystemMessage(message: Message | PartialMessage) {
 	try {
@@ -17,8 +18,14 @@ export async function isSystemMessage(message: Message | PartialMessage) {
 export async function shouldLog(message: Message | PartialMessage): Promise<boolean> {
 	if (message.author && message.guild) {
 		const data = persist.data(message.guild.id);
+
+		// remove expired cache entries
+		if ( cache.has(message.author.id) && (cache.get(message.author.id) ?? 0) > Date.now()) {
+			cache.delete(message.author.id);
+		}
+
 		// check if the author is in the session cache
-		if (!cache.includes(message.author.id)) {
+		if (!cache.has(message.author.id)) {
 			// first, check if is from an already known system
 			if (data.compat.pluralkit.accounts.includes(message.author.id)) {
 				return false;
@@ -27,9 +34,10 @@ export async function shouldLog(message: Message | PartialMessage): Promise<bool
 			if (await isSystemMessage(message)) {
 				data.compat.pluralkit.accounts.push(message.author.id);
 				return false;
-			} else
+			} else {
 				// add author to the session cache, so we do fewer calls to the API
-				cache.push(message.author.id);
+				cache.set(message.author.id, Date.now() + stringToTime(data.compat.pluralkit.cache_timeout));
+			}
 		}
 		return !data.config.log.user_exceptions.includes(message.author.id);
 	}
@@ -37,7 +45,5 @@ export async function shouldLog(message: Message | PartialMessage): Promise<bool
 }
 
 export function purgeCacheEntry(userId: string) {
-	if (cache.includes(userId))
-		delete cache[cache.findIndex(it => it == userId)];
+	cache.delete(userId);
 }
-
