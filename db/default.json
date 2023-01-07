@@ -29,5 +29,10 @@
 	"statistics": {
 		"joins": 0,
 		"leaves": 0
+	},
+	"compat": {
+		"pluralkit": {
+			"accounts": []
+		}
 	}
 }
