@@ -77,7 +77,11 @@ const Warn: Command = {
 					.setFooter({ text: `Issued in "${interaction.guild.name}"` })
 					.setTimestamp();
 
-				await user.send({ embeds: [embed] });
+				try {
+					await user.send({ embeds: [embed] });
+				} catch(e) {
+					return interaction.reply({ content: `Attempted to warn ${user}, but was unable to send a message to them!`, ephemeral: true });
+				}
 			}
 
 			return interaction.reply({ content: `Warned ${user}, this is warn \\#${data.moderation.warns[user.id].length}.`, ephemeral: true });
