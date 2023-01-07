@@ -10,6 +10,8 @@ import { updateCommands, updateCommandsForGuild } from './utils/update_commands'
 import * as config from './config.json';
 import * as log from './utils/log';
 import * as persist from './utils/persist';
+import * as scheduler from './utils/scheduler';
+import * as tempban from './commands/shared/tempban';
 
 // Make console output better
 import consoleStamp from 'console-stamp';
@@ -344,13 +346,20 @@ async function main() {
 		}
 	});
 
+	// start the scheduler
+	scheduler.run();
+
 	// Log in
 	await client.login(config.token);
+
+	// register all tempban stuff again
+	tempban.register( client );
 
 	process.on('SIGINT', () => {
 		const date = new Date();
 		log.writeToLog(undefined, `--- BOT END AT ${date.toDateString()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ---`);
 		client.destroy();
+		scheduler.shutdown();
 		persist.saveAll();
 		process.exit();
 	});

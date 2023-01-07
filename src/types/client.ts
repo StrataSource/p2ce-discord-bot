@@ -60,6 +60,7 @@ export class Callbacks {
 }
 
 export class MoralityCoreClient extends Client {
+	private static instance: MoralityCoreClient;
 	commands: Collection<string, CommandBase>;
 	callbacks: Callbacks;
 
@@ -67,5 +68,8 @@ export class MoralityCoreClient extends Client {
 		super(options);
 		this.commands = new Collection<string, CommandBase>();
 		this.callbacks = new Callbacks();
+		MoralityCoreClient.instance = this;
 	}
+
+	static get = () => MoralityCoreClient.instance;
 }

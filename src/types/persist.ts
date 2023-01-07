@@ -35,12 +35,12 @@ export interface PersistentData {
 				issuer: string,
 			}[],
 		},
-		tempban: Array<{
-			time: number,
+		tempban: {
+			taskId: string,
 			user: string,
 			reason: string,
 			issuer: string,
-		}>
+		}[]
 	},
 	reaction_roles: {
 		[message: string]: {
@@ -54,9 +54,17 @@ export interface PersistentData {
 	responses: {
 		[response_id: string]: string,
 	},
-	watched_threads: Array<string>,
+	watched_threads: string[],
 	statistics: {
 		joins: number,
 		leaves: number,
 	},
+	scheduler: {
+		[taskid: string]: {
+			data: unknown,
+			expirationTime: number,
+			repeat: boolean,
+			delay: number
+		}
+	}
 }
