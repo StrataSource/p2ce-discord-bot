@@ -1,11 +1,11 @@
 // noinspection JSIgnoredPromiseFromCall
 
 import fs from 'fs';
-import {ActivityType, Collection, GuildMember, IntentsBitField, Partials} from 'discord.js';
-import {Callbacks, MoralityCoreClient} from './types/client';
-import {Command, ContextMenu} from './types/interaction';
-import {hasPermissionLevel, PermissionLevel} from './utils/permissions';
-import {updateCommands, updateCommandsForGuild} from './utils/update_commands';
+import { ActivityType, Collection, GuildMember, IntentsBitField, Partials } from 'discord.js';
+import { Callbacks, MoralityCoreClient } from './types/client';
+import { Command, ContextMenu } from './types/interaction';
+import { hasPermissionLevel, PermissionLevel } from './utils/permissions';
+import { updateCommands, updateCommandsForGuild } from './utils/update_commands';
 
 import * as config from './config.json';
 import * as log from './utils/log';
@@ -14,7 +14,6 @@ import * as pluralkit from './utils/pluralkit';
 
 // Make console output better
 import consoleStamp from 'console-stamp';
-
 consoleStamp(console);
 
 async function main() {
@@ -305,22 +304,22 @@ async function main() {
 		}
 	});
 
-	// Listen for deleted messages
-	client.on('messageDelete', async message => {
-		// Only responds to members
-		if (message.member && !hasPermissionLevel(message.member, PermissionLevel.TEAM_MEMBER) && message.cleanContent && message.guild) {
-			if (persist.data(message.guild.id).config.log.options.message_deletes && await pluralkit.shouldLog(message)) {
-				log.messageDeleted(client, message.guild.id, message);
-			}
-		}
-	});
-
 	// Listen for edited messages
 	client.on('messageUpdate', async (oldMessage, newMessage) => {
 		// Only responds to members
 		if (newMessage.member && !hasPermissionLevel(newMessage.member, PermissionLevel.TEAM_MEMBER) && newMessage.guild) {
 			if (persist.data(newMessage.guild.id).config.log.options.message_edits && await pluralkit.shouldLog(newMessage)) {
 				log.messageUpdated(client, newMessage.guild.id, oldMessage, newMessage);
+			}
+		}
+	});
+
+	// Listen for deleted messages
+	client.on('messageDelete', async message => {
+		// Only responds to members
+		if (message.member && !hasPermissionLevel(message.member, PermissionLevel.TEAM_MEMBER) && message.cleanContent && message.guild) {
+			if (persist.data(message.guild.id).config.log.options.message_deletes && await pluralkit.shouldLog(message)) {
+				log.messageDeleted(client, message.guild.id, message);
 			}
 		}
 	});
