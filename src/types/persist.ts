@@ -59,4 +59,9 @@ export interface PersistentData {
 		joins: number,
 		leaves: number,
 	},
+	compat: {
+		pluralkit: {
+			accounts: string[];
+		}
+	}
 }
