@@ -298,12 +298,12 @@ async function main() {
 	});
 
 	// Listen for created messages
-	client.on( 'messageCreate', async message => {
-		if ( message.content.startsWith('pk;a') ) {
+	client.on('messageCreate', async message => {
+		if (message.content.startsWith('pk;a')) {
 			// might be a system enabling autoproxy, remove from normal user cache if they were in it
-			pluralkit.purgeCacheEntry( message.author.id );
+			pluralkit.purgeCacheEntry(message.author.id);
 		}
-	} );
+	});
 
 	// Listen for deleted messages
 	client.on('messageDelete', async message => {
