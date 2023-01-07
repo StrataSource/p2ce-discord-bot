@@ -1,5 +1,5 @@
 import {Message, PartialMessage} from 'discord.js';
-import {PersistentData} from '../types/persist';
+import * as persist from './persist';
 
 
 // TODO: When scheduler is implemented make the cache reset after x time
@@ -14,8 +14,9 @@ export async function isSystemMessage(message: Message | PartialMessage) {
 	}
 }
 
-export async function shouldLog(message: Message | PartialMessage, data: PersistentData): Promise<boolean> {
-	if (message.author) {
+export async function shouldLog(message: Message | PartialMessage): Promise<boolean> {
+	if (message.author && message.guild) {
+		const data = persist.data(message.guild.id);
 		// check if the author is in the session cache
 		if (!cache.includes(message.author.id)) {
 			// first, check if is from an already known system

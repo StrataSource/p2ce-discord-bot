@@ -309,8 +309,7 @@ async function main() {
 	client.on('messageDelete', async message => {
 		// Only responds to members
 		if (message.member && !hasPermissionLevel(message.member, PermissionLevel.TEAM_MEMBER) && message.cleanContent && message.guild) {
-			const data = persist.data(message.guild.id);
-			if (data.config.log.options.message_deletes && await pluralkit.shouldLog(message, data)) {
+			if (persist.data(message.guild.id).config.log.options.message_deletes && await pluralkit.shouldLog(message)) {
 				log.messageDeleted(client, message.guild.id, message);
 			}
 		}
@@ -320,8 +319,7 @@ async function main() {
 	client.on('messageUpdate', async (oldMessage, newMessage) => {
 		// Only responds to members
 		if (newMessage.member && !hasPermissionLevel(newMessage.member, PermissionLevel.TEAM_MEMBER) && newMessage.guild) {
-			const data = persist.data(newMessage.guild.id);
-			if (data.config.log.options.message_edits && await pluralkit.shouldLog(newMessage, data)) {
+			if (persist.data(newMessage.guild.id).config.log.options.message_edits && await pluralkit.shouldLog(newMessage)) {
 				log.messageUpdated(client, newMessage.guild.id, oldMessage, newMessage);
 			}
 		}
