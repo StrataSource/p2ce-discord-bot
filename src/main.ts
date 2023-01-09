@@ -366,7 +366,7 @@ async function main() {
 	process.on('SIGINT', shutdown);
 
 	ipc.on('stop', () => {
-		console.log( 'Was remotely asked to stop, shutting down!' );
+		console.log('Was remotely asked to stop, shutting down!');
 		shutdown();
 	});
 	await ipc.listen();

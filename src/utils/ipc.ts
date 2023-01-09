@@ -5,27 +5,27 @@ import {writeToLog} from './log';
 
 const requestHandlers: Collection<string, () => void> = new Collection();
 
-export function on( event: string, handler: () => void) {
-	console.debug( `A listener for the event ${event} was registered` );
-	requestHandlers.set( event, handler );
+export function on(event: string, handler: () => void) {
+	console.debug(`A listener for the event ${event} was registered`);
+	requestHandlers.set(event, handler);
 }
-export function send( message: string ) {
-	console.log( `Sending command '${message}' to running instance..` );
+export function send(message: string) {
+	console.log(`Sending command '${message}' to running instance..`);
 	const connection = connect(ipc_port);
 	connection.on('ready', () => {
-		connection.on('drain', () => connection.destroy() );
-		if ( connection.write(message) )
+		connection.on('drain', () => connection.destroy());
+		if (connection.write(message))
 			connection.destroy();
 	});
 }
 export async function listen() {
-	console.log( `Listening for commands at ${ipc_port}!` );
+	console.log(`Listening for commands at ${ipc_port}!`);
 	const server = new Server();
 	server.on('connection', connection => {
 		connection.on('data', data => {
-			writeToLog( undefined, `Received command '${data.toString()}'!` );
-			requestHandlers.get( data.toString() )?.();
+			writeToLog(undefined, `Received command '${data.toString()}'!`);
+			requestHandlers.get(data.toString())?.();
 		});
 	});
-	await server.listen( ipc_port );
+	await server.listen(ipc_port);
 }
