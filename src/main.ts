@@ -11,6 +11,7 @@ import * as config from './config.json';
 import * as log from './utils/log';
 import * as persist from './utils/persist';
 import * as pluralkit from './utils/pluralkit';
+import * as ipc from './utils/ipc';
 
 // Make console output better
 import consoleStamp from 'console-stamp';
@@ -354,17 +355,27 @@ async function main() {
 	// Log in
 	await client.login(config.token);
 
-	process.on('SIGINT', () => {
+	function shutdown() {
 		const date = new Date();
 		log.writeToLog(undefined, `--- BOT END AT ${date.toDateString()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ---`);
 		client.destroy();
 		persist.saveAll();
 		process.exit();
+	}
+
+	process.on('SIGINT', shutdown);
+
+	ipc.on('stop', () => {
+		console.log( 'Was remotely asked to stop, shutting down!' );
+		shutdown();
 	});
+	await ipc.listen();
 }
 
 if (process.argv.includes('--update-commands')) {
 	updateCommands();
+} else if (process.argv.includes('--stop')) {
+	ipc.send( 'stop' );
 } else {
 	main();
 }
