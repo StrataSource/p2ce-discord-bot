@@ -9,6 +9,7 @@
 	"scripts": {
 		"start": "node build/main.js",
 		"update-commands": "node build/main.js --update-commands",
+		"stop": "node build/main.js --stop",
 		"build": "tsc -p .",
 		"clean": "rm -rf build",
 		"lint": "eslint src --ext .ts --fix",
