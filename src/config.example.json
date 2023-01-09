@@ -1,6 +1,7 @@
 {
 	"token": "token goes here",
 	"client_id": "client id goes here",
+	"ipc_port": 23741,
 
 	"github_token": "",
 	"google_api_key": "",
