@@ -12,16 +12,16 @@ export function on(event: string, handler: () => void) {
 
 export function send(message: string) {
 	console.log(`Sending command '${message}' to running instance..`);
-	try {
-		const connection = connect(ipc_port);
-		connection.on('ready', () => {
-			connection.on('drain', () => connection.destroy());
-			if (connection.write(message))
-				connection.destroy();
+	const connection = connect(ipc_port);
+	connection.on('ready', () => {
+		connection.on('error', () => {
+			console.log('Unable to send message! Check if application is actually running.');
+			connection.destroy();
 		});
-	} catch (e) {
-		console.log('Unable to send message! Check if application is actually running.');
-	}
+		connection.on('drain', () => connection.destroy());
+		if (connection.write(message))
+			connection.destroy();
+	});
 }
 
 export async function listen() {
