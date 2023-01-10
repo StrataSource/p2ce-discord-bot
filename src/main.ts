@@ -372,7 +372,7 @@ async function main() {
 if (process.argv.includes('--update-commands')) {
 	updateCommands();
 } else if (process.argv.includes('--stop')) {
-	ipc.send( 'stop' );
+	ipc.send('stop');
 } else {
 	main();
 }
