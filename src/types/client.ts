@@ -1,8 +1,8 @@
-import { ButtonInteraction, Client, ClientOptions, Collection, InteractionResponse, Message, ModalSubmitInteraction, SelectMenuInteraction } from 'discord.js';
+import { ButtonInteraction, Client, ClientOptions, Collection, InteractionResponse, Message, ModalSubmitInteraction, StringSelectMenuInteraction } from 'discord.js';
 import { CommandBase } from './interaction';
 
 type ButtonCallback = (interaction: ButtonInteraction) => Promise<void | Message<boolean> | InteractionResponse<boolean>>;
-type SelectMenuCallback = (interaction: SelectMenuInteraction) => Promise<void | Message<boolean> | InteractionResponse<boolean>>;
+type SelectMenuCallback = (interaction: StringSelectMenuInteraction) => Promise<void | Message<boolean> | InteractionResponse<boolean>>;
 type ModalCallback = (interaction: ModalSubmitInteraction) => void;
 
 export class Callbacks {
@@ -38,7 +38,7 @@ export class Callbacks {
 		return this.#buttonCallbacks.get(buttonID)?.(interaction);
 	}
 
-	runSelectMenuCallback(menuID: string, interaction: SelectMenuInteraction) {
+	runSelectMenuCallback(menuID: string, interaction: StringSelectMenuInteraction) {
 		return this.#menuCallbacks.get(menuID)?.(interaction);
 	}
 

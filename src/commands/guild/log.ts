@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ChannelType, CommandInteraction, EmbedBuilder, SelectMenuBuilder, SelectMenuOptionBuilder, SlashCommandBuilder } from 'discord.js';
+import { ActionRowBuilder, ChannelType, CommandInteraction, EmbedBuilder, SelectMenuOptionBuilder, SlashCommandBuilder, StringSelectMenuBuilder } from 'discord.js';
 import fs from 'fs';
 import readline from 'readline';
 import events from 'events';
@@ -74,9 +74,9 @@ const Log: Command = {
 		}
 
 		case 'options': {
-			const selectMenu = new ActionRowBuilder<SelectMenuBuilder>()
+			const selectMenu = new ActionRowBuilder<StringSelectMenuBuilder>()
 				.addComponents(
-					new SelectMenuBuilder()
+					new StringSelectMenuBuilder()
 						.setCustomId('log_options')
 						.setPlaceholder('Logging options')
 						.addOptions(
