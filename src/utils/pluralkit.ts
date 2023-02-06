@@ -8,7 +8,7 @@ const cache: string[] = [];
 export async function isSystemMessage(message: Message | PartialMessage) {
 	try {
 		// simple fetch to check if the message was proxied
-		return (await (await fetch(`https://api.pluralkit.me/v2/messages/${message.id}`)).text()).includes('Message not found');
+		return (await fetch(`https://api.pluralkit.me/v2/messages/${message.id}`)).status != 404;
 	} catch (e) {
 		return false;
 	}
