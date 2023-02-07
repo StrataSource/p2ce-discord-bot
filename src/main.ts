@@ -11,7 +11,7 @@ import * as config from './config.json';
 import * as log from './utils/log';
 import * as persist from './utils/persist';
 import * as pluralkit from './utils/pluralkit';
-import * as ipc from './utils/ipc';
+//import * as ipc from './utils/ipc';
 
 // Make console output better
 import consoleStamp from 'console-stamp';
@@ -364,15 +364,16 @@ async function main() {
 	}
 
 	process.on('SIGINT', shutdown);
-	ipc.on('stop', shutdown);
+	//ipc.on('stop', shutdown);
 
-	await ipc.listen();
+	//await ipc.listen();
 }
 
 if (process.argv.includes('--update-commands')) {
 	updateCommands();
 } else if (process.argv.includes('--stop')) {
-	ipc.send('stop');
+	log.writeToLog(undefined, '--stop called but it is unimplemented!');
+	//ipc.send('stop');
 } else {
 	main();
 }
