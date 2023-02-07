@@ -3,7 +3,7 @@ import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';
 
 const Portal: Command = {
-	permissionLevel: PermissionLevel.TEAM_MEMBER,
+	permissionLevel: PermissionLevel.EVERYONE,
 
 	data: new SlashCommandBuilder()
 		.setName('portal')
