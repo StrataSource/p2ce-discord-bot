@@ -11,7 +11,10 @@ const Portal: Command = {
 		.addChannelOption(option => option
 			.setName('channel')
 			.setDescription('The name of the channel to move to')
-			.addChannelTypes(ChannelType.GuildText | ChannelType.GuildPublicThread | ChannelType.PublicThread)
+			.addChannelTypes(
+				ChannelType.GuildText,
+				ChannelType.PublicThread,
+			)
 			.setRequired(true)),
 
 	async execute(interaction: CommandInteraction) {
