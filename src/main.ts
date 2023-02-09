@@ -1,7 +1,7 @@
 // noinspection JSIgnoredPromiseFromCall
 
 import fs from 'fs';
-import { ActivityType, Collection, GuildMember, IntentsBitField, Partials } from 'discord.js';
+import { ActivityType, Collection, GuildMember, IntentsBitField, MessageReaction, Partials, User } from 'discord.js';
 import { Callbacks, MoralityCoreClient } from './types/client';
 import { Command, ContextMenu } from './types/interaction';
 import { hasPermissionLevel, PermissionLevel } from './utils/permissions';
@@ -196,8 +196,8 @@ async function main() {
 		}
 	});
 
-	// Listen for added reactions
-	client.on('messageReactionAdd', async (reaction, user) => {
+	// Helper since this code is basically the same
+	const messageReactionUpdate = async (reaction: MessageReaction, user: User, add: boolean) => {
 		// If we are reacting, or this is not a guild, bail
 		if (user.id === config.client_id || !reaction.message.guild) return;
 
@@ -221,39 +221,23 @@ async function main() {
 				}
 				return name === reaction.emoji.name;
 			}).forEach(roles => {
-				reaction.message.guild?.members.cache.get(user.id)?.roles.add(roles.role);
+				if (add) {
+					reaction.message.guild?.members.cache.get(user.id)?.roles.add(roles.role);
+				} else {
+					reaction.message.guild?.members.cache.get(user.id)?.roles.remove(roles.role);
+				}
 			});
 		}
+	};
+
+	// Listen for added reactions
+	client.on('messageReactionAdd', async (reaction, user) => {
+		await messageReactionUpdate(await reaction.fetch(), await user.fetch(), true);
 	});
 
 	// Listen for removed reactions
 	client.on('messageReactionRemove', async (reaction, user) => {
-		// If we are reacting, or this is not a guild, bail
-		if (user.id === config.client_id || !reaction.message.guild) return;
-
-		// When a reaction is received, check if the structure is partial
-		if (reaction.partial) {
-			// If the message this reaction belongs to was removed, the fetching might result in an API error
-			try {
-				await reaction.fetch();
-			} catch (err) {
-				log.writeToLog(undefined, (err as Error).toString());
-			}
-		}
-
-		// If persistent storage has the reaction message ID, remove requested role from the user
-		const data = persist.data(reaction.message.guild.id);
-		if (Object.hasOwn(data.reaction_roles, reaction.message.id)) {
-			data.reaction_roles[reaction.message.id].roles.filter(e => {
-				let name = e.emoji_name;
-				if (name.startsWith('<:') && name.endsWith('>')) {
-					name = name.substring(name.indexOf(':') + 1, name.lastIndexOf(':'));
-				}
-				return name === reaction.emoji.name;
-			}).forEach(roles => {
-				reaction.message.guild?.members.cache.get(user.id)?.roles.remove(roles.role);
-			});
-		}
+		await messageReactionUpdate(await reaction.fetch(), await user.fetch(), false);
 	});
 
 	// Listen for thread changes
