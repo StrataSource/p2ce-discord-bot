@@ -54,7 +54,7 @@ const ReactionRole: Command = {
 			const emoji = interaction.options.getString('emoji', true);
 			const role = interaction.options.getRole('role', true);
 
-			const messageLinkRegex = /(?:https?:\/\/)?(?:(?:www\.)|(?:canary\.))?(?:(?:discord\.(?:gg|io|me|li|com))|(?:discordapp\.com\/))\/channels\/(\d+)\/(\d+)\/(\d+)\/?/;
+			const messageLinkRegex = /(?:https?:\/\/)?(?:www\.|canary\.)?(?:discord\.(?:gg|io|me|li|com)|discordapp\.com\/)\/channels\/(\d+)\/(\d+)\/(\d+)\/?/;
 			const messageLinkData = messageLink.match(messageLinkRegex);
 			if (!messageLinkData || messageLinkData.length < 4) {
 				return interaction.reply({ content: 'Message link provided is malformed.', ephemeral: true });
