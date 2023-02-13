@@ -28,7 +28,7 @@
 	},
 	"dependencies": {
 		"canvas": "^2.10.2",
-		"console-stamp": "^3.0.6",
+		"console-stamp": "^3.1.1",
 		"discord.js": "^14.2.0",
 		"google-spreadsheet": "^3.3.0",
 		"moment": "^2.29.4",
