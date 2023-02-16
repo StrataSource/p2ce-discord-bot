@@ -18,8 +18,8 @@ const Avatar: Command = {
 		const user = interaction.options.getUser('user') ?? interaction.user;
 		const embed = new EmbedBuilder()
 			.setColor(LogLevelColor.INFO)
-			.setAuthor({ name: `${user.username}#${user.discriminator}`, iconURL: user.avatarURL() ?? undefined })
-			.setImage(user.displayAvatarURL({ size: 1024 }));
+			.setAuthor({ name: `${user.username}#${user.discriminator}`, iconURL: user.displayAvatarURL() })
+			.setImage(user.displayAvatarURL({ size: 4096 }));
 		return interaction.reply({ embeds: [embed] });
 	}
 };
