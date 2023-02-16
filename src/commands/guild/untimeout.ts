@@ -1,6 +1,7 @@
 import { CommandInteraction, SlashCommandBuilder } from 'discord.js';
 import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';
+import { formatUserRaw } from '../../utils/utils';
 
 const UnTimeout: Command = {
 	permissionLevel: PermissionLevel.MODERATOR,
@@ -14,12 +15,16 @@ const UnTimeout: Command = {
 			.setRequired(true)),
 
 	async execute(interaction: CommandInteraction) {
+		if (!interaction.inGuild() || !interaction.guild) {
+			return interaction.reply({ content: 'This command must be ran in a guild.', ephemeral: true });
+		}
+
 		const user = interaction.options.getUser('user', true);
 
 		// Untime them out!
-		interaction.guild?.members.resolve(user.id)?.timeout(null);
+		interaction.guild.members.resolve(user.id)?.timeout(null);
 
-		return interaction.reply({ content: `Unmuted ${user.username}#${user.discriminator}`, ephemeral: true });
+		return interaction.reply({ content: `Unmuted ${formatUserRaw(user)}`, ephemeral: true });
 	}
 };
 export default UnTimeout;
