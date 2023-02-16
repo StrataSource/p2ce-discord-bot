@@ -43,10 +43,8 @@ const RoleMemberData: Command = {
 		const avatarSize = parseInt(interaction.options.getString('avatar_size') ?? '1024') as AvatarSize;
 		const useNicknames = interaction.options.getBoolean('use_nicknames') ?? false;
 
-		const roleMembers = interaction.guild.roles.resolve(role.id)?.members;
-		if (!roleMembers) {
-			return interaction.reply({ content: `Given role ${role} does not seem to exist.`, ephemeral: true });
-		}
+		const guildMembers = await interaction.guild.members.fetch();
+		const roleMembers = guildMembers.filter(member => member.roles.cache.has(role.id));
 
 		await interaction.deferReply();
 
