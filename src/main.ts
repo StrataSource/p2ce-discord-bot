@@ -74,9 +74,14 @@ async function main() {
 
 	// Run this when the client is ready
 	client.on('ready', async () => {
-		client.user?.setActivity('this server', { type: ActivityType.Watching });
-		setTimeout(() => client.user?.setActivity('this server', { type: ActivityType.Watching }), 30e3);
-		log.writeToLog(undefined, `Logged in as ${client.user?.tag}`);
+		if (!client.user) {
+			log.writeToLog(undefined, 'Client user is missing? Very strange, investigate!');
+			return;
+		}
+		const activityString = `${(await client.guilds.fetch()).size} servers`;
+		client.user.setActivity(activityString, { type: ActivityType.Watching });
+		setTimeout(() => client.user?.setActivity(activityString, { type: ActivityType.Watching }), 30e3);
+		log.writeToLog(undefined, `Logged in as ${client.user.tag}`);
 	});
 
 	// Listen for errors
