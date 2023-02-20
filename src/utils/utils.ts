@@ -1,4 +1,5 @@
 import { PartialUser, User } from 'discord.js';
+import { Stream } from 'stream';
 
 // Example usage: `${formatUserRaw(1234567890)} is dum` -> "username#discriminator is dum"
 export function formatUserRaw(user: User | PartialUser) {
@@ -22,4 +23,13 @@ export function escapeSpecialCharacters(raw: string) {
 		.replaceAll('~', '\\~')   // strikethrough
 		.replaceAll('>', '\\>')   // block quote
 		.replaceAll('|', '\\|');  // spoiler
+}
+
+export async function streamToBuffer(stream: Stream) {
+	return new Promise<Buffer>((resolve, reject) => {
+		const buf = Array<Uint8Array>();
+		stream.on('data', chunk => buf.push(chunk));
+		stream.on('end', () => resolve(Buffer.concat(buf)));
+		stream.on('error', err => reject(`Error converting stream: ${err}`));
+	});
 }
