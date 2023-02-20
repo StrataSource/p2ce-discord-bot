@@ -2,7 +2,7 @@ import { AttachmentBuilder, CommandInteraction, SlashCommandBuilder } from 'disc
 import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';
 import { escapeSpecialCharacters, getUploadLimitForChannel } from '../../utils/utils';
-import { createCanvas, ImageData, loadImage } from 'canvas';
+import { CanvasRenderingContext2D, createCanvas, ImageData, loadImage } from 'canvas';
 import GIFEncoder from 'gif-encoder';
 import { parseGIF, decompressFrames } from 'gifuct-js';
 import { uwuify } from 'owoify-js';
@@ -205,9 +205,7 @@ const Fun: Command = {
 				const tipX = interaction.options.getNumber('x');
 				const tipY = interaction.options.getNumber('y');
 
-				// Needs to be any to work with canvas-gif
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				const drawSpeechBubble = (ctx: any, width: number, height: number, fillColor?: string) => {
+				const drawSpeechBubble = (ctx: CanvasRenderingContext2D, width: number, height: number, fillColor?: string) => {
 					ctx.save();
 					ctx.beginPath();
 					const semiMajor = width / 1.9;
