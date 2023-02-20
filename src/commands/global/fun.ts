@@ -1,8 +1,10 @@
-import { CommandInteraction, SlashCommandBuilder } from 'discord.js';
-import { uwuify } from 'owoify-js';
+import { AttachmentBuilder, CommandInteraction, SlashCommandBuilder } from 'discord.js';
 import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';
 import { escapeSpecialCharacters } from '../../utils/utils';
+import { createCanvas, loadImage } from 'canvas';
+import canvasGif from 'canvas-gif';
+import { uwuify } from 'owoify-js';
 
 const regular      = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
 const square       = ['\\🅰','\\🅱','🅲','🅳','🅴','🅵','🅶','🅷','🅸','🅹','🅺','🅻','🅼','🅽','\\🅾','\\🅿','🆀','🆁','🆂','🆃','🆄','🆅','🆆','🆇','🆈','🆉','\\🅰','\\🅱','🅲','🅳','🅴','🅵','🅶','🅷','🅸','🅹','🅺','🅻','🅼','🅽','\\🅾','\\🅿','🆀','🆁','🆂','🆃','🆄','🆅','🆆','🆇','🆈','🆉'];
@@ -101,15 +103,30 @@ const Fun: Command = {
 				.addStringOption(option => option
 					.setName('text')
 					.setDescription('Text to UwUify')
-					.setRequired(true)))),
+					.setRequired(true))))
+		.addSubcommandGroup(group => group
+			.setName('image')
+			.setDescription('Fun commands to modify images.')
+			.addSubcommand(subcommand => subcommand
+				.setName('speechbubble')
+				.setDescription('Add a transparent speech bubble to the given image.')
+				.addAttachmentOption(option => option
+					.setName('image')
+					.setDescription('The image to add a speech bubble to')
+					.setRequired(true))
+				.addIntegerOption(option => option
+					.setName('fps')
+					.setDescription('Controls the FPS when uploading GIFs')
+					.setMinValue(1)
+					.setMaxValue(60)))),
 
 	async execute(interaction: CommandInteraction) {
 		if (!interaction.isChatInputCommand()) return;
 
-		const text = interaction.options.getString('text', true);
-
 		switch (interaction.options.getSubcommandGroup()) {
 		case 'text': {
+			const text = interaction.options.getString('text', true);
+
 			switch (interaction.options.getSubcommand()) {
 			case 'square': {
 				return interaction.reply(replaceText(text, regular, square));
@@ -155,6 +172,85 @@ const Fun: Command = {
 				return interaction.reply(escapeSpecialCharacters(uwuify(text)));
 			}
 			}
+			break;
+		}
+		case 'image': {
+			switch (interaction.options.getSubcommand()) {
+			case 'speechbubble': {
+				const image = interaction.options.getAttachment('image', true);
+				if (!image.contentType || !image.contentType.startsWith('image')) {
+					return interaction.reply({ content: 'File attached does not appear to be an image!', ephemeral: true });
+				}
+
+				const gif = image.contentType.endsWith('gif');
+				const fps = interaction.options.getInteger('fps') ?? 24;
+
+				const imageResponse = await fetch(image.url);
+				if (!imageResponse.body) {
+					return interaction.reply({ content: 'Unable to download attachment.', ephemeral: true });
+				}
+
+				await interaction.deferReply();
+
+				let imageName = 'image';
+				if (image.name) {
+					imageName = image.name.slice(0, image.name.lastIndexOf('.'));
+				}
+
+				const imageBuf = Buffer.from(await imageResponse.arrayBuffer());
+				const drawableImage = await loadImage(imageBuf);
+				const canvas = createCanvas(drawableImage.width, drawableImage.height);
+
+				// Needs to be any to work with canvas-gif
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				const drawSpeechBubble = (ctx: any, width: number, height: number, fillColor?: string) => {
+					ctx.beginPath();
+					const semiMajor = width / 1.9;
+					const semiMajorSquared = Math.pow(semiMajor, 2);
+					const semiMinor = height / 6;
+					const semiMinorSquared = Math.pow(semiMinor, 2);
+					ctx.ellipse(width / 2, 0, semiMajor, semiMinor, 0, 0, 2 * Math.PI);
+					ctx.moveTo(width / 2, semiMinor);
+					ctx.lineTo(semiMajor, height / 3);
+					// i'm a genius
+					const endPointX = width / 2.5;
+					const endPointY = Math.sqrt(semiMinorSquared - ((Math.pow(endPointX, 2) * semiMinorSquared) / semiMajorSquared));
+					ctx.lineTo(endPointX, endPointY);
+					ctx.clip();
+					if (fillColor) {
+						ctx.fillStyle = fillColor;
+						ctx.fillRect(0, 0, width, height);
+					} else {
+						ctx.clearRect(0, 0, width, height);
+					}
+				};
+
+				let attachment: AttachmentBuilder;
+				if (!gif) {
+					const context = canvas.getContext('2d');
+					context.drawImage(drawableImage, 0, 0);
+					drawSpeechBubble(context, canvas.width, canvas.height);
+
+					attachment = new AttachmentBuilder(canvas.createPNGStream())
+						.setName(`${imageName}_speech_bubble.png`);
+				} else {
+					const outputBuf = await canvasGif(
+						imageBuf,
+						(context, width, height/*, totalFrames, currentFrame*/) => {
+							drawSpeechBubble(context, width, height, '#313338');
+						},
+						{
+							optimiser: true,
+							fps: fps,
+						}
+					);
+					attachment = new AttachmentBuilder(outputBuf)
+						.setName(`${imageName}_speech_bubble.gif`);
+				}
+				return interaction.editReply({ files: [attachment] });
+			}
+			}
+			break;
 		}
 		}
 	}
