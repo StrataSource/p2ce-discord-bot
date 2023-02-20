@@ -114,6 +114,16 @@ const Fun: Command = {
 					.setName('image')
 					.setDescription('The image to add a speech bubble to')
 					.setRequired(true))
+				.addNumberOption(option => option
+					.setName('x')
+					.setDescription('The X position of the tip of the speech bubble, from 0-1 (with (0,0) as the top left of the image)')
+					.setMinValue(0)
+					.setMaxValue(1))
+				.addNumberOption(option => option
+					.setName('y')
+					.setDescription('The Y position of the tip of the speech bubble, from 0-1 (with (0,0) as the top left of the image)')
+					.setMinValue(0)
+					.setMaxValue(1))
 				.addIntegerOption(option => option
 					.setName('fps')
 					.setDescription('Controls the FPS when uploading GIFs')
@@ -201,6 +211,9 @@ const Fun: Command = {
 				const drawableImage = await loadImage(imageBuf);
 				const canvas = createCanvas(drawableImage.width, drawableImage.height);
 
+				const tipX = interaction.options.getNumber('x');
+				const tipY = interaction.options.getNumber('y');
+
 				// Needs to be any to work with canvas-gif
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				const drawSpeechBubble = (ctx: any, width: number, height: number, fillColor?: string) => {
@@ -211,7 +224,7 @@ const Fun: Command = {
 					const semiMinorSquared = Math.pow(semiMinor, 2);
 					ctx.ellipse(width / 2, 0, semiMajor, semiMinor, 0, 0, 2 * Math.PI);
 					ctx.moveTo(width / 2, semiMinor);
-					ctx.lineTo(semiMajor, height / 3);
+					ctx.lineTo(tipX ? tipX * width : semiMajor, tipY ? tipY * height : height / 3);
 					// i'm a genius
 					const endPointX = width / 2.5;
 					const endPointY = Math.sqrt(semiMinorSquared - ((Math.pow(endPointX, 2) * semiMinorSquared) / semiMajorSquared));
