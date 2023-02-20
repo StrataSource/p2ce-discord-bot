@@ -29,8 +29,10 @@
 	"dependencies": {
 		"adm-zip": "^0.5.10",
 		"canvas": "^2.10.2",
+		"canvas-gif": "^1.0.3",
 		"console-stamp": "^3.1.1",
 		"discord.js": "^14.2.0",
+		"discord-api-types": "0.37.34",
 		"google-spreadsheet": "^3.3.0",
 		"moment": "^2.29.4",
 		"node-fetch": "^2.6.7",
