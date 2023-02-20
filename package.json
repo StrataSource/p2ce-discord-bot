@@ -2,7 +2,7 @@
 	"name": "p2ce-discord-bot",
 	"version": "2.2.3",
 	"engines": {
-		"node": ">=16.0.0"
+		"node": ">=18.0.0"
 	},
 	"engineStrict": true,
 	"main": "build/main.js",
