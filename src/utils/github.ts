@@ -1,19 +1,29 @@
-import { Octokit } from 'octokit';
 import { GitHubIssue } from '../types/github';
+import { Octokit } from 'octokit';
+import { createAppAuth } from '@octokit/auth-app';
 
 import * as config from '../config.json';
 import * as persist from '../utils/persist';
 
 // Octokit instance for GitHub api stuff
-const octokit = new Octokit({ auth: config.github_token });
+const octokit = new Octokit({ authStrategy: createAppAuth, auth: {
+	privateKey: config.github.auth.private_key,
+	appId: config.github.auth.app_id,
+	installationId: config.github.auth.installation_id,
+	clientId: config.github.auth.client_id,
+	clientSecret: config.github.auth.client_secret,
+}});
 
 // This will and should be lost when the bot restarts
 const ISSUE_CACHE = new Map<string, { issues: GitHubIssue[], time: number }>();
 
 export async function getIssuesInRepo(guildID: string, repo: string) {
 	const identifier = `${guildID}_${repo}`;
-	if (ISSUE_CACHE.has(identifier) && (ISSUE_CACHE.get(identifier)?.time ?? 0) > Date.now()) {
-		return ISSUE_CACHE.get(repo)?.issues ?? [];
+	if (ISSUE_CACHE.has(identifier)) {
+		const cache = ISSUE_CACHE.get(identifier) ?? { issues: [], time: 0 };
+		if (cache.time > Date.now()) {
+			return cache.issues;
+		}
 	}
 
 	const repoInfo = persist.data(guildID).github_repos[repo];
@@ -38,12 +48,15 @@ export async function getIssuesInRepo(guildID: string, repo: string) {
 	return issues;
 }
 
-export async function getIssueInRepo(guildID: string, repo: string, issueID: number): Promise<GitHubIssue | undefined> {
-	const issues = await getIssuesInRepo(guildID, repo).then(issues => issues.filter(issue => issue.number === issueID));
-	if (issues.length > 0) {
-		return issues[0];
-	}
-	return undefined;
+export async function getIssueInRepo(guildID: string, repo: string, issueID: number) {
+	const repoInfo = persist.data(guildID).github_repos[repo];
+	const issue = await octokit.rest.issues.get({
+		owner: repoInfo.owner,
+		repo: repoInfo.name,
+		issue_number: issueID,
+		state: 'all',
+	});
+	return issue.data as GitHubIssue;
 }
 
 export async function searchIssuesInRepo(guildID: string, repo: string, query: string, open?: boolean | null | undefined) {

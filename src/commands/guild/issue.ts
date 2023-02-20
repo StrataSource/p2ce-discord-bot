@@ -64,6 +64,7 @@ const Issue: Command = {
 			.addIntegerOption(option => option
 				.setName('id')
 				.setDescription('The issue number')
+				.setMinValue(1)
 				.setRequired(true)))
 		.addSubcommand(subcommand => subcommand
 			.setName('search')
@@ -125,7 +126,7 @@ const Issue: Command = {
 
 			let description: string;
 			if (issue.body) {
-				description = issue.body.length > 5000 ? issue.body.substring(0, 5000) + '...' : issue.body;
+				description = issue.body.length >= 2000 ? issue.body.substring(0, 1997) + '...' : issue.body;
 			} else {
 				description = 'No description';
 			}
@@ -137,7 +138,6 @@ const Issue: Command = {
 				.setDescription(description)
 				.setURL(issue.html_url)
 				.setTimestamp(Date.parse(issue.created_at));
-
 			return interaction.editReply({ embeds: [embed] });
 		}
 
