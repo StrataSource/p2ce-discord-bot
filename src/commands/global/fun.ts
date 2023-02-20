@@ -1,9 +1,10 @@
 import { AttachmentBuilder, CommandInteraction, SlashCommandBuilder } from 'discord.js';
 import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';
-import { escapeSpecialCharacters } from '../../utils/utils';
-import { createCanvas, loadImage } from 'canvas';
-import canvasGif from 'canvas-gif';
+import { escapeSpecialCharacters, getUploadLimitForChannel } from '../../utils/utils';
+import { createCanvas, ImageData, loadImage } from 'canvas';
+import GIFEncoder from 'gif-encoder';
+import { parseGIF, decompressFrames } from 'gifuct-js';
 import { uwuify } from 'owoify-js';
 
 const regular      = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
@@ -123,15 +124,10 @@ const Fun: Command = {
 					.setName('y')
 					.setDescription('The Y position of the tip of the speech bubble, from 0-1 (with (0,0) as the top left of the image)')
 					.setMinValue(0)
-					.setMaxValue(1))
-				.addIntegerOption(option => option
-					.setName('fps')
-					.setDescription('Controls the FPS when uploading GIFs')
-					.setMinValue(1)
-					.setMaxValue(60)))),
+					.setMaxValue(1)))),
 
 	async execute(interaction: CommandInteraction) {
-		if (!interaction.isChatInputCommand()) return;
+		if (!interaction.isChatInputCommand() || !interaction.channel) return;
 
 		switch (interaction.options.getSubcommandGroup()) {
 		case 'text': {
@@ -192,9 +188,6 @@ const Fun: Command = {
 					return interaction.reply({ content: 'File attached does not appear to be an image!', ephemeral: true });
 				}
 
-				const gif = image.contentType.endsWith('gif');
-				const fps = interaction.options.getInteger('fps') ?? 24;
-
 				const imageResponse = await fetch(image.url);
 				if (!imageResponse.body) {
 					return interaction.reply({ content: 'Unable to download attachment.', ephemeral: true });
@@ -208,8 +201,6 @@ const Fun: Command = {
 				}
 
 				const imageBuf = Buffer.from(await imageResponse.arrayBuffer());
-				const drawableImage = await loadImage(imageBuf);
-				const canvas = createCanvas(drawableImage.width, drawableImage.height);
 
 				const tipX = interaction.options.getNumber('x');
 				const tipY = interaction.options.getNumber('y');
@@ -217,6 +208,7 @@ const Fun: Command = {
 				// Needs to be any to work with canvas-gif
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				const drawSpeechBubble = (ctx: any, width: number, height: number, fillColor?: string) => {
+					ctx.save();
 					ctx.beginPath();
 					const semiMajor = width / 1.9;
 					const semiMajorSquared = Math.pow(semiMajor, 2);
@@ -236,27 +228,62 @@ const Fun: Command = {
 					} else {
 						ctx.clearRect(0, 0, width, height);
 					}
+					ctx.restore();
 				};
 
 				let attachment: AttachmentBuilder;
+				const gif = image.contentType.endsWith('gif');
 				if (!gif) {
-					const context = canvas.getContext('2d');
-					context.drawImage(drawableImage, 0, 0);
-					drawSpeechBubble(context, canvas.width, canvas.height);
+					const drawableImage = await loadImage(imageBuf);
+					const canvas = createCanvas(drawableImage.width, drawableImage.height);
+					const ctx = canvas.getContext('2d');
+
+					ctx.drawImage(drawableImage, 0, 0);
+					drawSpeechBubble(ctx, canvas.width, canvas.height);
 
 					attachment = new AttachmentBuilder(canvas.createPNGStream())
 						.setName(`${imageName}_speech_bubble.png`);
 				} else {
-					const outputBuf = await canvasGif(
-						imageBuf,
-						(context, width, height/*, totalFrames, currentFrame*/) => {
-							drawSpeechBubble(context, width, height, '#313338');
-						},
-						{
-							optimiser: true,
-							fps: fps,
+					const gif = parseGIF(imageBuf);
+					const frames = decompressFrames(gif, true);
+
+					const tempCanvas = createCanvas(frames[0].dims.width, frames[0].dims.height);
+					const tempCtx = tempCanvas.getContext('2d');
+					const gifCanvas = createCanvas(tempCanvas.width, tempCanvas.height);
+					const gifCtx = gifCanvas.getContext('2d');
+
+					const encoder = new GIFEncoder(gifCanvas.width, gifCanvas.height);
+					encoder.setDispose(1);
+					encoder.setRepeat(0);
+					encoder.writeHeader();
+
+					const outputBufChunks: Buffer[] = [];
+					encoder.on('data', chunk => {
+						outputBufChunks.push(chunk);
+					});
+
+					let frameImageData: ImageData | undefined = undefined;
+					for (const frame of frames) {
+						if (!frameImageData || frame.dims.width != frameImageData.width || frame.dims.height != frameImageData.height) {
+							tempCanvas.width = frame.dims.width;
+							tempCanvas.height = frame.dims.height;
+							frameImageData = tempCtx.createImageData(frame.dims.width, frame.dims.height);
 						}
-					);
+						frameImageData.data.set(frame.patch);
+						tempCtx.putImageData(frameImageData, 0, 0);
+						gifCtx.drawImage(tempCanvas, frame.dims.left, frame.dims.top);
+						drawSpeechBubble(gifCtx, frame.dims.width, frame.dims.height, '#313338');
+
+						encoder.setDelay(frame.delay);
+						encoder.addFrame(gifCtx.getImageData(0, 0, gifCanvas.width, gifCanvas.height).data);
+					}
+					encoder.finish();
+					const outputBuf = Buffer.concat(outputBufChunks);
+
+					if ((getUploadLimitForChannel(interaction.channel) * 1024 * 1024) <= outputBuf.length) {
+						return interaction.editReply(`Sorry, the processed GIF is too big to upload! It weighs in at ${(outputBuf.length / 1024 / 1024).toFixed(2)}mb.`);
+					}
+
 					attachment = new AttachmentBuilder(outputBuf)
 						.setName(`${imageName}_speech_bubble.gif`);
 				}

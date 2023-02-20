@@ -1,5 +1,23 @@
-import { PartialUser, User } from 'discord.js';
+import { Channel, Guild, GuildChannel, GuildPremiumTier, PartialUser, User } from 'discord.js';
 import { Stream } from 'stream';
+
+export function getUploadLimitForGuild(guild: Guild) {
+	switch (guild.premiumTier) {
+	case GuildPremiumTier.Tier3:
+		return 100;
+	case GuildPremiumTier.Tier2:
+		return 50;
+	default:
+		return 8;
+	}
+}
+
+export function getUploadLimitForChannel(channel: Channel) {
+	if ((channel instanceof GuildChannel) && channel.guild) {
+		return getUploadLimitForGuild(channel.guild);
+	}
+	return 8;
+}
 
 // Example usage: `${formatUserRaw(1234567890)} is dum` -> "username#discriminator is dum"
 export function formatUserRaw(user: User | PartialUser) {
