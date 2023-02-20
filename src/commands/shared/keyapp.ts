@@ -1,6 +1,7 @@
 import { CommandInteraction, EmbedBuilder, User } from 'discord.js';
 import { sheet } from '../../utils/sheet';
 import { LogLevelColor } from '../../utils/log';
+import { formatUserRaw } from '../../utils/utils';
 
 const COLORS = {
 	blank:  { red: 0,   green: 0,   blue: 0 },
@@ -46,7 +47,7 @@ export async function checkUserKeyStatus(interaction: CommandInteraction, user: 
 	await sheet.loadCells(reloadRange);
 
 	// Get plaintext username + discriminator
-	const name = `${user.username}#${user.discriminator}`;
+	const name = formatUserRaw(user);
 
 	// Try to find where the app is
 	let row = -1;
@@ -124,7 +125,7 @@ export async function readUserApplication(interaction: CommandInteraction, user:
 	await sheet.loadCells(reloadRangeExperience);
 
 	// Get plaintext username + discriminator
-	const name = `${user.username}#${user.discriminator}`;
+	const name = formatUserRaw(user);
 
 	// Try to find where the app is
 	let row = -1;

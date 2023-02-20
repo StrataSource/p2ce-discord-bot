@@ -3,10 +3,6 @@
 	"client_id": "client id goes here",
 	"ipc_port": 23741,
 
-	"google_api_key": "",
-	"key_application_sheet_id": "",
-	"key_distribution_sheet_id": "",
-
 	"log": {
 		"errors_and_warnings_channel": ""
 	},
@@ -25,6 +21,11 @@
 	},
 
 	"keyapp": {
+		"auth": {
+			"api_key": "",
+			"sheet_id": ""
+		},
+
 		"hours_to_wait": 1
 	}
 }
