@@ -2,7 +2,7 @@
 Performs moderation tasks and other important automatable actions.
 
 ### Installation Notes
-On Linux, the `node-cavas` dependency will likely need some libraries installed.
+On Linux, the `node-canvas` dependency will likely need some libraries installed.
 
 On Debian-based distributions, this command should install all necessary dependencies:
 ```bash
