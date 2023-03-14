@@ -153,7 +153,7 @@ async function main() {
 				}
 				return;
 			}
-		} else if (interaction.isButton() || interaction.isSelectMenu()) {
+		} else if (interaction.isButton() || interaction.isStringSelectMenu()) {
 			if (interaction.user !== interaction.message.interaction?.user) {
 				await interaction.reply({ content: `You cannot touch someone else's buttons! These buttons are owned by ${interaction.message.interaction?.user}`, ephemeral: true });
 				return;

@@ -9,7 +9,6 @@ type AvatarSize = 64 | 128 | 256 | 1024 | 4096;
 
 const RoleMemberData: Command = {
 	permissionLevel: PermissionLevel.MODERATOR,
-	isP2CEOnly: true,
 
 	data: new SlashCommandBuilder()
 		.setName('rolememberdata')
