@@ -5,6 +5,7 @@ import { getUserInfo } from '../shared/userinfo';
 
 const UserInfo: Command = {
 	permissionLevel: PermissionLevel.EVERYONE,
+	canBeExecutedWithoutPriorGuildSetup: true,
 
 	data: new SlashCommandBuilder()
 		.setName('userinfo')
