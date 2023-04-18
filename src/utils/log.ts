@@ -120,10 +120,22 @@ export function userLeft(client: Client, guildID: string, member: GuildMember | 
 
 export function messageDeleted(client: Client, guildID: string, msg: Message<boolean> | PartialMessage) {
 	if (msg.author?.bot || !msg.author?.username) return;
+
+	// Create empty string so we don't need to do several other message calls
+	let attchString = '';
+	if (msg.attachments.size > 0) {
+
+		// Get all attachment urls into an array and join it to the main string
+		const attchArray: string[] = [];
+		msg.attachments.each(attch => attchArray.push(attch.url));
+
+		attchString = `\n\nAttachments:\n${attchArray.join('\n')}`;		
+	}
+
 	if (msg.content) {
-		message(client, guildID, 'MESSAGE', LogLevelColor.INFO, `A message from <@${msg.author?.id}> was deleted in ${msg.channel.toString()}.\n\nContents:\n${msg.content}`, msg.author?.avatarURL({ size: 1024 }));
+		message(client, guildID, 'MESSAGE', LogLevelColor.INFO, `A message from <@${msg.author?.id}> was deleted in ${msg.channel.toString()}.\n\nContents:\n${msg.content}${attchString}`, msg.author?.avatarURL({ size: 1024 }));
 	} else {
-		message(client, guildID, 'MESSAGE', LogLevelColor.INFO, `A message from <@${msg.author?.id}> was deleted in ${msg.channel.toString()}.\n\nThe message did not contain any text.`, msg.author?.avatarURL({ size: 1024 }));
+		message(client, guildID, 'MESSAGE', LogLevelColor.INFO, `A message from <@${msg.author?.id}> was deleted in ${msg.channel.toString()}.\n\nThe message did not contain any text.${attchString}`, msg.author?.avatarURL({ size: 1024 }));
 	}
 }
 
