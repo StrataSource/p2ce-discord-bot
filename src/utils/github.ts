@@ -6,18 +6,25 @@ import * as config from '../config.json';
 import * as persist from '../utils/persist';
 
 // Octokit instance for GitHub api stuff
-const octokit = new Octokit({ authStrategy: createAppAuth, auth: {
-	privateKey: config.github.auth.private_key,
-	appId: config.github.auth.app_id,
-	installationId: config.github.auth.installation_id,
-	clientId: config.github.auth.client_id,
-	clientSecret: config.github.auth.client_secret,
-}});
+let octokit: Octokit | null = null;
+if (config.github.auth.app_id > 0) {
+	octokit = new Octokit({ authStrategy: createAppAuth, auth: {
+		privateKey: config.github.auth.private_key,
+		appId: config.github.auth.app_id,
+		installationId: config.github.auth.installation_id,
+		clientId: config.github.auth.client_id,
+		clientSecret: config.github.auth.client_secret,
+	}});
+}
 
 // This will and should be lost when the bot restarts
 const ISSUE_CACHE = new Map<string, { issues: GitHubIssue[], time: number }>();
 
 export async function getIssuesInRepo(guildID: string, repo: string) {
+	if (!octokit) {
+		return null;
+	}
+
 	const identifier = `${guildID}_${repo}`;
 	if (ISSUE_CACHE.has(identifier)) {
 		const cache = ISSUE_CACHE.get(identifier) ?? { issues: [], time: 0 };
@@ -49,6 +56,10 @@ export async function getIssuesInRepo(guildID: string, repo: string) {
 }
 
 export async function getIssueInRepo(guildID: string, repo: string, issueID: number) {
+	if (!octokit) {
+		return null;
+	}
+
 	const repoInfo = persist.data(guildID).github_repos[repo];
 	const issue = await octokit.rest.issues.get({
 		owner: repoInfo.owner,
@@ -60,7 +71,7 @@ export async function getIssueInRepo(guildID: string, repo: string, issueID: num
 }
 
 export async function searchIssuesInRepo(guildID: string, repo: string, query: string, open?: boolean | null | undefined) {
-	return getIssuesInRepo(guildID, repo).then(issues => issues.filter(issue => {
+	return getIssuesInRepo(guildID, repo).then(issues => issues?.filter(issue => {
 		const inTitle = issue.title.toLowerCase().includes(query.toLowerCase());
 		const inBody = issue.body && issue.body.toLowerCase().includes(query.toLowerCase());
 		return (inTitle || inBody) && (!open || issue.state === 'open');

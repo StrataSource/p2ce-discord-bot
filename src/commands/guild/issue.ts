@@ -151,6 +151,9 @@ const Issue: Command = {
 			const query = interaction.options.getString('query', true);
 
 			const issues = await searchIssuesInRepo(interaction.guild.id, repo, query, interaction.options.getBoolean('open'));
+			if (!issues) {
+				return interaction.editReply('Cannot fetch issues if GitHub integration is not configured!');
+			}
 
 			const maxPage = getMaxPages(issues.length);
 
@@ -199,8 +202,13 @@ const Issue: Command = {
 				}
 		
 				await interaction.deferUpdate();
-		
-				const newEmbed = await getSearchEmbed(await searchIssuesInRepo(interaction.guild.id, repo, query), repo, query, page, maxPage);
+
+				const issues = await searchIssuesInRepo(interaction.guild.id, repo, query);
+				if (!issues) {
+					return interaction.editReply('Cannot fetch issues if GitHub integration is not configured!');
+				}
+
+				const newEmbed = await getSearchEmbed(issues, repo, query, page, maxPage);
 		
 				const buttons = new ActionRowBuilder<ButtonBuilder>()
 					.addComponents(
@@ -210,7 +218,7 @@ const Issue: Command = {
 						search_skipforward.setDisabled(maxPage === page));
 		
 				try {
-					await interaction.editReply({ embeds: [newEmbed], components: [buttons] });
+					return interaction.editReply({ embeds: [newEmbed], components: [buttons] });
 				} catch (err) {
 					writeToLog(undefined, (err as Error).toString());
 				}
