@@ -1,4 +1,4 @@
-import { ChannelType, CommandInteraction, EmbedBuilder, GuildBasedChannel, SlashCommandBuilder } from 'discord.js';
+import { ChannelType, CommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { Command } from '../../types/interaction';
 import { LogLevelColor } from '../../utils/log';
 import { PermissionLevel } from '../../utils/permissions';
@@ -41,13 +41,14 @@ const KeepThread: Command = {
 
 		switch (interaction.options.getSubcommand()) {
 		case 'add': {
-			const thread = interaction.options.getChannel('thread', true);
-			if (!(thread as GuildBasedChannel)?.isThread()) {
+			const thread = await interaction.guild.channels.fetch(interaction.options.getChannel('thread', true).id);
+			if (!thread || !thread.isThread()) {
 				return interaction.reply({ content: 'Channel given is not a thread!', ephemeral: true });
 			}
 
 			if (!data.watched_threads.includes(thread.id)) {
 				data.watched_threads.push(thread.id);
+				thread.join();
 			}
 			persist.saveData(interaction.guild.id);
 
@@ -69,13 +70,14 @@ const KeepThread: Command = {
 		}
 
 		case 'remove': {
-			const thread = interaction.options.getChannel('thread', true);
-			if (!(thread as GuildBasedChannel)?.isThread()) {
+			const thread = await interaction.guild.channels.fetch(interaction.options.getChannel('thread', true).id);
+			if (!thread || !thread.isThread()) {
 				return interaction.reply({ content: 'Channel given is not a thread!', ephemeral: true });
 			}
 
 			if (data.watched_threads.includes(thread.id)) {
 				data.watched_threads = data.watched_threads.filter(e => e !== thread.id);
+				thread.leave();
 			}
 			persist.saveData(interaction.guild.id);
 
