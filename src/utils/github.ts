@@ -20,6 +20,34 @@ if (config.github.auth.app_id > 0) {
 // This will and should be lost when the bot restarts
 const ISSUE_CACHE = new Map<string, { issues: GitHubIssue[], time: number }>();
 
+export async function createIssueInRepo(guildID: string, repo: string, title: string, body: string | undefined, labelString?: string) {
+	if (!octokit) {
+		return null;
+	}
+
+	const repoInfo = persist.data(guildID).github_repos[repo];
+	const data = {
+		owner: repoInfo.owner,
+		repo: repoInfo.name,
+		title: title,
+		body: body,
+		labels: [] as { id: number; node_id: string; url: string; name: string; description: string | null; color: string; default: boolean; }[]
+	};
+
+	if (labelString) {
+		const repoLabels = await octokit.rest.issues.listLabelsForRepo({
+			owner: repoInfo.owner,
+			repo: repoInfo.name,
+		});
+		const label = repoLabels.data.find(label => label.name.toLowerCase().includes(labelString.toLowerCase()));
+		if (label) {
+			data.labels.push(label);
+		}
+	}
+
+	return octokit.rest.issues.create(data);
+}
+
 export async function getIssuesInRepo(guildID: string, repo: string) {
 	if (!octokit) {
 		return null;
