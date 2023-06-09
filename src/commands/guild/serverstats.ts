@@ -34,6 +34,7 @@ const ServerStats: Command = {
 			.setThumbnail(interaction.guild.iconURL({ size: 1024 }))
 			.addFields(
 				{ name: 'Member Count', value: `${interaction.guild.memberCount}`, inline: true },
+				{ name: 'Boosters', value: `${interaction.guild.premiumSubscriptionCount}`, inline: true },
 				{ name: 'Channels', value: `${channelCount}`, inline: true },
 				{ name: 'Roles', value: `${roleCount}`, inline: true },
 				{ name: 'Joins', value: `${joins}`, inline: true },
