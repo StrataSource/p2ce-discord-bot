@@ -21,6 +21,10 @@ export function getUploadLimitForChannel(channel: Channel) {
 
 // Example usage: `${formatUserRaw(1234567890)} is dum` -> "username#discriminator is dum"
 export function formatUserRaw(user: User | PartialUser) {
+	if (user.discriminator === '0') {
+		return `${user.username}`;
+	}
+
 	return `${user.username}#${user.discriminator}`;
 }
 
