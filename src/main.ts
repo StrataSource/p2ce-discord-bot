@@ -263,19 +263,18 @@ async function main() {
 		}
 	});
 
-	// Listen for presence updates
-	client.on('userUpdate', async (oldUser, newUser) => {
-		for (const guild of (await client.guilds.fetch()).values()) {
-			const member = (await (await guild.fetch()).members.fetch()).get(newUser.id);
-			if (member) {
-				const data = persist.data(guild.id);
-				if (data.config.log.options.user_updates) {
-					log.userUpdate(client, guild.id, oldUser, newUser);
-				}
-				if (data.config.log.options.user_avatar_updates) {
-					log.userAvatarUpdate(client, guild.id, oldUser, newUser);
-				}
-			}
+	// Listen to guild member updates
+	client.on('guildMemberUpdate', async(oldUser, newUser) => {
+		const guild = oldUser.guild;
+		const data = persist.data(guild.id);
+
+		// Check if we've altered our nickname
+		if (data.config.log.options.user_updates) {
+			log.userUsernameUpdate(client, guild.id, oldUser, newUser);
+		}
+
+		if (data.config.log.options.user_updates) {
+			log.userAvatarUpdate(client, guild.id, oldUser, newUser);
 		}
 	});
 
