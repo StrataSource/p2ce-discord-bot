@@ -93,15 +93,15 @@ export async function warning(client: Client, msg: string) {
 	}
 }
 
-export function userUpdate(client: Client, guildID: string, user1: User | PartialUser, user2: User) {
-	if (user1.username !== user2.username) {
-		message(client, guildID, 'USER', LogLevelColor.INFO, `**${user1.username}#${user1.discriminator}** changed their username to **${user2.username}#${user2.discriminator}**`);
+export function userUsernameUpdate(client: Client, guildID: string, user1: GuildMember | PartialGuildMember, user2: GuildMember) {
+	if (user1.user.username !== user2.user.username) {
+		message(client, guildID, 'USER', LogLevelColor.INFO, `**${user1.user.username}#${user1.user.discriminator}** changed their username to **${user2.user.username}#${user2.user.discriminator}**`);
 	}
 }
 
-export function userAvatarUpdate(client: Client, guildID: string, user1: User | PartialUser, user2: User) {
-	if (user1.avatar !== user2.avatar) {
-		message(client, guildID, 'USER', LogLevelColor.INFO, `<@${user1.id}> changed their avatar`, user2.avatarURL({ size: 1024 }));
+export function userAvatarUpdate(client: Client, guildID: string, user1: GuildMember | PartialGuildMember, user2: GuildMember) {
+	if (user1.user.avatar !== user2.user.avatar) {
+		message(client, guildID, 'USER', LogLevelColor.INFO, `<@${user1.id}> changed their global avatar`, user2.user.avatarURL({ size: 1024 }));
 	}
 }
 
