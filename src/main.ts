@@ -264,7 +264,7 @@ async function main() {
 	});
 
 	// Listen to guild member updates
-	client.on('guildMemberUpdate', async(oldUser, newUser) => {
+	client.on('guildMemberUpdate', async (oldUser, newUser) => {
 		const guild = oldUser.guild;
 		const data = persist.data(guild.id);
 
