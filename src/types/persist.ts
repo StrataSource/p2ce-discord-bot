@@ -15,10 +15,12 @@ export interface PersistentData {
 				user_avatar_updates: boolean,
 				user_bans: boolean,
 				user_joins_and_leaves: boolean,
+				user_boosts: boolean,
 				message_deletes: boolean,
 				message_edits: boolean
 			},
 			channel: string,
+			publicChannel: string,
 			user_exceptions: string[],
 		},
 		roles: {

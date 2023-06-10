@@ -19,6 +19,14 @@ function getLogChannel(client: Client, guildID: string): GuildTextBasedChannel |
 	return channel;
 }
 
+function getPublicLogChannel(client: Client, guildID: string): GuildTextBasedChannel | undefined {
+	const channel = client.guilds.resolve(guildID)?.channels.resolve(persist.data(guildID).config.log.publicChannel);
+	if (!channel || !(channel.isTextBased() || channel.isThread())) {
+		return undefined;
+	}
+	return channel;
+}
+
 export function getLogFilepath(guildID: string | undefined) {
 	return `./log/${guildID ? `guild_${guildID}` : 'all'}.txt`;
 }
@@ -102,6 +110,13 @@ export function userUsernameUpdate(client: Client, guildID: string, user1: Guild
 export function userAvatarUpdate(client: Client, guildID: string, user1: GuildMember | PartialGuildMember, user2: GuildMember) {
 	if (user1.user.avatar !== user2.user.avatar) {
 		message(client, guildID, 'USER', LogLevelColor.INFO, `<@${user1.id}> changed their global avatar`, user2.user.avatarURL({ size: 1024 }));
+	}
+}
+
+export function userBoosted(client: Client, guildID: string, user1: GuildMember | PartialGuildMember, user2: GuildMember) {
+	if (user1.premiumSince != user2.premiumSince) {
+		message(client, guildID, 'USER', LogLevelColor.INFO, `<@${user1.id}> boosted the server`);
+		getPublicLogChannel(client, guildID)?.send(`🥳 <@${user1.id}> just boosted the server!`);
 	}
 }
 

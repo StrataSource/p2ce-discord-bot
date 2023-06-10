@@ -14,10 +14,12 @@
 				"user_avatar_updates": true,
 				"user_bans": true,
 				"user_joins_and_leaves": true,
+				"user_boosts": true,
 				"message_deletes": true,
 				"message_edits": true
 			},
 			"channel": "",
+			"publicChannel": "",
 			"user_exceptions": []
 		},
 		"roles": {
