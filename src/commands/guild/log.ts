@@ -91,6 +91,11 @@ const Log: Command = {
 								.setDefault(data.config.log.options.user_avatar_updates)
 								.setValue('user_avatar_updates'),
 							new SelectMenuOptionBuilder()
+								.setLabel('User Boost Updates')
+								.setDescription('Log when a user boosts the server.')
+								.setDefault(data.config.log.options.user_boosts)
+								.setValue('user_boosts'),
+							new SelectMenuOptionBuilder()
 								.setLabel('User Bans')
 								.setDescription('Log when a member is banned')
 								.setDefault(data.config.log.options.user_bans)
@@ -111,7 +116,7 @@ const Log: Command = {
 								.setDefault(data.config.log.options.message_deletes)
 								.setValue('message_deletes'))
 						.setMinValues(0)
-						.setMaxValues(6));
+						.setMaxValues(7));
 
 			callbacks.addSelectMenuCallback('log_options', async interaction => {
 				if (!interaction.inGuild() || !interaction.guild) {

@@ -268,6 +268,13 @@ async function main() {
 		const guild = oldUser.guild;
 		const data = persist.data(guild.id);
 
+		// Log the boost to both our public channel and our private log channel
+		// Unforunately we can only tell if the user boosted by checking against
+		// the oldUser and newUser's premiumSince variable because Discord.
+		if (data.config.log.options.user_boosts) {
+			log.userBoosted(client, guild.id, oldUser, newUser);
+		}
+
 		// Check if we've altered our nickname
 		if (data.config.log.options.user_updates) {
 			log.userUsernameUpdate(client, guild.id, oldUser, newUser);
