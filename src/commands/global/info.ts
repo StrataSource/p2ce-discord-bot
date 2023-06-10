@@ -22,7 +22,7 @@ const Info: Command = {
 		const embed = new EmbedBuilder()
 			.setAuthor({
 				name: username,
-				url: 'https://github.com/ChaosInitiative/p2ce-discord-bot',
+				url: 'https://github.com/StrataSource/p2ce-discord-bot',
 				iconURL: interaction.client.user?.displayAvatarURL(),
 			})
 			.setDescription('This server\'s robotic helper and moral compass.')

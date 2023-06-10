@@ -18,13 +18,13 @@
 	"author": "P2CE Moderation Team",
 	"description": "craftablescience was here",
 	"license": "MIT",
-	"homepage": "https://github.com/ChaosInitiative/p2ce-discord-bot",
+	"homepage": "https://github.com/StrataSource/p2ce-discord-bot",
 	"bugs": {
-		"url": "https://github.com/ChaosInitiative/p2ce-discord-bot/issues"
+		"url": "https://github.com/StrataSource/p2ce-discord-bot/issues"
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/ChaosInitiative/p2ce-discord-bot.git"
+		"url": "git+https://github.com/StrataSource/p2ce-discord-bot.git"
 	},
 	"dependencies": {
 		"adm-zip": "^0.5.10",
