@@ -91,8 +91,8 @@ const Log: Command = {
 								.setDefault(data.config.log.options.user_avatar_updates)
 								.setValue('user_avatar_updates'),
 							new SelectMenuOptionBuilder()
-								.setLabel('User Boost Updates')
-								.setDescription('Log when a user boosts the server.')
+								.setLabel('User Boosts')
+								.setDescription('Log when a member boosts the server.')
 								.setDefault(data.config.log.options.user_boosts)
 								.setValue('user_boosts'),
 							new SelectMenuOptionBuilder()

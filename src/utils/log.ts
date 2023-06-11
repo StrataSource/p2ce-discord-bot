@@ -1,4 +1,4 @@
-import { Client, GuildBan, GuildTextBasedChannel, Message, EmbedBuilder, PartialMessage, PartialUser, User, GuildMember, PartialGuildMember } from 'discord.js';
+import { Client, GuildBan, GuildTextBasedChannel, Message, EmbedBuilder, PartialMessage, GuildMember, PartialGuildMember } from 'discord.js';
 import fs from 'fs';
 
 import * as config from '../config.json';
@@ -20,7 +20,11 @@ function getLogChannel(client: Client, guildID: string): GuildTextBasedChannel |
 }
 
 function getPublicLogChannel(client: Client, guildID: string): GuildTextBasedChannel | undefined {
-	const channel = client.guilds.resolve(guildID)?.channels.resolve(persist.data(guildID).config.log.publicChannel);
+	const channelID = persist.data(guildID).config.log.public_channel;
+	if (!channelID) {
+		return undefined;
+	}
+	const channel = client.guilds.resolve(guildID)?.channels.resolve(channelID);
 	if (!channel || !(channel.isTextBased() || channel.isThread())) {
 		return undefined;
 	}
@@ -59,7 +63,7 @@ export function writeToLog(guildID: string | undefined, message: string, sendToC
 	fs.appendFileSync(logAllPath, `${guildID ? `{${guildID}} ` : ''}${message}\n`);
 }
 
-export function message(client: Client, guildID: string, title: string, color: LogLevelColor, msg: string, thumb: string | null = null) {
+export function message(client: Client, guildID: string, title: string, color: LogLevelColor, msg: string, publicMsg?: string | undefined, thumb?: string | undefined | null) {
 	writeToLog(guildID, `[${title}] ${msg}`);
 
 	const embed = new EmbedBuilder()
@@ -71,6 +75,9 @@ export function message(client: Client, guildID: string, title: string, color: L
 		embed.setThumbnail(thumb);
 	}
 	getLogChannel(client, guildID)?.send({ embeds: [embed] });
+	if (publicMsg) {
+		getPublicLogChannel(client, guildID)?.send(publicMsg);
+	}
 }
 
 export async function error(client: Client, msg: Error) {
@@ -109,54 +116,51 @@ export function userUsernameUpdate(client: Client, guildID: string, user1: Guild
 
 export function userAvatarUpdate(client: Client, guildID: string, user1: GuildMember | PartialGuildMember, user2: GuildMember) {
 	if (user1.user.avatar !== user2.user.avatar) {
-		message(client, guildID, 'USER', LogLevelColor.INFO, `<@${user1.id}> changed their global avatar`, user2.user.avatarURL({ size: 1024 }));
+		message(client, guildID, 'USER', LogLevelColor.INFO, `<@${user1.id}> changed their global avatar`, undefined, user2.user.avatarURL({ size: 1024 }));
 	}
 }
 
 export function userBoosted(client: Client, guildID: string, user1: GuildMember | PartialGuildMember, user2: GuildMember) {
 	if (user1.premiumSince != user2.premiumSince) {
-		message(client, guildID, 'USER', LogLevelColor.INFO, `<@${user1.id}> boosted the server`);
-		getPublicLogChannel(client, guildID)?.send(`🥳 <@${user1.id}> just boosted the server!`);
+		message(client, guildID, 'USER', LogLevelColor.INFO, `<@${user1.id}> boosted the server`, `🥳 <@${user1.id}> just boosted the server!`);
 	}
 }
 
 export function userBanned(client: Client, guildID: string, ban: GuildBan) {
-	message(client, guildID, 'BAN', LogLevelColor.IMPORTANT, `<@${ban.user.id}> (${ban.user.username}#${ban.user.discriminator}) was banned 😈`, ban.user.avatarURL({ size: 1024 }));
+	message(client, guildID, 'BAN', LogLevelColor.IMPORTANT, `<@${ban.user.id}> (${ban.user.username}#${ban.user.discriminator}) was banned 😈`, undefined, ban.user.avatarURL({ size: 1024 }));
 }
 
 export function userJoined(client: Client, guildID: string, member: GuildMember | PartialGuildMember) {
-	message(client, guildID, 'USER', LogLevelColor.INFO, `<@${member.id}> (${member.user.username}#${member.user.discriminator}) joined the server 😊`, member.avatarURL({ size: 1024 }));
+	message(client, guildID, 'USER', LogLevelColor.INFO, `<@${member.id}> (${member.user.username}#${member.user.discriminator}) joined the server 😊`, undefined, member.avatarURL({ size: 1024 }));
 }
 
 export function userLeft(client: Client, guildID: string, member: GuildMember | PartialGuildMember) {
 	if (member.id === client.user?.id) return;
-	message(client, guildID, 'USER', LogLevelColor.INFO, `<@${member.id}> (${member.user.username}#${member.user.discriminator}) left the server 😭`, member.avatarURL({ size: 1024 }));
+	message(client, guildID, 'USER', LogLevelColor.INFO, `<@${member.id}> (${member.user.username}#${member.user.discriminator}) left the server 😭`, undefined, member.avatarURL({ size: 1024 }));
 }
 
 export function messageDeleted(client: Client, guildID: string, msg: Message<boolean> | PartialMessage) {
 	if (msg.author?.bot || !msg.author?.username) return;
 
-	// Create empty string so we don't need to do several other message calls
-	let attchString = '';
+	// Create an empty string, so we don't need to do several other message calls
+	let attachString = '';
 	if (msg.attachments.size > 0) {
-
 		// Get all attachment urls into an array and join it to the main string
-		const attchArray: string[] = [];
-		msg.attachments.each(attch => attchArray.push(attch.url));
-
-		attchString = `\n\nAttachments:\n${attchArray.join('\n')}`;		
+		const attachArray: string[] = [];
+		msg.attachments.each(attach => attachArray.push(attach.url));
+		attachString = `\n\nAttachments:\n${attachArray.join('\n')}`;
 	}
 
 	if (msg.content) {
-		message(client, guildID, 'MESSAGE', LogLevelColor.INFO, `A message from <@${msg.author?.id}> was deleted in ${msg.channel.toString()}.\n\nContents:\n${msg.content}${attchString}`, msg.author?.avatarURL({ size: 1024 }));
+		message(client, guildID, 'MESSAGE', LogLevelColor.INFO, `A message from <@${msg.author?.id}> was deleted in ${msg.channel.toString()}.\n\nContents:\n${msg.content}${attachString}`, undefined, msg.author?.avatarURL({ size: 1024 }));
 	} else {
-		message(client, guildID, 'MESSAGE', LogLevelColor.INFO, `A message from <@${msg.author?.id}> was deleted in ${msg.channel.toString()}.\n\nThe message did not contain any text.${attchString}`, msg.author?.avatarURL({ size: 1024 }));
+		message(client, guildID, 'MESSAGE', LogLevelColor.INFO, `A message from <@${msg.author?.id}> was deleted in ${msg.channel.toString()}.\n\nThe message did not contain any text.${attachString}`, undefined, msg.author?.avatarURL({ size: 1024 }));
 	}
 }
 
 export function messageUpdated(client: Client, guildID: string, oldMessage: Message<boolean> | PartialMessage, newMessage: Message<boolean> | PartialMessage) {
 	if (oldMessage.author?.bot || !oldMessage.author?.username) return;
 	if (oldMessage.content !== newMessage.content) {
-		message(client, guildID, 'MESSAGE', LogLevelColor.INFO, `[A message](${newMessage.url}) from <@${newMessage.author?.id}> was edited in ${oldMessage.channel.toString()}.\n\nBefore:\n${oldMessage.content}\n\nAfter:\n${newMessage.content}`, newMessage.author?.avatarURL({ size: 1024 }));
+		message(client, guildID, 'MESSAGE', LogLevelColor.INFO, `[A message](${newMessage.url}) from <@${newMessage.author?.id}> was edited in ${oldMessage.channel.toString()}.\n\nBefore:\n${oldMessage.content}\n\nAfter:\n${newMessage.content}`, undefined, newMessage.author?.avatarURL({ size: 1024 }));
 	}
 }

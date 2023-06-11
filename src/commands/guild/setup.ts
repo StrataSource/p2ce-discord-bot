@@ -13,6 +13,10 @@ const Setup: Command = {
 	data: new SlashCommandBuilder()
 		.setName('setup')
 		.setDescription('Set necessary configuration options for this guild.')
+		.addRoleOption(option => option
+			.setName('moderator_role')
+			.setDescription('The role that moderators have.')
+			.setRequired(true))
 		.addChannelOption(option => option
 			.setName('log_channel')
 			.setDescription('The channel where all logs are sent')
@@ -20,13 +24,8 @@ const Setup: Command = {
 			.setRequired(true))
 		.addChannelOption(option => option
 			.setName('public_log_channel')
-			.setDescription('The channel where all public logs are sent (Boosts)')
-			.addChannelTypes(ChannelType.GuildText)
-			.setRequired(true))
-		.addRoleOption(option => option
-			.setName('moderator_role')
-			.setDescription('The role that moderators have.')
-			.setRequired(true))
+			.setDescription('The channel where public logs are sent (Just boosts for now)')
+			.addChannelTypes(ChannelType.GuildText))
 		.addRoleOption(option => option
 			.setName('team_member_role')
 			.setDescription('The role that team members have. They can run a few more commands than regular guild members.'))
@@ -49,9 +48,9 @@ const Setup: Command = {
 
 		const firstRun = !data.config.first_time_setup;
 
-		data.config.log.channel = interaction.options.getChannel('log_channel', true).id;
-		data.config.log.publicChannel = interaction.options.getChannel('public_log_channel', true).id;
 		data.config.roles.moderator = interaction.options.getRole('moderator_role', true).id;
+		data.config.log.channel = interaction.options.getChannel('log_channel', true).id;
+		data.config.log.public_channel = interaction.options.getChannel('public_log_channel')?.id;
 		data.config.roles.team_member = interaction.options.getRole('team_member_role')?.id;
 		data.config.enable_p2ce_commands = interaction.options.getBoolean('p2ce_commands') ?? false;
 		data.config.first_time_setup = true;

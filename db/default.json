@@ -19,7 +19,7 @@
 				"message_edits": true
 			},
 			"channel": "",
-			"publicChannel": "",
+			"public_channel": null,
 			"user_exceptions": []
 		},
 		"roles": {
