@@ -1,5 +1,6 @@
-import { Client, GuildBan, GuildTextBasedChannel, Message, EmbedBuilder, PartialMessage, GuildMember, PartialGuildMember } from 'discord.js';
+import { Client, GuildBan, GuildTextBasedChannel, Message, EmbedBuilder, PartialMessage, PartialUser, User, GuildMember, PartialGuildMember } from 'discord.js';
 import fs from 'fs';
+import { formatUserRaw } from './utils';
 
 import * as config from '../config.json';
 import * as persist from '../utils/persist';
@@ -108,35 +109,35 @@ export async function warning(client: Client, msg: string) {
 	}
 }
 
-export function userUsernameUpdate(client: Client, guildID: string, user1: GuildMember | PartialGuildMember, user2: GuildMember) {
-	if (user1.user.username !== user2.user.username) {
-		message(client, guildID, 'USER', LogLevelColor.INFO, `**${user1.user.username}#${user1.user.discriminator}** changed their username to **${user2.user.username}#${user2.user.discriminator}**`);
-	}
-}
-
-export function userAvatarUpdate(client: Client, guildID: string, user1: GuildMember | PartialGuildMember, user2: GuildMember) {
-	if (user1.user.avatar !== user2.user.avatar) {
-		message(client, guildID, 'USER', LogLevelColor.INFO, `<@${user1.id}> changed their global avatar`, undefined, user2.user.avatarURL({ size: 1024 }));
-	}
-}
-
 export function userBoosted(client: Client, guildID: string, user1: GuildMember | PartialGuildMember, user2: GuildMember) {
 	if (user1.premiumSince != user2.premiumSince) {
-		message(client, guildID, 'USER', LogLevelColor.INFO, `<@${user1.id}> boosted the server`, `🥳 <@${user1.id}> just boosted the server!`);
+		message(client, guildID, 'USER', LogLevelColor.INFO, `<@${user2.id}> boosted the server`, `🥳 <@${user2.id}> just boosted the server!`);
+	}
+}
+
+export function userUpdate(client: Client, guildID: string, user1: User | PartialUser, user2: User) {
+	if (user1.username !== user2.username) {
+		message(client, guildID, 'USER', LogLevelColor.INFO, `**${formatUserRaw(user1)}** changed their username to **${formatUserRaw(user2)}**`);
+	}
+}
+
+export function userAvatarUpdate(client: Client, guildID: string, user1: User | PartialUser, user2: User) {
+	if (user1.avatar !== user2.avatar) {
+		message(client, guildID, 'USER', LogLevelColor.INFO, `<@${user2.id}> changed their avatar`, undefined, user2.avatarURL({size: 1024}));
 	}
 }
 
 export function userBanned(client: Client, guildID: string, ban: GuildBan) {
-	message(client, guildID, 'BAN', LogLevelColor.IMPORTANT, `<@${ban.user.id}> (${ban.user.username}#${ban.user.discriminator}) was banned 😈`, undefined, ban.user.avatarURL({ size: 1024 }));
+	message(client, guildID, 'BAN', LogLevelColor.IMPORTANT, `<@${ban.user.id}> (${formatUserRaw(ban.user)}) was banned 😈`, undefined, ban.user.avatarURL({ size: 1024 }));
 }
 
 export function userJoined(client: Client, guildID: string, member: GuildMember | PartialGuildMember) {
-	message(client, guildID, 'USER', LogLevelColor.INFO, `<@${member.id}> (${member.user.username}#${member.user.discriminator}) joined the server 😊`, undefined, member.avatarURL({ size: 1024 }));
+	message(client, guildID, 'USER', LogLevelColor.INFO, `<@${member.id}> (${formatUserRaw(member.user)}) joined the server 😊`, undefined, member.avatarURL({ size: 1024 }));
 }
 
 export function userLeft(client: Client, guildID: string, member: GuildMember | PartialGuildMember) {
 	if (member.id === client.user?.id) return;
-	message(client, guildID, 'USER', LogLevelColor.INFO, `<@${member.id}> (${member.user.username}#${member.user.discriminator}) left the server 😭`, undefined, member.avatarURL({ size: 1024 }));
+	message(client, guildID, 'USER', LogLevelColor.INFO, `<@${member.id}> (${formatUserRaw(member.user)}) left the server 😭`, undefined, member.avatarURL({ size: 1024 }));
 }
 
 export function messageDeleted(client: Client, guildID: string, msg: Message<boolean> | PartialMessage) {

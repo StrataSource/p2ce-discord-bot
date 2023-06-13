@@ -263,26 +263,27 @@ async function main() {
 		}
 	});
 
-	// Listen to guild member updates
-	client.on('guildMemberUpdate', async (oldUser, newUser) => {
-		const guild = oldUser.guild;
-		const data = persist.data(guild.id);
+	// Listen for presence updates
+	client.on('userUpdate', async (oldUser, newUser) => {
+		for (const guild of (await client.guilds.fetch()).values()) {
+			const member = (await (await guild.fetch()).members.fetch()).get(newUser.id);
+			if (member) {
+				const data = persist.data(guild.id);
+				if (data.config.log.options.user_updates) {
+					log.userUpdate(client, guild.id, oldUser, newUser);
+				}
+				if (data.config.log.options.user_avatar_updates) {
+					log.userAvatarUpdate(client, guild.id, oldUser, newUser);
+				}
+			}
+		}
+	});
 
-		// Log the boost to both our public channel and our private log channel
-		// Unfortunately we can only tell if the user boosted by checking against
-		// the oldUser and newUser's premiumSince variable because Discord.
+	// Listen for guild member updates
+	client.on('guildMemberUpdate', async (oldMember, newMember) => {
+		const data = persist.data(newMember.guild.id);
 		if (data.config.log.options.user_boosts) {
-			log.userBoosted(client, guild.id, oldUser, newUser);
-		}
-
-		// Check if we've altered our nickname...
-		if (data.config.log.options.user_updates) {
-			log.userUsernameUpdate(client, guild.id, oldUser, newUser);
-		}
-
-		// ...or avatar
-		if (data.config.log.options.user_updates) {
-			log.userAvatarUpdate(client, guild.id, oldUser, newUser);
+			log.userBoosted(client, newMember.guild.id, oldMember, newMember);
 		}
 	});
 

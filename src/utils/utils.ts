@@ -24,7 +24,6 @@ export function formatUserRaw(user: User | PartialUser) {
 	if (user.discriminator === '0') {
 		return `${user.username}`;
 	}
-
 	return `${user.username}#${user.discriminator}`;
 }
 
