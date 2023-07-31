@@ -139,6 +139,7 @@ const Log: Command = {
 					return interaction.reply({ content: 'This only works in a guild!', ephemeral: true });
 				}
 
+				const data = persist.data(interaction.guild.id);
 				data.config.log.options.user_updates = interaction.values.includes('user_updates');
 				data.config.log.options.user_avatar_updates = interaction.values.includes('user_avatar_updates');
 				data.config.log.options.user_boosts = interaction.values.includes('user_boosts');
