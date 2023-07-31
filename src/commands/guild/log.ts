@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ChannelType, CommandInteraction, EmbedBuilder, SelectMenuOptionBuilder, SlashCommandBuilder, StringSelectMenuBuilder } from 'discord.js';
+import { ActionRowBuilder, ChannelType, CommandInteraction, EmbedBuilder, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from 'discord.js';
 import fs from 'fs';
 import readline from 'readline';
 import events from 'events';
@@ -74,59 +74,80 @@ const Log: Command = {
 		}
 
 		case 'options': {
+			const selectOptions = new StringSelectMenuBuilder()
+				.setCustomId('log_options')
+				.setPlaceholder('Logging options')
+				.addOptions(
+					new StringSelectMenuOptionBuilder()
+						.setLabel('User Name Updates')
+						.setDescription('Log when a member\'s username changes')
+						.setDefault(data.config.log.options.user_updates)
+						.setValue('user_updates'),
+					new StringSelectMenuOptionBuilder()
+						.setLabel('User Avatar Updates')
+						.setDescription('Log when a member\'s avatar changes')
+						.setDefault(data.config.log.options.user_avatar_updates)
+						.setValue('user_avatar_updates'),
+					new StringSelectMenuOptionBuilder()
+						.setLabel('User Boosts')
+						.setDescription('Log when a member boosts the server.')
+						.setDefault(data.config.log.options.user_boosts ?? false)
+						.setValue('user_boosts'),
+					new StringSelectMenuOptionBuilder()
+						.setLabel('User Bans')
+						.setDescription('Log when a member is banned')
+						.setDefault(data.config.log.options.user_bans)
+						.setValue('user_bans'),
+					new StringSelectMenuOptionBuilder()
+						.setLabel('User Joins & Leaves')
+						.setDescription('Log when a user joins or leaves the guild')
+						.setDefault(data.config.log.options.user_joins_and_leaves)
+						.setValue('user_joins_and_leaves'),
+					new StringSelectMenuOptionBuilder()
+						.setLabel('Message Edits')
+						.setDescription('Log when a message is edited')
+						.setDefault(data.config.log.options.message_edits)
+						.setValue('message_edits'),
+					new StringSelectMenuOptionBuilder()
+						.setLabel('Message Deletes')
+						.setDescription('Log when a message is deleted')
+						.setDefault(data.config.log.options.message_deletes)
+						.setValue('message_deletes'),
+					new StringSelectMenuOptionBuilder()
+						.setLabel('Moderator Message Events')
+						.setDescription('Log when messages created by members with the moderator role are modified')
+						.setDefault(data.config.log.options.moderator_events ?? false)
+						.setValue('moderator_events'))
+				.setMinValues(0);
+			selectOptions.setMaxValues(selectOptions.options.length);
+
+			if (data.config.roles.team_member) {
+				selectOptions.addOptions(
+					new StringSelectMenuOptionBuilder()
+						.setLabel('Team Member Message Events')
+						.setDescription('Log when messages created by members with the team member role are modified')
+						.setDefault(data.config.log.options.team_member_events ?? false)
+						.setValue('team_member_events'));
+				selectOptions.setMaxValues(selectOptions.options.length);
+			}
+
 			const selectMenu = new ActionRowBuilder<StringSelectMenuBuilder>()
-				.addComponents(
-					new StringSelectMenuBuilder()
-						.setCustomId('log_options')
-						.setPlaceholder('Logging options')
-						.addOptions(
-							new SelectMenuOptionBuilder()
-								.setLabel('User Name Updates')
-								.setDescription('Log when a member\'s username changes')
-								.setDefault(data.config.log.options.user_updates)
-								.setValue('user_updates'),
-							new SelectMenuOptionBuilder()
-								.setLabel('User Avatar Updates')
-								.setDescription('Log when a member\'s avatar changes')
-								.setDefault(data.config.log.options.user_avatar_updates)
-								.setValue('user_avatar_updates'),
-							new SelectMenuOptionBuilder()
-								.setLabel('User Boosts')
-								.setDescription('Log when a member boosts the server.')
-								.setDefault(data.config.log.options.user_boosts)
-								.setValue('user_boosts'),
-							new SelectMenuOptionBuilder()
-								.setLabel('User Bans')
-								.setDescription('Log when a member is banned')
-								.setDefault(data.config.log.options.user_bans)
-								.setValue('user_bans'),
-							new SelectMenuOptionBuilder()
-								.setLabel('User Joins & Leaves')
-								.setDescription('Log when a user joins or leaves the guild')
-								.setDefault(data.config.log.options.user_joins_and_leaves)
-								.setValue('user_joins_and_leaves'),
-							new SelectMenuOptionBuilder()
-								.setLabel('Message Edits')
-								.setDescription('Log when a message is edited')
-								.setDefault(data.config.log.options.message_edits)
-								.setValue('message_edits'),
-							new SelectMenuOptionBuilder()
-								.setLabel('Message Deletes')
-								.setDescription('Log when a message is deleted')
-								.setDefault(data.config.log.options.message_deletes)
-								.setValue('message_deletes'))
-						.setMinValues(0)
-						.setMaxValues(7));
+				.addComponents(selectOptions);
 
 			callbacks.addSelectMenuCallback('log_options', async interaction => {
 				if (!interaction.inGuild() || !interaction.guild) {
 					return interaction.reply({ content: 'This only works in a guild!', ephemeral: true });
 				}
 
-				for (const logConfig of Object.keys(data.config.log.options)) {
-					// eslint-disable-next-line @typescript-eslint/no-explicit-any
-					(data.config.log.options as any)[logConfig] = interaction.values.includes(logConfig);
-				}
+				data.config.log.options.user_updates = interaction.values.includes('user_updates');
+				data.config.log.options.user_avatar_updates = interaction.values.includes('user_avatar_updates');
+				data.config.log.options.user_boosts = interaction.values.includes('user_boosts');
+				data.config.log.options.user_bans = interaction.values.includes('user_bans');
+				data.config.log.options.user_joins_and_leaves = interaction.values.includes('user_joins_and_leaves');
+				data.config.log.options.message_edits = interaction.values.includes('message_edits');
+				data.config.log.options.message_deletes = interaction.values.includes('message_deletes');
+				data.config.log.options.moderator_events = interaction.values.includes('moderator_events');
+				data.config.log.options.team_member_events = interaction.values.includes('team_member_events');
 				persist.saveData(interaction.guild.id);
 
 				return interaction.reply({ content: 'Configuration has been updated!', ephemeral: true });

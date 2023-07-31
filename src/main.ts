@@ -306,21 +306,39 @@ async function main() {
 	// Listen for edited messages
 	client.on('messageUpdate', async (oldMessage, newMessage) => {
 		// Only responds to members
-		if (newMessage.member && !hasPermissionLevel(newMessage.member, PermissionLevel.TEAM_MEMBER) && newMessage.guild) {
-			if (persist.data(newMessage.guild.id).config.log.options.message_edits && await pluralkit.shouldLog(newMessage)) {
-				log.messageUpdated(client, newMessage.guild.id, oldMessage, newMessage);
-			}
-		}
+		if (!newMessage.guild || !newMessage.member)
+			return;
+
+		const data = persist.data(newMessage.guild.id);
+		if (!data.config.log.options.message_edits || !(await pluralkit.shouldLog(newMessage)))
+			return;
+
+		// Don't log moderator or team member events if disabled
+		if (hasPermissionLevel(newMessage.member, PermissionLevel.MODERATOR) && !data.config.log.options.moderator_events)
+			return;
+		if (data.config.roles.team_member && hasPermissionLevel(newMessage.member, PermissionLevel.TEAM_MEMBER) && !data.config.log.options.team_member_events)
+			return;
+
+		log.messageUpdated(client, newMessage.guild.id, oldMessage, newMessage);
 	});
 
 	// Listen for deleted messages
 	client.on('messageDelete', async message => {
 		// Only responds to members
-		if (message.member && !hasPermissionLevel(message.member, PermissionLevel.TEAM_MEMBER) && message.guild) {
-			if (persist.data(message.guild.id).config.log.options.message_deletes && await pluralkit.shouldLog(message)) {
-				log.messageDeleted(client, message.guild.id, message);
-			}
-		}
+		if (!message.guild || !message.member)
+			return;
+
+		const data = persist.data(message.guild.id);
+		if (!data.config.log.options.message_deletes || !(await pluralkit.shouldLog(message)))
+			return;
+
+		// Don't log moderator or team member events if disabled
+		if (hasPermissionLevel(message.member, PermissionLevel.MODERATOR) && !data.config.log.options.moderator_events)
+			return;
+		if (data.config.roles.team_member && hasPermissionLevel(message.member, PermissionLevel.TEAM_MEMBER) && !data.config.log.options.team_member_events)
+			return;
+
+		log.messageDeleted(client, message.guild.id, message);
 	});
 
 	// Listen for members joining

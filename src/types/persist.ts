@@ -16,7 +16,9 @@ export interface PersistentData {
 				user_joins_and_leaves: boolean,
 				user_boosts?: boolean | undefined,
 				message_deletes: boolean,
-				message_edits: boolean
+				message_edits: boolean,
+				moderator_events: boolean | undefined,
+				team_member_events: boolean | undefined,
 			},
 			channel: string,
 			public_channel?: string | undefined,

@@ -7,7 +7,6 @@
 	},
 	"config": {
 		"first_time_setup": false,
-		"enable_p2ce_commands": false,
 		"log": {
 			"options": {
 				"user_updates": true,
@@ -16,7 +15,9 @@
 				"user_joins_and_leaves": true,
 				"user_boosts": true,
 				"message_deletes": true,
-				"message_edits": true
+				"message_edits": true,
+				"moderator_events": false,
+				"team_member_events": false
 			},
 			"channel": "",
 			"public_channel": null,
