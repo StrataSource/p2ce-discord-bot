@@ -16,7 +16,7 @@ const KeyAppAdminRead: ContextMenu = {
 		if (!isSheetLoaded()) {
 			return interaction.reply({ content: 'Sheet has not finished loading, please try again later.', ephemeral: true });
 		}
-		return readUserApplication(interaction, interaction.options.getUser('user', true), true);
+		return readUserApplication(interaction, interaction.options.getUser('user', true), false);
 	}
 };
 export default KeyAppAdminRead;
