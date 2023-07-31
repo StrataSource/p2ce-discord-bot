@@ -140,7 +140,7 @@ export function userLeft(client: Client, guildID: string, member: GuildMember | 
 	message(client, guildID, 'USER', LogLevelColor.INFO, `<@${member.id}> (${formatUserRaw(member.user)}) left the server 😭`, undefined, member.avatarURL({ size: 1024 }));
 }
 
-export function messageDeleted(client: Client, guildID: string, msg: Message<boolean> | PartialMessage) {
+export function messageDeleted(client: Client, guildID: string, msg: Message | PartialMessage) {
 	if (msg.author?.bot || !msg.author?.username) return;
 
 	// Create an empty string, so we don't need to do several other message calls
@@ -159,7 +159,7 @@ export function messageDeleted(client: Client, guildID: string, msg: Message<boo
 	}
 }
 
-export function messageUpdated(client: Client, guildID: string, oldMessage: Message<boolean> | PartialMessage, newMessage: Message<boolean> | PartialMessage) {
+export function messageUpdated(client: Client, guildID: string, oldMessage: Message | PartialMessage, newMessage: Message | PartialMessage) {
 	if (oldMessage.author?.bot || !oldMessage.author?.username) return;
 	if (oldMessage.content !== newMessage.content) {
 		message(client, guildID, 'MESSAGE', LogLevelColor.INFO, `[A message](${newMessage.url}) from <@${newMessage.author?.id}> was edited in ${oldMessage.channel.toString()}.\n\nBefore:\n${oldMessage.content}\n\nAfter:\n${newMessage.content}`, undefined, newMessage.author?.avatarURL({ size: 1024 }));

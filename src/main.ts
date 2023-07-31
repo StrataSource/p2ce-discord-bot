@@ -33,10 +33,10 @@ async function main() {
 			IntentsBitField.Flags.Guilds,
 			IntentsBitField.Flags.GuildEmojisAndStickers,
 			IntentsBitField.Flags.GuildInvites,
-			IntentsBitField.Flags.GuildBans,
 			IntentsBitField.Flags.GuildMembers,
 			IntentsBitField.Flags.GuildMessages,
 			IntentsBitField.Flags.GuildMessageReactions,
+			IntentsBitField.Flags.GuildModeration,
 			IntentsBitField.Flags.MessageContent,
 		]),
 		partials: [
@@ -164,7 +164,7 @@ async function main() {
 			try {
 				if (interaction.isButton()) {
 					await client.callbacks.runButtonCallback(interaction.customId, interaction);
-				} else if (interaction.isSelectMenu()) {
+				} else if (interaction.isStringSelectMenu()) {
 					await client.callbacks.runSelectMenuCallback(interaction.customId, interaction);
 				}
 			} catch (err) {
@@ -267,14 +267,15 @@ async function main() {
 	client.on('userUpdate', async (oldUser, newUser) => {
 		for (const guild of (await client.guilds.fetch()).values()) {
 			const member = (await (await guild.fetch()).members.fetch()).get(newUser.id);
-			if (member) {
-				const data = persist.data(guild.id);
-				if (data.config.log.options.user_updates) {
-					log.userUpdate(client, guild.id, oldUser, newUser);
-				}
-				if (data.config.log.options.user_avatar_updates) {
-					log.userAvatarUpdate(client, guild.id, oldUser, newUser);
-				}
+			if (!member)
+				continue;
+
+			const data = persist.data(guild.id);
+			if (data.config.log.options.user_updates) {
+				log.userUpdate(client, guild.id, oldUser, newUser);
+			}
+			if (data.config.log.options.user_avatar_updates) {
+				log.userAvatarUpdate(client, guild.id, oldUser, newUser);
 			}
 		}
 	});

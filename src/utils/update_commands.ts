@@ -46,7 +46,7 @@ export async function updateCommands() {
 	for (const guild of (await client.guilds.fetch()).values()) {
 		const data = persist.data(guild.id);
 		let filteredCommands = guildCommands;
-		if (!data.config.enable_p2ce_commands) {
+		if (!config.p2ce_command_guilds.includes(guild.id)) {
 			filteredCommands = filteredCommands.filter(cmd => !Object.hasOwn(cmd, 'isP2CEOnly') || !cmd.isP2CEOnly);
 		}
 		if (!data.config.first_time_setup) {
@@ -82,7 +82,7 @@ export async function updateCommandsForGuild(guildID: string) {
 
 	const data = persist.data(guildID);
 	let filteredCommands = guildCommands;
-	if (!data.config.enable_p2ce_commands) {
+	if (!config.p2ce_command_guilds.includes(guildID)) {
 		filteredCommands = filteredCommands.filter(cmd => !Object.hasOwn(cmd, 'isP2CEOnly') || !cmd.isP2CEOnly);
 	}
 	if (!data.config.first_time_setup) {

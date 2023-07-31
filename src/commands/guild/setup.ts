@@ -28,10 +28,7 @@ const Setup: Command = {
 			.addChannelTypes(ChannelType.GuildText))
 		.addRoleOption(option => option
 			.setName('team_member_role')
-			.setDescription('The role that team members have. They can run a few more commands than regular guild members.'))
-		.addBooleanOption(option => option
-			.setName('p2ce_commands')
-			.setDescription('Register commands used on the P2CE Discord server.')),
+			.setDescription('The role that team members have. They can run a few more commands than regular guild members.')),
 
 	async execute(interaction: CommandInteraction) {
 		if (!interaction.isChatInputCommand()) return;
@@ -52,7 +49,6 @@ const Setup: Command = {
 		data.config.log.channel = interaction.options.getChannel('log_channel', true).id;
 		data.config.log.public_channel = interaction.options.getChannel('public_log_channel')?.id;
 		data.config.roles.team_member = interaction.options.getRole('team_member_role')?.id;
-		data.config.enable_p2ce_commands = interaction.options.getBoolean('p2ce_commands') ?? false;
 		data.config.first_time_setup = true;
 		persist.saveData(interaction.guild.id);
 

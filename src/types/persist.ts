@@ -8,7 +8,6 @@ export interface PersistentData {
 	},
 	config: {
 		first_time_setup: boolean,
-		enable_p2ce_commands: boolean,
 		log: {
 			options: {
 				user_updates: boolean,
