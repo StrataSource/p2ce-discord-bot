@@ -76,7 +76,7 @@ const StickyRole: Command = {
 		case 'remove': {
 			const role = interaction.options.getRole('role', true);
 
-			if (!data.stickyroles.roles.includes(role.id)) {
+			if (!(role.id in data.stickyroles)) {
 				return interaction.reply({ content: `${role} is not a stickyrole.`, ephemeral: true });
 			}
 
