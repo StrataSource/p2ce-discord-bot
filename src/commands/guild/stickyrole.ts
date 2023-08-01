@@ -19,6 +19,9 @@ const StickyRole: Command = {
 				.setDescription('The role to add to the stickyroles list')
 				.setRequired(true)))
 		.addSubcommand(subcommand => subcommand
+			.setName('refresh')
+			.setDescription('Debug command to refresh active stickyroles, in case the bot went offline recently.'))
+		.addSubcommand(subcommand => subcommand
 			.setName('list')
 			.setDescription('List all current roles in the stickyroles list.'))
 		.addSubcommand(subcommand => subcommand
@@ -42,21 +45,41 @@ const StickyRole: Command = {
 
 		switch (interaction.options.getSubcommand()) {
 		case 'add': {
+			await interaction.deferReply({ ephemeral: true });
+
 			const role = interaction.options.getRole('role', true);
 			if (role.id in data.stickyroles) {
 				return interaction.reply({ content: `${role} is already a stickyrole.`, ephemeral: true });
 			}
 
 			data.stickyroles[role.id] = [];
-			const members = (await interaction.guild.roles.fetch()).get(role.id)?.members.keys();
-			if (members) {
-				for (const member of members) {
-					data.stickyroles[role.id].push(member);
+			const members = await interaction.guild.members.fetch();
+			for (const [memberID, fakeMember] of members) {
+				const member = await fakeMember.fetch(true);
+				if (member.roles.cache.has(role.id) && !data.stickyroles[role.id].includes(memberID)) {
+					data.stickyroles[role.id].push(memberID);
 				}
 			}
 			persist.saveData(interaction.guild.id);
 
-			return interaction.reply({ content: `Added stickyrole ${role}`, ephemeral: true });
+			return interaction.editReply(`Added stickyrole ${role}`);
+		}
+
+		case 'refresh': {
+			await interaction.deferReply({ ephemeral: true });
+
+			const members = await interaction.guild.members.fetch();
+			for (const [memberID, fakeMember] of members) {
+				const member = await fakeMember.fetch(true);
+				for (const roleID of Object.keys(data.stickyroles)) {
+					if (member.roles.cache.has(roleID) && !data.stickyroles[roleID].includes(memberID)) {
+						data.stickyroles[roleID].push(memberID);
+					}
+				}
+			}
+			persist.saveData(interaction.guild.id);
+
+			return interaction.editReply('Refreshed all stickyroles!');
 		}
 
 		case 'list': {
