@@ -283,6 +283,22 @@ async function main() {
 	// Listen for guild member updates
 	client.on('guildMemberUpdate', async (oldMember, newMember) => {
 		const data = persist.data(newMember.guild.id);
+
+		// Check for stickyroles
+		for (const roleID of Object.keys(data.stickyroles)) {
+			const hadRole = oldMember.roles.cache.has(roleID);
+			const hasRole = newMember.roles.cache.has(roleID);
+			if (hadRole && !hasRole) {
+				// role was removed
+				data.stickyroles[roleID] = data.stickyroles[roleID].filter(memberID => memberID !== newMember.id);
+				persist.saveData(newMember.guild.id);
+			} else if (!hadRole && hasRole && !data.stickyroles[roleID].includes(newMember.id)) {
+				// role was added
+				data.stickyroles[roleID].push(newMember.id);
+				persist.saveData(newMember.guild.id);
+			}
+		}
+
 		if (data.config.log.options.user_boosts) {
 			log.userBoosted(client, newMember.guild.id, oldMember, newMember);
 		}
@@ -350,6 +366,13 @@ async function main() {
 		// Add autoroles
 		for (const roleID of data.autoroles) {
 			await member.roles.add(roleID);
+		}
+
+		// Add stickyroles
+		for (const [roleID, members] of Object.entries(data.stickyroles)) {
+			if (members.includes(member.id)) {
+				await member.roles.add(roleID);
+			}
 		}
 
 		if (data.config.log.options.user_joins_and_leaves) {

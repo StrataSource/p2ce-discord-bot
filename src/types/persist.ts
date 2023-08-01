@@ -61,4 +61,7 @@ export interface PersistentData {
 		joins: number,
 		leaves: number,
 	},
+	stickyroles: {
+		[role_id: string]: string[],
+	},
 }

@@ -37,5 +37,6 @@
 	"statistics": {
 		"joins": 0,
 		"leaves": 0
-	}
+	},
+	"stickyroles": {}
 }
