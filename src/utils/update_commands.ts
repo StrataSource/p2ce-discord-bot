@@ -42,7 +42,7 @@ export async function updateCommands() {
 	}
 
 	// Update commands for every guild
-	const rest = new REST({ version: '10' }).setToken(config.token);
+	const rest = new REST().setToken(config.token);
 	for (const guild of (await client.guilds.fetch()).values()) {
 		const data = persist.data(guild.id);
 		let filteredCommands = guildCommands;

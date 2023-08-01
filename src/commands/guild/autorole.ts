@@ -44,13 +44,13 @@ const AutoRole: Command = {
 		case 'add': {
 			const role = interaction.options.getRole('role', true);
 			if (data.autoroles.includes(role.id)) {
-				return interaction.reply({ content: `${role.toString()} is already an autorole.`, ephemeral: true });
+				return interaction.reply({ content: `${role} is already an autorole.`, ephemeral: true });
 			}
 
 			data.autoroles.push(role.id);
 			persist.saveData(interaction.guild.id);
 
-			return interaction.reply({ content: `Added autorole ${role.toString()}`, ephemeral: true });
+			return interaction.reply({ content: `Added autorole ${role}`, ephemeral: true });
 		}
 
 		case 'list': {
@@ -71,12 +71,12 @@ const AutoRole: Command = {
 			const role = interaction.options.getRole('role', true);
 
 			if (!data.autoroles.includes(role.id)) {
-				return interaction.reply({ content: `${role.toString()} is not an autorole.`, ephemeral: true });
+				return interaction.reply({ content: `${role} is not an autorole.`, ephemeral: true });
 			}
 			data.autoroles = data.autoroles.filter(roleID => roleID !== role.id);
 			persist.saveData(interaction.guild.id);
 
-			return interaction.reply({ content: `Removed autorole ${role.toString()}`, ephemeral: true });
+			return interaction.reply({ content: `Removed autorole ${role}`, ephemeral: true });
 		}
 
 		case 'clear': {
