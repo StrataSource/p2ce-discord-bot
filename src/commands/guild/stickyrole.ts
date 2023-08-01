@@ -56,7 +56,7 @@ const StickyRole: Command = {
 			const members = await interaction.guild.members.fetch();
 			for (const [memberID, fakeMember] of members) {
 				const member = await fakeMember.fetch(true);
-				if (member.roles.cache.has(role.id) && !data.stickyroles[role.id].includes(memberID)) {
+				if (member.roles.cache.has(role.id)) {
 					data.stickyroles[role.id].push(memberID);
 				}
 			}
