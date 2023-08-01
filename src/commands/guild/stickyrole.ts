@@ -61,7 +61,7 @@ const StickyRole: Command = {
 
 		case 'list': {
 			const out: string[] = [];
-			for (const roleID of data.stickyroles.roles) {
+			for (const roleID of Object.keys(data.stickyroles)) {
 				out.push(`- <@&${roleID}>`);
 			}
 			const desc = out.join('\n');
