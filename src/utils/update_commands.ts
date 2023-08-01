@@ -63,7 +63,7 @@ export async function updateCommands() {
 
 	const dateEnd = new Date();
 	log.writeToLog(undefined, `--- UPDATE COMMANDS FOR ALL GUILDS END AT ${dateEnd.toDateString()} ${dateEnd.getHours()}:${dateEnd.getMinutes()}:${dateEnd.getSeconds()} ---`);
-	client.destroy();
+	await client.destroy();
 }
 
 export async function updateCommandsForGuild(guildID: string) {

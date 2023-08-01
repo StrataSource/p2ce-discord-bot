@@ -371,10 +371,10 @@ async function main() {
 	// Log in
 	await client.login(config.token);
 
-	function shutdown() {
+	async function shutdown() {
 		const date = new Date();
 		log.writeToLog(undefined, `--- BOT END AT ${date.toDateString()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ---`);
-		client.destroy();
+		await client.destroy();
 		persist.saveAll();
 		process.exit();
 	}
