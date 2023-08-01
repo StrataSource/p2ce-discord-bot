@@ -83,7 +83,7 @@ const Responses: Command = {
 			for (const responseID of Object.keys(data.responses)) {
 				out.push(`- \`${responseID}\``);
 			}
-			const desc = out.join('\n\n');
+			const desc = out.join('\n');
 			const embed = new EmbedBuilder()
 				.setColor(LogLevelColor.INFO)
 				.setTitle('RESPONSES LIST')

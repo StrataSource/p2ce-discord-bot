@@ -88,7 +88,7 @@ const IssueRepos: Command = {
 			for (const [repoID, repo] of Object.entries(data.github_repos)) {
 				out.push(`- \`${repoID}\`: https://github.com/${repo.owner}/${repo.name}`);
 			}
-			const desc = out.join('\n\n');
+			const desc = out.join('\n');
 			const embed = new EmbedBuilder()
 				.setColor(LogLevelColor.INFO)
 				.setTitle('ISSUE REPOS LIST')

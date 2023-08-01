@@ -58,7 +58,7 @@ const AutoRole: Command = {
 			for (const roleID of data.autoroles) {
 				out.push(`- <@&${roleID}>`);
 			}
-			const desc = out.join('\n\n');
+			const desc = out.join('\n');
 			const embed = new EmbedBuilder()
 				.setColor(LogLevelColor.INFO)
 				.setTitle('AUTOROLE LIST')

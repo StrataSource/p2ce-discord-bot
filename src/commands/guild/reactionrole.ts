@@ -105,7 +105,7 @@ const ReactionRole: Command = {
 				}
 				out.push(`https://discord.com/channels/${interaction.guild.id}/${reactElement.channel}/${message}\n${emojis.join(' ')}`);
 			}
-			const desc = out.join('\n\n');
+			const desc = out.join('\n');
 			const embed = new EmbedBuilder()
 				.setColor(LogLevelColor.INFO)
 				.setTitle('REACTION ROLE MESSAGES')

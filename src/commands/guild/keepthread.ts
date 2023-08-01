@@ -56,11 +56,11 @@ const KeepThread: Command = {
 		}
 
 		case 'list': {
-			let desc = '';
+			const out: string[] = [];
 			for (const id of data.watched_threads) {
-				desc += `- <#${id}>\n`;
+				out.push(`- <#${id}>`);
 			}
-
+			const desc = out.join('\n');
 			const embed = new EmbedBuilder()
 				.setColor(LogLevelColor.INFO)
 				.setTitle('KEPT THREADS')
