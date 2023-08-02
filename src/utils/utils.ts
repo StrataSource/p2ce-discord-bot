@@ -1,5 +1,8 @@
-import { Channel, Guild, GuildChannel, GuildPremiumTier, PartialUser, User } from 'discord.js';
+import { AttachmentBuilder, Channel, Guild, GuildChannel, GuildMember, GuildPremiumTier, PartialGuildMember, PartialUser, User } from 'discord.js';
 import { Stream } from 'stream';
+import fetch from 'node-fetch';
+
+export type AvatarSize = 16 | 32 | 64 | 128 | 256 | 512 | 1024 | 2048 | 4096;
 
 export function getUploadLimitForGuild(guild: Guild) {
 	switch (guild.premiumTier) {
@@ -17,6 +20,16 @@ export function getUploadLimitForChannel(channel: Channel) {
 		return getUploadLimitForGuild(channel.guild);
 	}
 	return 8;
+}
+
+export async function getUserOrMemberAvatarAttachment(user: User | PartialUser | GuildMember | PartialGuildMember, size: AvatarSize = 1024, name = 'avatar'): Promise<[AttachmentBuilder, string]> {
+	const avatar = await fetch(user.displayAvatarURL({ size: size }));
+	const buffer = await avatar.buffer();
+	return [
+		new AttachmentBuilder(buffer)
+			.setName(`${name}.webp`),
+		`attachment://${name}.webp`,
+	];
 }
 
 // Example usage: `${formatUserRaw(1234567890)} is dum` -> "username#discriminator is dum"
@@ -43,7 +56,8 @@ export function escapeSpecialCharacters(raw: string) {
 		.replaceAll('`', '\\`')   // code
 		.replaceAll('~', '\\~')   // strikethrough
 		.replaceAll('>', '\\>')   // block quote
-		.replaceAll('|', '\\|');  // spoiler
+		.replaceAll('|', '\\|')   // spoiler
+		.replaceAll('-', '\\-');  // list
 }
 
 export async function streamToBuffer(stream: Stream) {
