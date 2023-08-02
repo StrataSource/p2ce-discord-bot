@@ -18,14 +18,19 @@ import consoleStamp from 'console-stamp';
 consoleStamp(console);
 
 async function main() {
+	// Important: need to make sure this dir exists for logging!
+	if (!fs.existsSync('./log')) {
+		fs.mkdirSync('./log');
+	}
+
 	// You need a token, duh
 	if (!config.token) {
-		log.writeToLog(undefined, 'Error: no token found in config.json!');
+		log.writeToLog(undefined, 'Error: no token found in config.json!', true);
 		return;
 	}
 
 	const date = new Date();
-	log.writeToLog(undefined, `--- BOT START AT ${date.toDateString()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ---`);
+	log.writeToLog(undefined, `--- BOT START AT ${date.toDateString()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ---`, true);
 
 	// Create client
 	const client = new MoralityCoreClient({
@@ -75,13 +80,13 @@ async function main() {
 	// Run this when the client is ready
 	client.on('ready', async () => {
 		if (!client.user) {
-			log.writeToLog(undefined, 'Client user is missing? Very strange, investigate!');
+			log.writeToLog(undefined, 'Client user is missing? Very strange, investigate!', true);
 			return;
 		}
 		const activityString = `${(await client.guilds.fetch()).size} servers`;
 		client.user.setActivity(activityString, { type: ActivityType.Watching });
 		setTimeout(() => client.user?.setActivity(activityString, { type: ActivityType.Watching }), 30e3);
-		log.writeToLog(undefined, `Logged in as ${client.user.tag}`);
+		log.writeToLog(undefined, `Logged in as ${client.user.tag}`, true);
 	});
 
 	// Listen for errors
@@ -98,12 +103,12 @@ async function main() {
 	client.on('guildCreate', async guild => {
 		await updateCommandsForGuild(guild.id);
 
-		log.writeToLog(guild.id, `Joined guild ${guild.id}`);
+		log.writeToLog(guild.id, `Joined guild ${guild.id}`, true);
 	});
 
 	// Listen for left guilds
 	client.on('guildDelete', async guild => {
-		log.writeToLog(undefined, `Left guild ${guild.id}`);
+		log.writeToLog(undefined, `Left guild ${guild.id}`, true);
 	});
 
 	// Listen for commands
@@ -145,7 +150,7 @@ async function main() {
 			try {
 				await command.execute(interaction, client.callbacks);
 			} catch (err) {
-				log.writeToLog(undefined, (err as Error).toString());
+				log.writeToLog(undefined, (err as Error).toString(), true);
 				if (interaction.deferred) {
 					await interaction.followUp(`There was an error while executing this command: ${err}`);
 				} else {
@@ -168,7 +173,7 @@ async function main() {
 					await client.callbacks.runSelectMenuCallback(interaction.customId, interaction);
 				}
 			} catch (err) {
-				log.writeToLog(undefined, (err as Error).toString());
+				log.writeToLog(undefined, (err as Error).toString(), true);
 				if (interaction.deferred) {
 					await interaction.followUp(`There was an error while pressing this button: ${err}`);
 				} else {
@@ -212,7 +217,7 @@ async function main() {
 			try {
 				await reaction.fetch();
 			} catch (err) {
-				log.writeToLog(undefined, (err as Error).toString());
+				log.writeToLog(undefined, (err as Error).toString(), true);
 			}
 		}
 
@@ -272,10 +277,10 @@ async function main() {
 
 			const data = persist.data(guild.id);
 			if (data.config.log.options.user_updates) {
-				log.userUpdate(client, guild.id, oldUser, newUser);
+				await log.userUpdate(client, guild.id, oldUser, newUser);
 			}
 			if (data.config.log.options.user_avatar_updates) {
-				log.userAvatarUpdate(client, guild.id, oldUser, newUser);
+				await log.userAvatarUpdate(client, guild.id, oldUser, newUser);
 			}
 		}
 	});
@@ -300,14 +305,14 @@ async function main() {
 		}
 
 		if (data.config.log.options.user_boosts) {
-			log.userBoosted(client, newMember.guild.id, oldMember, newMember);
+			await log.userBoosted(client, newMember.guild.id, oldMember, newMember);
 		}
 	});
 
 	// Listen for banned members
 	client.on('guildBanAdd', async ban => {
 		if (persist.data(ban.guild.id).config.log.options.user_bans) {
-			log.userBanned(client, ban.guild.id, ban);
+			await log.userBanned(client, ban.guild.id, ban);
 		}
 	});
 
@@ -335,7 +340,7 @@ async function main() {
 		if (data.config.roles.team_member && hasPermissionLevel(newMessage.member, PermissionLevel.TEAM_MEMBER) && !data.config.log.options.team_member_events)
 			return;
 
-		log.messageUpdated(client, newMessage.guild.id, oldMessage, newMessage);
+		await log.messageUpdated(client, newMessage.guild.id, oldMessage, newMessage);
 	});
 
 	// Listen for deleted messages
@@ -354,7 +359,7 @@ async function main() {
 		if (data.config.roles.team_member && hasPermissionLevel(message.member, PermissionLevel.TEAM_MEMBER) && !data.config.log.options.team_member_events)
 			return;
 
-		log.messageDeleted(client, message.guild.id, message);
+		await log.messageDeleted(client, message.guild.id, message);
 	});
 
 	// Listen for members joining
@@ -376,7 +381,7 @@ async function main() {
 		}
 
 		if (data.config.log.options.user_joins_and_leaves) {
-			log.userJoined(client, member.guild.id, member);
+			await log.userJoined(client, member.guild.id, member);
 		}
 	});
 
@@ -387,7 +392,7 @@ async function main() {
 		persist.saveData(member.guild.id);
 
 		if (data.config.log.options.user_joins_and_leaves) {
-			log.userLeft(client, member.guild.id, member);
+			await log.userLeft(client, member.guild.id, member);
 		}
 	});
 
@@ -396,7 +401,7 @@ async function main() {
 
 	async function shutdown() {
 		const date = new Date();
-		log.writeToLog(undefined, `--- BOT END AT ${date.toDateString()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ---`);
+		log.writeToLog(undefined, `--- BOT END AT ${date.toDateString()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ---`, true);
 		await client.destroy();
 		persist.saveAll();
 		process.exit();
@@ -411,7 +416,7 @@ async function main() {
 if (process.argv.includes('--update-commands')) {
 	updateCommands();
 } else if (process.argv.includes('--stop')) {
-	log.writeToLog(undefined, '--stop called but it is unimplemented!');
+	log.writeToLog(undefined, '--stop called but it is unimplemented!', true);
 	//ipc.send('stop');
 } else {
 	main();

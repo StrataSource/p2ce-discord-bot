@@ -10,12 +10,12 @@ import * as persist from './persist';
 export async function updateCommands() {
 	// You need a token, duh
 	if (!config.token) {
-		log.writeToLog(undefined, 'Error updating commands: no token found in config.json!');
+		log.writeToLog(undefined, 'Error updating commands: no token found in config.json!', true);
 		return;
 	}
 
 	const dateStart = new Date();
-	log.writeToLog(undefined, `--- UPDATE COMMANDS FOR ALL GUILDS START AT ${dateStart.toDateString()} ${dateStart.getHours()}:${dateStart.getMinutes()}:${dateStart.getSeconds()} ---`);
+	log.writeToLog(undefined, `--- UPDATE COMMANDS FOR ALL GUILDS START AT ${dateStart.toDateString()} ${dateStart.getHours()}:${dateStart.getMinutes()}:${dateStart.getSeconds()} ---`, true);
 
 	const client = new Client({
 		intents: [
@@ -54,15 +54,15 @@ export async function updateCommands() {
 		}
 		filteredCommands = filteredCommands.map(cmd => cmd.data.toJSON());
 		await rest.put(Routes.applicationGuildCommands(config.client_id, guild.id), { body: filteredCommands });
-		log.writeToLog(undefined, `Registered ${filteredCommands.length} guild commands for ${guild.id}`);
+		log.writeToLog(undefined, `Registered ${filteredCommands.length} guild commands for ${guild.id}`, true);
 	}
 
 	// And register global commands
 	await rest.put(Routes.applicationCommands(config.client_id), { body: globalCommands.map(cmd => cmd.data.toJSON()) });
-	log.writeToLog(undefined, `Registered ${globalCommands.length} global commands`);
+	log.writeToLog(undefined, `Registered ${globalCommands.length} global commands`, true);
 
 	const dateEnd = new Date();
-	log.writeToLog(undefined, `--- UPDATE COMMANDS FOR ALL GUILDS END AT ${dateEnd.toDateString()} ${dateEnd.getHours()}:${dateEnd.getMinutes()}:${dateEnd.getSeconds()} ---`);
+	log.writeToLog(undefined, `--- UPDATE COMMANDS FOR ALL GUILDS END AT ${dateEnd.toDateString()} ${dateEnd.getHours()}:${dateEnd.getMinutes()}:${dateEnd.getSeconds()} ---`, true);
 	await client.destroy();
 }
 
@@ -93,5 +93,5 @@ export async function updateCommandsForGuild(guildID: string) {
 	// Update commands for this guild
 	const rest = new REST({ version: '10' }).setToken(config.token);
 	await rest.put(Routes.applicationGuildCommands(config.client_id, guildID), { body: filteredCommands });
-	log.writeToLog(undefined, `Registered ${filteredCommands.length} guild commands for ${guildID}`);
+	log.writeToLog(undefined, `Registered ${filteredCommands.length} guild commands for ${guildID}`, true);
 }

@@ -220,7 +220,7 @@ const Issue: Command = {
 				try {
 					return interaction.editReply({ embeds: [newEmbed], components: [buttons] });
 				} catch (err) {
-					writeToLog(undefined, (err as Error).toString());
+					writeToLog(undefined, (err as Error).toString(), true);
 				}
 			};
 			callbacks.addButtonCallback('issue_search_skipback', onButtonPressed);

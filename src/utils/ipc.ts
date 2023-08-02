@@ -29,7 +29,7 @@ export async function listen() {
 	const server = new Server();
 	server.on('connection', connection => {
 		connection.on('data', data => {
-			writeToLog(undefined, `Received command '${data.toString()}'!`);
+			writeToLog(undefined, `Received command '${data.toString()}'!`, true);
 			requestHandlers.get(data.toString())?.();
 		});
 	});
