@@ -8,8 +8,8 @@ import { formatDate } from '../../utils/utils';
 import * as config from '../../config.json';
 
 // I don't care if this gets flushed when the bot restarts
-const USER_DB_CHECK = new Collection<string, number>();
-const USER_DB_READ = new Collection<string, number>();
+export const KEYAPP_USER_DB_CHECK = new Collection<string, number>();
+export const KEYAPP_USER_DB_READ = new Collection<string, number>();
 
 const KeyApp: Command = {
 	permissionLevel: PermissionLevel.EVERYONE,
@@ -36,31 +36,31 @@ const KeyApp: Command = {
 		// If not present, add user to list
 		switch (interaction.options.getSubcommand()) {
 		case 'check': {
-			if (USER_DB_CHECK.has(interaction.user.id) && (USER_DB_CHECK.get(interaction.user.id) ?? 0) > Date.now()) {
-				return interaction.reply({ content: `You have already checked the status of your application recently. Please check again <t:${formatDate(USER_DB_CHECK.get(interaction.user.id) ?? 0)}:R>.`, ephemeral: true});
+			if (KEYAPP_USER_DB_CHECK.has(interaction.user.id) && (KEYAPP_USER_DB_CHECK.get(interaction.user.id) ?? 0) > Date.now()) {
+				return interaction.reply({ content: `You have already checked the status of your application recently. Please check again <t:${formatDate(KEYAPP_USER_DB_CHECK.get(interaction.user.id) ?? 0)}:R>.`, ephemeral: true});
 			} else {
-				USER_DB_CHECK.set(interaction.user.id, Date.now() + (1000 * 60 * 60 * config.keyapp.hours_to_wait));
+				KEYAPP_USER_DB_CHECK.set(interaction.user.id, Date.now() + (1000 * 60 * 60 * config.keyapp.hours_to_wait));
 			}
 
 			try {
 				return checkUserKeyStatus(interaction, interaction.user, true);
 			} catch (ignored) {
-				USER_DB_CHECK.delete(interaction.user.id);
+				KEYAPP_USER_DB_CHECK.delete(interaction.user.id);
 				return interaction.followUp({ content: 'There was an error checking your application. Please try again.', ephemeral: true });
 			}
 		}
 
 		case 'read': {
-			if (USER_DB_READ.has(interaction.user.id) && (USER_DB_READ.get(interaction.user.id) ?? 0) > Date.now()) {
-				return interaction.reply({ content: `You have already read your application recently. Please check again <t:${formatDate(USER_DB_READ.get(interaction.user.id) ?? 0)}:R>.`, ephemeral: true});
+			if (KEYAPP_USER_DB_READ.has(interaction.user.id) && (KEYAPP_USER_DB_READ.get(interaction.user.id) ?? 0) > Date.now()) {
+				return interaction.reply({ content: `You have already read your application recently. Please check again <t:${formatDate(KEYAPP_USER_DB_READ.get(interaction.user.id) ?? 0)}:R>.`, ephemeral: true});
 			} else {
-				USER_DB_READ.set(interaction.user.id, Date.now() + (1000 * 60 * 60 * config.keyapp.hours_to_wait));
+				KEYAPP_USER_DB_READ.set(interaction.user.id, Date.now() + (1000 * 60 * 60 * config.keyapp.hours_to_wait));
 			}
 
 			try {
 				return readUserApplication(interaction, interaction.user, true);
 			} catch (ignored) {
-				USER_DB_READ.delete(interaction.user.id);
+				KEYAPP_USER_DB_READ.delete(interaction.user.id);
 				return interaction.followUp({ content: 'There was an error reading your application. Please try again.', ephemeral: true });
 			}
 		}

@@ -4,6 +4,8 @@ import { PermissionLevel } from '../../utils/permissions';
 import { isSheetLoaded } from '../../utils/sheet';
 import { checkUserKeyStatus, readUserApplication } from '../shared/keyapp';
 
+import { KEYAPP_USER_DB_CHECK, KEYAPP_USER_DB_READ } from './keyapp';
+
 const KeyAppAdmin: Command = {
 	permissionLevel: PermissionLevel.TEAM_MEMBER,
 	isP2CEOnly: true,
@@ -24,6 +26,13 @@ const KeyAppAdmin: Command = {
 			.addUserOption(option => option
 				.setName('user')
 				.setDescription('The user to read the application of')
+				.setRequired(true)))
+		.addSubcommand(subcommand => subcommand
+			.setName('reset')
+			.setDescription('Reset the cooldown timers for a given user.')
+			.addUserOption(option => option
+				.setName('user')
+				.setDescription('The user to remove the cooldown from')
 				.setRequired(true))),
 
 	async execute(interaction: CommandInteraction) {
@@ -56,6 +65,15 @@ const KeyAppAdmin: Command = {
 				}
 				return interaction.reply({ 'content': `Encountered an error loading spreadsheet, please try again later. (Error: \`${e}\`)`, ephemeral: true });
 			}
+		}
+
+		case 'reset': {
+			const user = interaction.options.getUser('user', true);
+
+			KEYAPP_USER_DB_CHECK.delete(user.id);
+			KEYAPP_USER_DB_READ.delete(user.id);
+
+			return interaction.reply({ 'content': `Cleared keyapp timeout for user ${user}.`, ephemeral: true });
 		}
 		}
 	}
