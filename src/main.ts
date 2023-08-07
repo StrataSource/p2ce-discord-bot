@@ -6,6 +6,7 @@ import { Callbacks, MoralityCoreClient } from './types/client';
 import { Command, ContextMenu } from './types/interaction';
 import { hasPermissionLevel, PermissionLevel } from './utils/permissions';
 import { updateCommands, updateCommandsForGuild } from './utils/update_commands';
+import { formatUserRaw } from './utils/utils';
 
 import * as config from './config.json';
 import * as log from './utils/log';
@@ -142,9 +143,9 @@ async function main() {
 			}
 
 			if (interaction.isContextMenuCommand()) {
-				log.writeToLog(interaction.guild?.id, `Context menu "${interaction.commandName}" clicked by ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`);
+				log.writeToLog(interaction.guild?.id, `Context menu "${interaction.commandName}" clicked by ${formatUserRaw(interaction.user)} (${interaction.user.id})`);
 			} else {
-				log.writeToLog(interaction.guild?.id, `Command "${interaction.commandName}" ran by ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`);
+				log.writeToLog(interaction.guild?.id, `Command "${interaction.commandName}" ran by ${formatUserRaw(interaction.user)} (${interaction.user.id})`);
 			}
 
 			try {
@@ -159,12 +160,12 @@ async function main() {
 				return;
 			}
 		} else if (interaction.isButton() || interaction.isStringSelectMenu()) {
-			if (interaction.user !== interaction.message.interaction?.user) {
-				await interaction.reply({ content: `You cannot touch someone else's buttons! These buttons are owned by ${interaction.message.interaction?.user}`, ephemeral: true });
+			if (interaction.message.interaction && interaction.user !== interaction.message.interaction.user) {
+				await interaction.reply({ content: `You cannot touch someone else's buttons! These buttons are owned by ${interaction.message.interaction.user}`, ephemeral: true });
 				return;
 			}
 
-			log.writeToLog(interaction.guild?.id, `Action row item with ID "${interaction.customId}" clicked by ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`);
+			log.writeToLog(interaction.guild?.id, `Action row item with ID "${interaction.customId}" clicked by ${formatUserRaw(interaction.user)} (${interaction.user.id})`);
 
 			try {
 				if (interaction.isButton()) {
