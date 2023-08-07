@@ -84,9 +84,13 @@ async function main() {
 			log.writeToLog(undefined, 'Client user is missing? Very strange, investigate!', true);
 			return;
 		}
-		const activityString = `${(await client.guilds.fetch()).size} servers`;
-		client.user.setActivity(activityString, { type: ActivityType.Watching });
-		setTimeout(() => client.user?.setActivity(activityString, { type: ActivityType.Watching }), 30e3);
+
+		const statusSetter = () => {
+			client.user?.setActivity(`${client.guilds.cache.size} servers`, { type: ActivityType.Watching });
+		};
+		statusSetter();
+		setInterval(statusSetter, 120e3);
+
 		log.writeToLog(undefined, `Logged in as ${client.user.tag}`, true);
 	});
 
