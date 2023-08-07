@@ -34,15 +34,15 @@ export class Callbacks {
 		}
 	}
 
-	runButtonCallback(buttonID: string, interaction: ButtonInteraction) {
+	async runButtonCallback(buttonID: string, interaction: ButtonInteraction) {
 		return this.#buttonCallbacks.get(buttonID)?.(interaction);
 	}
 
-	runSelectMenuCallback(menuID: string, interaction: StringSelectMenuInteraction) {
+	async runSelectMenuCallback(menuID: string, interaction: StringSelectMenuInteraction) {
 		return this.#menuCallbacks.get(menuID)?.(interaction);
 	}
 
-	runModalCallback(modalID: string, interaction: ModalSubmitInteraction) {
+	async runModalCallback(modalID: string, interaction: ModalSubmitInteraction) {
 		return this.#modalCallbacks.get(modalID)?.(interaction);
 	}
 

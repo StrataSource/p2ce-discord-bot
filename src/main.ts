@@ -182,6 +182,18 @@ async function main() {
 				}
 				return;
 			}
+		} else if (interaction.isModalSubmit()) {
+			try {
+				await client.callbacks.runModalCallback(interaction.customId, interaction);
+			} catch (err) {
+				log.writeToLog(undefined, (err as Error).toString(), true);
+				if (interaction.deferred) {
+					await interaction.followUp(`There was an error while submitting this modal: ${err}`);
+				} else {
+					await interaction.reply(`There was an error while submitting this modal: ${err}`);
+				}
+				return;
+			}
 		} else if (interaction.isAutocomplete()) {
 			const command = client.commands?.get(interaction.commandName);
 			if (!command) {
