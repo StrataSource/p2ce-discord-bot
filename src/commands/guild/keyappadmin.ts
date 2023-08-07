@@ -37,11 +37,25 @@ const KeyAppAdmin: Command = {
 		// If not present, add user to list
 		switch (interaction.options.getSubcommand()) {
 		case 'check': {
-			return checkUserKeyStatus(interaction, interaction.options.getUser('user', true), false);
+			try {
+				return checkUserKeyStatus(interaction, interaction.options.getUser('user', true), false);
+			} catch (e) {
+				if (interaction.deferred) {
+					return interaction.editReply('Encountered an error loading spreadsheet, please try again later.');
+				}
+				return interaction.reply({ 'content': 'Encountered an error loading spreadsheet, please try again later.', ephemeral: true });
+			}
 		}
 
 		case 'read': {
-			return readUserApplication(interaction, interaction.options.getUser('user', true), false);
+			try {
+				return readUserApplication(interaction, interaction.options.getUser('user', true), false);
+			} catch (e) {
+				if (interaction.deferred) {
+					return interaction.editReply(`Encountered an error loading spreadsheet, please try again later. (Error: \`${e}\`)`);
+				}
+				return interaction.reply({ 'content': `Encountered an error loading spreadsheet, please try again later. (Error: \`${e}\`)`, ephemeral: true });
+			}
 		}
 		}
 	}

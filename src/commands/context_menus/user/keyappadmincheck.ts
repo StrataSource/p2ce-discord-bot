@@ -16,7 +16,14 @@ const KeyAppAdminCheck: ContextMenu = {
 		if (!isSheetLoaded()) {
 			return interaction.reply({ content: 'Sheet has not finished loading, please try again later.', ephemeral: true });
 		}
-		return checkUserKeyStatus(interaction, interaction.options.getUser('user', true), false);
+		try {
+			return checkUserKeyStatus(interaction, interaction.options.getUser('user', true), false);
+		} catch (e) {
+			if (interaction.deferred) {
+				return interaction.editReply('Encountered an error loading spreadsheet, please try again later.');
+			}
+			return interaction.reply({ 'content': 'Encountered an error loading spreadsheet, please try again later.', ephemeral: true });
+		}
 	}
 };
 export default KeyAppAdminCheck;
