@@ -17,7 +17,7 @@ const Info: Command = {
 		.setDescription('Responds with information about the bot.'),
 
 	async execute(interaction: CommandInteraction) {
-		const username = interaction.client.user?.username ?? 'Morality Core';
+		const username = interaction.client.user.displayName;
 
 		const embed = new EmbedBuilder()
 			.setAuthor({

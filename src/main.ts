@@ -103,7 +103,7 @@ async function main() {
 	client.on('guildCreate', async guild => {
 		await updateCommandsForGuild(guild.id);
 
-		log.writeToLog(guild.id, `Joined guild ${guild.id}`, true);
+		log.writeToLog(undefined, `Joined guild ${guild.id}`, true);
 	});
 
 	// Listen for left guilds

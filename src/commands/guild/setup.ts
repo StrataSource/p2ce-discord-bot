@@ -13,6 +13,7 @@ const Setup: Command = {
 	data: new SlashCommandBuilder()
 		.setName('setup')
 		.setDescription('Set necessary configuration options for this guild.')
+		.setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
 		.addRoleOption(option => option
 			.setName('moderator_role')
 			.setDescription('The role that moderators have.')
