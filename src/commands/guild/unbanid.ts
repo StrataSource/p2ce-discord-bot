@@ -1,6 +1,7 @@
 import { CommandInteraction, SlashCommandBuilder } from 'discord.js';
 import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';
+import { formatUserRaw } from '../../utils/utils';
 
 const UnBanID: Command = {
 	permissionLevel: PermissionLevel.MODERATOR,
@@ -22,9 +23,9 @@ const UnBanID: Command = {
 		const id = interaction.options.getString('id', true);
 
 		const user = await interaction.client.users.fetch(id);
-		await interaction.guild.bans.remove(user);
+		await interaction.guild.members.unban(user);
 
-		return interaction.reply({ content: `Unbanned user with ID ${id}`, ephemeral: true });
+		return interaction.reply({ content: `Unbanned user ${user} (${formatUserRaw(user)}) with ID ${id}`, ephemeral: true });
 	}
 };
 export default UnBanID;
