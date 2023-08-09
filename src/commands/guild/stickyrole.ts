@@ -23,7 +23,10 @@ const StickyRole: Command = {
 			.setDescription('Debug command to refresh active stickyroles, in case the bot went offline recently.'))
 		.addSubcommand(subcommand => subcommand
 			.setName('list')
-			.setDescription('List all current roles in the stickyroles list.'))
+			.setDescription('List all current roles in the stickyroles list.')
+			.addBooleanOption(option => option
+				.setName('ephemeral')
+				.setDescription('If the reply is ephemeral or not, defaults to false')))
 		.addSubcommand(subcommand => subcommand
 			.setName('remove')
 			.setDescription('Remove a role from the stickyroles list.')
@@ -93,7 +96,7 @@ const StickyRole: Command = {
 				.setTitle('STICKYROLE LIST')
 				.setDescription(desc.length > 0 ? desc : 'There are no stickyroles currently configured.');
 
-			return interaction.reply({ embeds: [embed] });
+			return interaction.reply({ embeds: [embed], ephemeral: interaction.options.getBoolean('ephemeral', false) ?? false });
 		}
 
 		case 'remove': {

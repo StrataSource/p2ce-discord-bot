@@ -9,9 +9,13 @@ const ServerInfo: Command = {
 
 	data: new SlashCommandBuilder()
 		.setName('serverinfo')
-		.setDescription('Get information about the current server.'),
+		.setDescription('Get information about the current server.')
+		.addBooleanOption(option => option
+			.setName('ephemeral')
+			.setDescription('If the reply is ephemeral or not, defaults to false')),
 
 	async execute(interaction: CommandInteraction) {
+		if (!interaction.isChatInputCommand()) return;
 		if (!interaction.inGuild() || !interaction.guild) {
 			return interaction.reply({ content: 'This command must be ran in a guild.', ephemeral: true });
 		}
@@ -39,7 +43,7 @@ const ServerInfo: Command = {
 				{ name: 'Channels', value: `${channelCount}`, inline: true },
 				{ name: 'Roles', value: `${roleCount}`, inline: true })
 			.setTimestamp();
-		return interaction.reply({ embeds: [embed] });
+		return interaction.reply({ embeds: [embed], ephemeral: interaction.options.getBoolean('ephemeral', false) ?? false });
 	}
 };
 export default ServerInfo;

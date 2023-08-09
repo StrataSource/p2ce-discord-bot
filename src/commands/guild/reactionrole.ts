@@ -28,7 +28,10 @@ const ReactionRole: Command = {
 				.setRequired(true)))
 		.addSubcommand(subcommand => subcommand
 			.setName('list')
-			.setDescription('List all current reaction role messages.'))
+			.setDescription('List all current reaction role messages.')
+			.addBooleanOption(option => option
+				.setName('ephemeral')
+				.setDescription('If the reply is ephemeral or not, defaults to false')))
 		.addSubcommand(subcommand => subcommand
 			.setName('remove')
 			.setDescription('Remove all reaction roles from the given message.')
@@ -111,7 +114,7 @@ const ReactionRole: Command = {
 				.setTitle('REACTION ROLE MESSAGES')
 				.setDescription(desc.length > 0 ? desc : 'There are no reaction role messages currently.');
 
-			return interaction.reply({ embeds: [embed] });
+			return interaction.reply({ embeds: [embed], ephemeral: interaction.options.getBoolean('ephemeral', false) ?? false });
 		}
 
 		case 'remove': {

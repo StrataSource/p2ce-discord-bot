@@ -21,7 +21,10 @@ const KeepThread: Command = {
 				.setRequired(true)))
 		.addSubcommand(subcommand => subcommand
 			.setName('list')
-			.setDescription('List all threads currently kept open.'))
+			.setDescription('List all threads currently kept open.')
+			.addBooleanOption(option => option
+				.setName('ephemeral')
+				.setDescription('If the reply is ephemeral or not, defaults to false')))
 		.addSubcommand(subcommand => subcommand
 			.setName('remove')
 			.setDescription('Stop keeping a thread open.')
@@ -66,7 +69,7 @@ const KeepThread: Command = {
 				.setTitle('KEPT THREADS')
 				.setDescription(desc.length > 0 ? desc : 'There are no watched threads currently.');
 
-			return interaction.reply({ embeds: [embed] });
+			return interaction.reply({ embeds: [embed], ephemeral: interaction.options.getBoolean('ephemeral', false) ?? false });
 		}
 
 		case 'remove': {

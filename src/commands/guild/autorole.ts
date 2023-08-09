@@ -20,7 +20,10 @@ const AutoRole: Command = {
 				.setRequired(true)))
 		.addSubcommand(subcommand => subcommand
 			.setName('list')
-			.setDescription('List all current roles in the autoroles list.'))
+			.setDescription('List all current roles in the autoroles list.')
+			.addBooleanOption(option => option
+				.setName('ephemeral')
+				.setDescription('If the reply is ephemeral or not, defaults to false')))
 		.addSubcommand(subcommand => subcommand
 			.setName('remove')
 			.setDescription('Remove a role from the autoroles list.')
@@ -64,7 +67,7 @@ const AutoRole: Command = {
 				.setTitle('AUTOROLE LIST')
 				.setDescription(desc.length > 0 ? desc : 'There are no autoroles currently configured.');
 
-			return interaction.reply({ embeds: [embed] });
+			return interaction.reply({ embeds: [embed], ephemeral: interaction.options.getBoolean('ephemeral', false) ?? false });
 		}
 
 		case 'remove': {

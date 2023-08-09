@@ -30,7 +30,10 @@ const IssueRepos: Command = {
 				.setRequired(true)))
 		.addSubcommand(subcommand => subcommand
 			.setName('list')
-			.setDescription('List all registered GitHub repositories.'))
+			.setDescription('List all registered GitHub repositories.')
+			.addBooleanOption(option => option
+				.setName('ephemeral')
+				.setDescription('If the reply is ephemeral or not, defaults to false')))
 		.addSubcommand(subcommand => subcommand
 			.setName('remove')
 			.setDescription('Remove a registered GitHub repository.')
@@ -94,7 +97,7 @@ const IssueRepos: Command = {
 				.setTitle('ISSUE REPOS LIST')
 				.setDescription(desc.length > 0 ? desc : 'There are no GitHub repositories currently.');
 
-			return interaction.reply({ embeds: [embed] });
+			return interaction.reply({ embeds: [embed], ephemeral: interaction.options.getBoolean('ephemeral', false) ?? false });
 		}
 
 		case 'remove': {
