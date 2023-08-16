@@ -50,7 +50,7 @@ export async function checkUserKeyStatus(interaction: CommandInteraction, user: 
 	let row = -1;
 	for (let i = 2; i < sheet.rowCount; i++) {
 		const cell = await getCell(`B${i}`, reloadRange);
-		if (name === cell.value) {
+		if ((typeof cell.value === 'string') && (name.toLowerCase() === cell.value.toLowerCase())) {
 			row = i;
 		}
 	}
