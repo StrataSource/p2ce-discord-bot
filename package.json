@@ -1,6 +1,6 @@
 {
 	"name": "p2ce-discord-bot",
-	"version": "2.3.2",
+	"version": "2.3.3",
 	"engines": {
 		"node": ">=18.0.0"
 	},
@@ -30,8 +30,8 @@
 		"adm-zip": "^0.5.10",
 		"canvas": "^2.11.2",
 		"console-stamp": "^3.1.1",
-		"discord-api-types": "^0.37.51",
-		"discord.js": "^14.12.1",
+		"discord-api-types": "^0.37.54",
+		"discord.js": "^14.13.0",
 		"gif-encoder": "^0.7.2",
 		"gifuct-js": "^2.1.2",
 		"google-spreadsheet": "^3.3.0",
