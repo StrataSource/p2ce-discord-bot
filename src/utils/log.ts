@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { Client, EmbedBuilder, GuildBan, GuildMember, GuildTextBasedChannel, Message, PartialGuildMember, PartialMessage, PartialUser, User } from 'discord.js';
+import { Client, ColorResolvable, EmbedBuilder, GuildBan, GuildMember, GuildTextBasedChannel, Message, PartialGuildMember, PartialMessage, PartialUser, User } from 'discord.js';
 import { getUserOrMemberAvatarAttachment, formatUserRaw } from './utils';
 
 import * as config from '../config.json';
@@ -51,7 +51,7 @@ export function writeToLog(guildID: string | undefined, message: string, sendToC
 	fs.appendFileSync(logAllPath, `${guildID ? `{${guildID}} ` : ''}${message}\n`);
 }
 
-export async function message(client: Client, guildID: string, title: string, color: LogLevelColor, msg: string, publicMsg?: string | undefined, thumbnail?: User | PartialUser | GuildMember | PartialGuildMember | undefined | null) {
+export async function message(client: Client, guildID: string, title: string, color: LogLevelColor | ColorResolvable, msg: string, publicMsg?: string | undefined, thumbnail?: User | PartialUser | GuildMember | PartialGuildMember | undefined | null) {
 	writeToLog(guildID, `[${title}] ${msg}`);
 
 	const embed = new EmbedBuilder()
@@ -103,19 +103,19 @@ export async function warning(client: Client, msg: string) {
 
 export async function userBoosted(client: Client, guildID: string, user1: GuildMember | PartialGuildMember, user2: GuildMember) {
 	if (user1.premiumSince != user2.premiumSince) {
-		await message(client, guildID, 'USER', LogLevelColor.INFO, `<@${user2.id}> boosted the server`, `🥳 <@${user2.id}> just boosted the server!`, user2);
+		await message(client, guildID, 'USER', 'Green', `<@${user2.id}> boosted the server`, `🥳 <@${user2.id}> just boosted the server!`, user2);
 	}
 }
 
 export async function userUpdate(client: Client, guildID: string, user1: User | PartialUser, user2: User) {
 	if (user1.username !== user2.username && user1.username !== null) {
-		await message(client, guildID, 'USER', LogLevelColor.INFO, `**${formatUserRaw(user1)}** changed their username to **${formatUserRaw(user2)}**`, undefined, user2);
+		await message(client, guildID, 'USER', 'DarkGreen', `**${formatUserRaw(user1)}** changed their username to **${formatUserRaw(user2)}**`, undefined, user2);
 	}
 }
 
 export async function userAvatarUpdate(client: Client, guildID: string, user1: User | PartialUser, user2: User) {
 	if (user1.avatar !== user2.avatar && user1.username !== null) {
-		await message(client, guildID, 'USER', LogLevelColor.INFO, `<@${user2.id}> changed their avatar`, undefined, user2);
+		await message(client, guildID, 'USER', 'DarkGreen', `<@${user2.id}> changed their avatar`, undefined, user2);
 	}
 }
 
@@ -124,18 +124,18 @@ export async function userBanned(client: Client, guildID: string, ban: GuildBan)
 }
 
 export async function userJoined(client: Client, guildID: string, member: GuildMember | PartialGuildMember) {
-	await message(client, guildID, 'USER', LogLevelColor.INFO, `<@${member.id}> (${formatUserRaw(member.user)}) joined the server 😊`, undefined, member);
+	await message(client, guildID, 'USER', 'Blue', `<@${member.id}> (${formatUserRaw(member.user)}) joined the server 😊`, undefined, member);
 }
 
 export async function userLeft(client: Client, guildID: string, member: GuildMember | PartialGuildMember) {
 	if (member.id === client.user?.id) return;
-	await message(client, guildID, 'USER', LogLevelColor.INFO, `<@${member.id}> (${formatUserRaw(member.user)}) left the server 😭`, undefined, member);
+	await message(client, guildID, 'USER', 'DarkBlue', `<@${member.id}> (${formatUserRaw(member.user)}) left the server 😭`, undefined, member);
 }
 
 export async function messageUpdated(client: Client, guildID: string, oldMessage: Message | PartialMessage, newMessage: Message | PartialMessage) {
 	if (oldMessage.author?.bot || !oldMessage.author?.username) return;
 	if (oldMessage.content !== newMessage.content) {
-		await message(client, guildID, 'MESSAGE', LogLevelColor.INFO, `[A message](${newMessage.url}) from <@${newMessage.author?.id}> was edited in ${oldMessage.channel.toString()}.\n\nBefore:\n${oldMessage.content}\n\nAfter:\n${newMessage.content}`, undefined, newMessage.author);
+		await message(client, guildID, 'MESSAGE', 'Orange', `[A message](${newMessage.url}) from <@${newMessage.author?.id}> was edited in ${oldMessage.channel.toString()}.\n\nBefore:\n${oldMessage.content}\n\nAfter:\n${newMessage.content}`, undefined, newMessage.author);
 	}
 }
 
@@ -152,8 +152,8 @@ export async function messageDeleted(client: Client, guildID: string, msg: Messa
 	}
 
 	if (msg.content) {
-		await message(client, guildID, 'MESSAGE', LogLevelColor.INFO, `A message from <@${msg.author?.id}> was deleted in ${msg.channel.toString()}.\n\nContents:\n${msg.content}${attachString}`, undefined, msg.author);
+		await message(client, guildID, 'MESSAGE', 'DarkOrange', `A message from <@${msg.author?.id}> was deleted in ${msg.channel.toString()}.\n\nContents:\n${msg.content}${attachString}`, undefined, msg.author);
 	} else {
-		await message(client, guildID, 'MESSAGE', LogLevelColor.INFO, `A message from <@${msg.author?.id}> was deleted in ${msg.channel.toString()}.\n\nThe message did not contain any text.${attachString}`, undefined, msg.author);
+		await message(client, guildID, 'MESSAGE', 'DarkOrange', `A message from <@${msg.author?.id}> was deleted in ${msg.channel.toString()}.\n\nThe message did not contain any text.${attachString}`, undefined, msg.author);
 	}
 }
