@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 import { AutocompleteInteraction, CommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';

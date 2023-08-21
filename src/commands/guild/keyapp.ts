@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 import { Collection, CommandInteraction, SlashCommandBuilder } from 'discord.js';
 import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';
@@ -32,10 +34,10 @@ const KeyApp: Command = {
 			return interaction.reply({ content: 'Sheet has not finished loading, please try again later.', ephemeral: true });
 		}
 
-		// Don't run command if already present in list
-		// If not present, add user to list
 		switch (interaction.options.getSubcommand()) {
 		case 'check': {
+			// Don't run command if already present in list
+			// If not present, add user to list
 			if (KEYAPP_USER_DB_CHECK.has(interaction.user.id) && (KEYAPP_USER_DB_CHECK.get(interaction.user.id) ?? 0) > Date.now()) {
 				return interaction.reply({ content: `You have already checked the status of your application recently. Please check again <t:${formatDate(KEYAPP_USER_DB_CHECK.get(interaction.user.id) ?? 0)}:R>.`, ephemeral: true});
 			} else {

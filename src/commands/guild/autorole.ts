@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 import { CacheType, CommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { Command } from '../../types/interaction';
 import { LogLevelColor } from '../../utils/log';

@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 import { CommandInteraction, SlashCommandBuilder, TextChannel } from 'discord.js';
 import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';

@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 import { ActionRowBuilder, ChannelType, CommandInteraction, EmbedBuilder, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from 'discord.js';
 import fs from 'fs';
 import readline from 'readline';

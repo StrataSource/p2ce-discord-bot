@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 import { CommandInteraction, SlashCommandBuilder } from 'discord.js';
 import { Command } from '../../types/interaction';
 import { getLogFilepath } from '../../utils/log';

@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 import { ApplicationCommandType, ContextMenuCommandBuilder, UserContextMenuCommandInteraction } from 'discord.js';
 import { ContextMenu } from '../../../types/interaction';
 import { PermissionLevel } from '../../../utils/permissions';

@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, CommandInteraction, GuildMember, PermissionsBitField, SlashCommandBuilder, TextChannel, ThreadChannel } from 'discord.js';
 import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';

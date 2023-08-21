@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols,ES6ConvertRequireIntoImport
+
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, CommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { Command } from '../../types/interaction';
 import { LogLevelColor } from '../../utils/log';

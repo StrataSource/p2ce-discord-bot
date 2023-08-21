@@ -1,11 +1,12 @@
+// noinspection JSUnusedGlobalSymbols
+
 import { CommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';
 import { LogLevelColor } from '../../utils/log';
-import { formatDate, formatUserRaw } from '../../utils/utils';
+import { getWarnList } from '../shared/warnlist';
 
 import * as persist from '../../utils/persist';
-import { getWarnList } from '../shared/warnlist';
 
 const Warn: Command = {
 	permissionLevel: PermissionLevel.MODERATOR,

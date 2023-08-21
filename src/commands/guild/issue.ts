@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 import { ActionRowBuilder, AutocompleteInteraction, ButtonBuilder, ButtonInteraction, ButtonStyle, CommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { Callbacks } from '../../types/client';
 import { GitHubIssue } from '../../types/github';
