@@ -336,9 +336,17 @@ async function main() {
 
 	// Listen for created messages
 	client.on('messageCreate', async message => {
+		// Only responds to members
+		if (!message.guild || !message.member)
+			return;
+
 		if (message.content.startsWith('pk;a')) {
 			// might be a system enabling autoproxy, remove from normal user cache if they were in it
 			pluralkit.purgeCacheEntry(message.author.id);
+		}
+
+		if (message.inGuild() && persist.data(message.guild.id).moderation.watchlist?.users.includes(message.author.id)) {
+			await log.messageSent(client, message.guild.id, message);
 		}
 	});
 

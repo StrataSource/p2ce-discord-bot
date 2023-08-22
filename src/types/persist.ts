@@ -43,6 +43,10 @@ export interface PersistentData {
 				issuer: string,
 			}[],
 		},
+		watchlist?: {
+			channel: string | null,
+			users: string[],
+		},
 	},
 	reaction_roles: {
 		[message: string]: {

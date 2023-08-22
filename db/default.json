@@ -29,7 +29,11 @@
 	},
 	"github_repos": {},
 	"moderation": {
-		"warns": {}
+		"warns": {},
+		"watchlist": {
+			"channel": null,
+			"users": []
+		}
 	},
 	"reaction_roles": {},
 	"responses": {},

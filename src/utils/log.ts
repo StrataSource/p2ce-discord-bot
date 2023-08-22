@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { Client, ColorResolvable, EmbedBuilder, GuildBan, GuildMember, GuildTextBasedChannel, Message, PartialGuildMember, PartialMessage, PartialUser, User } from 'discord.js';
+import { Client, ColorResolvable, EmbedBuilder, GuildBan, GuildMember, Message, PartialGuildMember, PartialMessage, PartialUser, User } from 'discord.js';
 import { getUserOrMemberAvatarAttachment, formatUserRaw } from './utils';
 
 import * as config from '../config.json';
@@ -12,8 +12,13 @@ export enum LogLevelColor {
 	ERROR     = '#ff0000',
 }
 
-function getLogChannel(client: Client, guildID: string, publicChannel?: boolean | undefined): GuildTextBasedChannel | undefined {
-	const channelID = publicChannel ? persist.data(guildID).config.log.public_channel : persist.data(guildID).config.log.channel;
+enum MessageLocations {
+	PRIVATE,
+	PUBLIC,
+	WATCHLIST,
+}
+
+function getChannel(client: Client, guildID: string, channelID: string | undefined | null) {
 	if (!channelID) {
 		return undefined;
 	}
@@ -22,6 +27,21 @@ function getLogChannel(client: Client, guildID: string, publicChannel?: boolean 
 		return undefined;
 	}
 	return channel;
+}
+
+function getLogChannel(client: Client, guildID: string) {
+	const channelID = persist.data(guildID).config.log.channel;
+	return getChannel(client, guildID, channelID);
+}
+
+function getPublicLogChannel(client: Client, guildID: string) {
+	const channelID = persist.data(guildID).config.log.public_channel;
+	return getChannel(client, guildID, channelID);
+}
+
+function getWatchListChannel(client: Client, guildID: string) {
+	const channelID = persist.data(guildID).moderation.watchlist?.channel;
+	return getChannel(client, guildID, channelID);
 }
 
 export function getLogFilepath(guildID: string | undefined) {
@@ -51,8 +71,20 @@ export function writeToLog(guildID: string | undefined, message: string, sendToC
 	fs.appendFileSync(logAllPath, `${guildID ? `{${guildID}} ` : ''}${message}\n`);
 }
 
-export async function message(client: Client, guildID: string, title: string, color: LogLevelColor | ColorResolvable, msg: string, publicMsg?: string | undefined, thumbnail?: User | PartialUser | GuildMember | PartialGuildMember | undefined | null) {
+async function message(client: Client, guildID: string, title: string, color: LogLevelColor | ColorResolvable, msg: string, thumbnail?: User | PartialUser | GuildMember | PartialGuildMember | undefined | null, msgLocations?: MessageLocations[]) {
 	writeToLog(guildID, `[${title}] ${msg}`);
+
+	let msgLocationPrivate = true;
+	let msgLocationPublic = false;
+	let msgLocationWatchList = true;
+	if (msgLocations !== undefined) {
+		msgLocationPrivate = msgLocations.includes(MessageLocations.PRIVATE);
+		msgLocationPublic = msgLocations.includes(MessageLocations.PUBLIC);
+		msgLocationWatchList = msgLocations.includes(MessageLocations.WATCHLIST);
+	}
+	if (!msgLocationPrivate && !msgLocationPublic && !msgLocationWatchList) {
+		return;
+	}
 
 	const embed = new EmbedBuilder()
 		.setColor(color)
@@ -63,13 +95,23 @@ export async function message(client: Client, guildID: string, title: string, co
 	if (thumbnail) {
 		const [attachment, path] = await getUserOrMemberAvatarAttachment(thumbnail);
 		embed.setThumbnail(path);
-		await getLogChannel(client, guildID)?.send({ embeds: [embed], files: [attachment] });
+
+		if (msgLocationPrivate) {
+			await getLogChannel(client, guildID)?.send({embeds: [embed], files: [attachment]});
+		}
+
+		// HACK HACK HACK: use the thumbnail user ID to check if they are on the watchlist
+		if (msgLocationWatchList && persist.data(guildID).moderation.watchlist?.users.includes(thumbnail.id)) {
+			await getWatchListChannel(client, guildID)?.send({ embeds: [embed], files: [attachment] });
+		}
 	} else {
-		await getLogChannel(client, guildID)?.send({ embeds: [embed] });
+		if (msgLocationPrivate) {
+			await getLogChannel(client, guildID)?.send({embeds: [embed]});
+		}
 	}
 
-	if (publicMsg) {
-		await getLogChannel(client, guildID, true)?.send(publicMsg);
+	if (msgLocationPublic) {
+		await getPublicLogChannel(client, guildID)?.send(msg);
 	}
 }
 
@@ -103,57 +145,68 @@ export async function warning(client: Client, msg: string) {
 
 export async function userBoosted(client: Client, guildID: string, user1: GuildMember | PartialGuildMember, user2: GuildMember) {
 	if (user1.premiumSince != user2.premiumSince) {
-		await message(client, guildID, 'USER', 'Green', `<@${user2.id}> boosted the server`, `🥳 <@${user2.id}> just boosted the server!`, user2);
+		await message(client, guildID, 'USER', 'Green', `🥳 ${user2} just boosted the server!`, user2);
 	}
 }
 
 export async function userUpdate(client: Client, guildID: string, user1: User | PartialUser, user2: User) {
 	if (user1.username !== user2.username && user1.username !== null) {
-		await message(client, guildID, 'USER', 'DarkGreen', `**${formatUserRaw(user1)}** changed their username to **${formatUserRaw(user2)}**`, undefined, user2);
+		await message(client, guildID, 'USER', 'DarkGreen', `**${formatUserRaw(user1)}** changed their username to **${formatUserRaw(user2)}**`, user2);
 	}
 }
 
 export async function userAvatarUpdate(client: Client, guildID: string, user1: User | PartialUser, user2: User) {
 	if (user1.avatar !== user2.avatar && user1.username !== null) {
-		await message(client, guildID, 'USER', 'DarkGreen', `<@${user2.id}> changed their avatar`, undefined, user2);
+		await message(client, guildID, 'USER', 'DarkGreen', `<@${user2.id}> changed their avatar`, user2);
 	}
 }
 
 export async function userBanned(client: Client, guildID: string, ban: GuildBan) {
-	await message(client, guildID, 'BAN', LogLevelColor.IMPORTANT, `<@${ban.user.id}> (${formatUserRaw(ban.user)}) was banned 😈`, undefined, ban.user);
+	await message(client, guildID, 'BAN', LogLevelColor.IMPORTANT, `<@${ban.user.id}> (${formatUserRaw(ban.user)}) was banned 😈`, ban.user);
 }
 
 export async function userJoined(client: Client, guildID: string, member: GuildMember | PartialGuildMember) {
-	await message(client, guildID, 'USER', 'Blue', `<@${member.id}> (${formatUserRaw(member.user)}) joined the server 😊`, undefined, member);
+	await message(client, guildID, 'USER', 'Blue', `<@${member.id}> (${formatUserRaw(member.user)}) joined the server 😊`, member);
 }
 
 export async function userLeft(client: Client, guildID: string, member: GuildMember | PartialGuildMember) {
 	if (member.id === client.user?.id) return;
-	await message(client, guildID, 'USER', 'DarkBlue', `<@${member.id}> (${formatUserRaw(member.user)}) left the server 😭`, undefined, member);
+	await message(client, guildID, 'USER', 'DarkBlue', `<@${member.id}> (${formatUserRaw(member.user)}) left the server 😭`, member);
 }
 
-export async function messageUpdated(client: Client, guildID: string, oldMessage: Message | PartialMessage, newMessage: Message | PartialMessage) {
-	if (oldMessage.author?.bot || !oldMessage.author?.username) return;
-	if (oldMessage.content !== newMessage.content) {
-		await message(client, guildID, 'MESSAGE', 'Orange', `[A message](${newMessage.url}) from <@${newMessage.author?.id}> was edited in ${oldMessage.channel.toString()}.\n\nBefore:\n${oldMessage.content}\n\nAfter:\n${newMessage.content}`, undefined, newMessage.author);
-	}
-}
-
-export async function messageDeleted(client: Client, guildID: string, msg: Message | PartialMessage) {
-	if (msg.author?.bot || !msg.author?.username) return;
-
+function getMessageAttachmentsString(msg: Message | PartialMessage, attachPrefix?: string | undefined) {
 	// Create an empty string, so we don't need to do several other message calls
 	let attachString = '';
 	if (msg.attachments.size > 0) {
 		// Get all attachment urls into an array and join it to the main string
 		const attachArray: string[] = [];
 		msg.attachments.each(attach => attachArray.push(attach.url));
-		attachString = `\n\nAttachments:\n${attachArray.join('\n')}`;
+		attachString = `\n\n${attachPrefix ? attachPrefix : ''}Attachments:\n${attachArray.join('\n')}`;
 	}
+	return attachString;
+}
 
-	if (msg.content) {
-		await message(client, guildID, 'MESSAGE', 'DarkOrange', `A message from <@${msg.author?.id}> was deleted in ${msg.channel.toString()}.\n\nContents:\n${msg.content}${attachString}`, undefined, msg.author);
-	} else {
-		await message(client, guildID, 'MESSAGE', 'DarkOrange', `A message from <@${msg.author?.id}> was deleted in ${msg.channel.toString()}.\n\nThe message did not contain any text.${attachString}`, undefined, msg.author);
+export async function messageSent(client: Client, guildID: string, msg: Message | PartialMessage) {
+	if (msg.author?.bot || !msg.author?.username) return;
+	const attachString = getMessageAttachmentsString(msg);
+	await message(client, guildID, 'MESSAGE', '#deab82', `[A new message](${msg.url}) from <@${msg.author?.id}> was created in ${msg.channel}.\n\nContents:\n${msg.content}${attachString}`, msg.author, [MessageLocations.WATCHLIST]);
+}
+
+export async function messageUpdated(client: Client, guildID: string, oldMessage: Message | PartialMessage, newMessage: Message | PartialMessage) {
+	if (oldMessage.author?.bot || !oldMessage.author?.username) return;
+	if (oldMessage.content !== newMessage.content) {
+		const attachStringOld = getMessageAttachmentsString(oldMessage, 'Before ');
+		const attachStringNew = getMessageAttachmentsString(newMessage, 'After ');
+		await message(client, guildID, 'MESSAGE', 'Orange', `[A message](${newMessage.url}) from <@${newMessage.author?.id}> was edited in ${oldMessage.channel}.\n\nBefore:\n${oldMessage.content}${attachStringOld}\n\nAfter:\n${newMessage.content}${attachStringNew}`, newMessage.author);
 	}
+}
+
+export async function messageDeleted(client: Client, guildID: string, msg: Message | PartialMessage) {
+	if (msg.author?.bot || !msg.author?.username) return;
+
+	const attachString = getMessageAttachmentsString(msg);
+	const contentString = msg.content ? `Contents:\n${msg.content}` : 'The message did not contain any text.';
+	const msgString = `A message from <@${msg.author?.id}> was deleted in ${msg.channel.toString()}.\n\n${contentString}${attachString}`;
+
+	await message(client, guildID, 'MESSAGE', 'DarkOrange', msgString, msg.author);
 }
