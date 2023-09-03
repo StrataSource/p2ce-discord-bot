@@ -102,7 +102,7 @@ async function main() {
 
 	// Listen for warnings
 	client.on('warn', async warn => {
-		await log.warning(client, warn);
+		log.writeToLog(undefined, warn, true);
 	});
 
 	// Listen for joined guilds
@@ -156,7 +156,7 @@ async function main() {
 			try {
 				await command.execute(interaction, client.callbacks);
 			} catch (err) {
-				log.writeToLog(undefined, (err as Error).toString(), true);
+				await log.error(client, err as Error, interaction.guild?.id);
 				if (interaction.deferred) {
 					await interaction.followUp(`There was an error while executing this command: ${err}`);
 				} else {
@@ -179,7 +179,7 @@ async function main() {
 					await client.callbacks.runSelectMenuCallback(interaction.customId, interaction);
 				}
 			} catch (err) {
-				log.writeToLog(undefined, (err as Error).toString(), true);
+				await log.error(client, err as Error, interaction.guild?.id);
 				if (interaction.deferred) {
 					await interaction.followUp(`There was an error while pressing this button: ${err}`);
 				} else {
@@ -191,7 +191,7 @@ async function main() {
 			try {
 				await client.callbacks.runModalCallback(interaction.customId, interaction);
 			} catch (err) {
-				log.writeToLog(undefined, (err as Error).toString(), true);
+				await log.error(client, err as Error, interaction.guild?.id);
 				if (interaction.deferred) {
 					await interaction.followUp(`There was an error while submitting this modal: ${err}`);
 				} else {
