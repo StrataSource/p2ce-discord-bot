@@ -100,8 +100,20 @@ export async function getIssueInRepo(guildID: string, repo: string, issueID: num
 
 export async function searchIssuesInRepo(guildID: string, repo: string, query: string, open?: boolean | null | undefined) {
 	return getIssuesInRepo(guildID, repo).then(issues => issues?.filter(issue => {
-		const inTitle = issue.title.toLowerCase().includes(query.toLowerCase());
-		const inBody = issue.body && issue.body.toLowerCase().includes(query.toLowerCase());
-		return (inTitle || inBody) && (!open || issue.state === 'open');
+		// If we are only looking for open issues, don't include if closed
+		if (open && issue.state !== 'open') {
+			return false;
+		}
+		// Check that all the keywords exist in the issue
+		let searchString = issue.title.toLowerCase();
+		if (issue.body) {
+			searchString += '\n\n' + issue.body.toLowerCase();
+		}
+		for (const word of query.toLowerCase().split(' ')) {
+			if (!searchString.includes(word)) {
+				return false;
+			}
+		}
+		return true;
 	}));
 }
