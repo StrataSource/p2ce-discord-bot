@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { AttachmentBuilder, Client, ColorResolvable, EmbedBuilder, GuildBan, GuildMember, Message, PartialGuildMember, PartialMessage, PartialUser, User } from 'discord.js';
+import { AttachmentBuilder, Client, ColorResolvable, EmbedBuilder, GuildBan, GuildMember, Message, PartialGuildMember, PartialMessage, PartialUser, StageChannel, User, VoiceBasedChannel, VoiceChannel } from 'discord.js';
 import { getUserOrMemberAvatarAttachment, formatUserRaw } from './utils';
 
 import * as config from '../config.json';
@@ -227,4 +227,14 @@ export async function messageDeleted(client: Client, guildID: string, msg: Messa
 	const msgString = `A message from <@${msg.author?.id}> was deleted in ${msg.channel.toString()}.\n\n${contentString}${attachString}`;
 
 	await message(client, guildID, 'MESSAGE', 'DarkOrange', msgString, msg.author);
+}
+
+export async function voiceChannelUserJoined(client: Client, guildID: string, channel: VoiceBasedChannel, member: GuildMember | PartialGuildMember) {
+	if (member.user.bot || !member.user.username) return;
+	await message(client, guildID, 'USER', '#deab82', `<@${member.id}> (${formatUserRaw(member.user)}) joined voice channel ${channel}`, member, [MessageLocations.WATCHLIST]);
+}
+
+export async function voiceChannelUserLeft(client: Client, guildID: string, channel: StageChannel | VoiceChannel, member: GuildMember | PartialGuildMember) {
+	if (member.user.bot || !member.user.username) return;
+	await message(client, guildID, 'USER', 'DarkOrange', `<@${member.id}> (${formatUserRaw(member.user)}) left voice channel ${channel}`, member, [MessageLocations.WATCHLIST]);
 }

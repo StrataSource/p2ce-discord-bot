@@ -43,6 +43,7 @@ async function main() {
 			IntentsBitField.Flags.GuildMessages,
 			IntentsBitField.Flags.GuildMessageReactions,
 			IntentsBitField.Flags.GuildModeration,
+			IntentsBitField.Flags.GuildVoiceStates,
 			IntentsBitField.Flags.MessageContent,
 		]),
 		partials: [
@@ -386,6 +387,20 @@ async function main() {
 			return;
 
 		await log.messageDeleted(client, message.guild.id, message);
+	});
+
+	// Listen for members joining or leaving voice chats
+	client.on('voiceStateUpdate', async (oldState, newState) => {
+		if (!newState.member) return;
+		if (oldState.channel && !newState.channel) {
+			await log.voiceChannelUserLeft(client, newState.guild.id, oldState.channel, newState.member);
+		} else if (!oldState.channel && newState.channel) {
+			await log.voiceChannelUserJoined(client, newState.guild.id, newState.channel, newState.member);
+		} else if (oldState.channel && newState.channel) {
+			// Moved between two channels
+			await log.voiceChannelUserLeft(client, newState.guild.id, oldState.channel, newState.member);
+			await log.voiceChannelUserJoined(client, newState.guild.id, newState.channel, newState.member);
+		}
 	});
 
 	// Listen for members joining
