@@ -1,6 +1,6 @@
 {
 	"name": "p2ce-discord-bot",
-	"version": "2.3.5",
+	"version": "2.3.6",
 	"engines": {
 		"node": ">=18.0.0"
 	},
@@ -30,24 +30,25 @@
 		"adm-zip": "^0.5.10",
 		"canvas": "^2.11.2",
 		"console-stamp": "^3.1.2",
-		"discord-api-types": "^0.37.60",
-		"discord.js": "^14.13.0",
+		"discord-api-types": "^0.37.67",
+		"discord.js": "^14.14.1",
 		"gif-encoder": "^0.7.2",
 		"gifuct-js": "^2.1.2",
-		"google-spreadsheet": "^4.1.0",
-		"moment": "^2.29.4",
+		"google-auth-library": "^9.4.1",
+		"google-spreadsheet": "^4.1.1",
+		"moment": "^2.30.1",
 		"node-fetch": "^2.6.7",
-		"octokit": "^3.1.1",
+		"octokit": "^3.1.2",
 		"owoify-js": "^2.0.0"
 	},
 	"devDependencies": {
-		"@types/adm-zip": "^0.5.2",
-		"@types/gif-encoder": "^0.7.2",
-		"@types/node": "^20.8.9",
+		"@types/adm-zip": "^0.5.5",
+		"@types/gif-encoder": "^0.7.4",
+		"@types/node": "^20.10.7",
 		"@types/node-fetch": "^2.5.7",
-		"@typescript-eslint/eslint-plugin": "^6.9.0",
+		"@typescript-eslint/eslint-plugin": "^6.18.0",
 		"@typescript-eslint/parser": "^6.18.0",
-		"eslint": "^8.51.0",
+		"eslint": "^8.56.0",
 		"tsc-watch": "^6.0.4",
 		"typescript": "^5.3.3"
 	}

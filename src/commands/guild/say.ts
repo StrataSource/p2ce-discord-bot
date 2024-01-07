@@ -25,11 +25,13 @@ const Say: Command = {
 		if (!interaction.isChatInputCommand()) return;
 
 		const message = interaction.options.getString('message', true);
-		const channel = interaction.options.getChannel('channel', false, [
-			ChannelType.GuildText, ChannelType.PublicThread, ChannelType.PrivateThread,
-		]) ?? interaction.channel;
+
+		const channelID = interaction.options.getChannel('channel')?.id;
+		const channel = channelID !== undefined ? await interaction.guild?.channels.fetch(channelID) : interaction.channel;
 		try {
-			await channel?.send(message);
+			if (channel?.isTextBased()) {
+				await channel.send(message);
+			}
 		} catch (ignored) {
 			return interaction.reply({ content: `Error encountered when sending message "${message}" to ${channel}. Check channel permissions are correct!`, ephemeral: true });
 		}
