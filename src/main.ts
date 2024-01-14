@@ -409,6 +409,14 @@ async function main() {
 		data.statistics.joins++;
 		persist.saveData(member.guild.id);
 
+		// Check for autobans
+		if (data.moderation.autoban && member.bannable) {
+			if (((member.user.createdTimestamp - member.guild.createdTimestamp) / 60 / 60) <= data.moderation.autoban.new_members) {
+				await member.ban({ reason: 'Automatically banned: Account is too new!' });
+				return;
+			}
+		}
+
 		// Add autoroles
 		for (const roleID of data.autoroles) {
 			await member.roles.add(roleID);

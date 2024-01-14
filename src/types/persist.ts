@@ -36,6 +36,9 @@ export interface PersistentData {
 		},
 	},
 	moderation: {
+		autoban?: {
+			new_members: number,
+		},
 		warns: {
 			[user: string]: {
 				date: number,

@@ -29,6 +29,9 @@
 	},
 	"github_repos": {},
 	"moderation": {
+		"autoban": {
+			"new_members": 0
+		},
 		"warns": {},
 		"watchlist": {
 			"channel": null,
