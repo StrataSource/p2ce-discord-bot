@@ -411,8 +411,9 @@ async function main() {
 
 		// Check for autobans
 		if (data.moderation.autoban && member.bannable) {
-			if (((member.user.createdTimestamp - member.guild.createdTimestamp) / 60 / 60) <= data.moderation.autoban.new_members) {
-				await member.ban({ reason: 'Automatically banned: Account is too new!' });
+			const hoursOld = ((member.user.createdTimestamp - member.guild.createdTimestamp) / 60 / 60);
+			if (hoursOld <= data.moderation.autoban.new_members) {
+				await member.ban({ reason: `Automatically banned: Account is too new! (${hoursOld} <= ${data.moderation.autoban.new_members})` });
 				return;
 			}
 		}
