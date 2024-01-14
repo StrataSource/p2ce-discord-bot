@@ -410,11 +410,14 @@ async function main() {
 		persist.saveData(member.guild.id);
 
 		// Check for autobans
-		if (data.moderation.autoban && member.bannable) {
-			const hoursOld = ((member.user.createdTimestamp - member.guild.createdTimestamp) / 60 / 60);
-			if (hoursOld <= data.moderation.autoban.new_members) {
-				await member.ban({ reason: `Automatically banned: Account is too new! (${hoursOld} <= ${data.moderation.autoban.new_members})` });
-				return;
+		if (data.moderation.autoban && data.moderation.autoban.enabled && member.bannable) {
+			// New account ban
+			if (data.moderation.autoban.new_accounts > 0) {
+				const hoursOld = ((Date.now() - member.user.createdTimestamp) / 1000 / 60 / 60);
+				if (hoursOld <= data.moderation.autoban.new_accounts) {
+					await member.ban({ reason: `Automatically banned: Account is too new! (${hoursOld} <= ${data.moderation.autoban.new_accounts})` });
+					return;
+				}
 			}
 		}
 

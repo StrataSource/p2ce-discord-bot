@@ -30,7 +30,8 @@
 	"github_repos": {},
 	"moderation": {
 		"autoban": {
-			"new_members": 0
+			"enabled": false,
+			"new_accounts": 0
 		},
 		"warns": {},
 		"watchlist": {
