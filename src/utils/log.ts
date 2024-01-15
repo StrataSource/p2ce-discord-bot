@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { AttachmentBuilder, Client, ColorResolvable, EmbedBuilder, GuildBan, GuildMember, Message, PartialGuildMember, PartialMessage, PartialUser, StageChannel, User, VoiceBasedChannel, VoiceChannel } from 'discord.js';
-import { getUserOrMemberAvatarAttachment, formatUserRaw } from './utils';
+import { getUserOrMemberAvatarAttachment, formatUserRaw, formatDate } from './utils';
 
 import * as config from '../config.json';
 import * as persist from '../utils/persist';
@@ -184,7 +184,7 @@ export async function userBanned(client: Client, guildID: string, ban: GuildBan)
 }
 
 export async function userJoined(client: Client, guildID: string, member: GuildMember | PartialGuildMember) {
-	await message(client, guildID, 'USER', 'Blue', `<@${member.id}> (${formatUserRaw(member.user)}) joined the server 😊`, member);
+	await message(client, guildID, 'USER', 'Blue', `<@${member.id}> (${formatUserRaw(member.user)}) joined the server 😊\n- Account creation date: <t:${formatDate(member.user.createdAt)}:f>`, member);
 }
 
 export async function userLeft(client: Client, guildID: string, member: GuildMember | PartialGuildMember) {
