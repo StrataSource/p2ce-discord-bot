@@ -3,7 +3,6 @@
 import { ApplicationCommandType, CommandInteraction, ContextMenuCommandBuilder } from 'discord.js';
 import { ContextMenu } from '../../../types/interaction';
 import { PermissionLevel } from '../../../utils/permissions';
-import { isSheetLoaded } from '../../../utils/sheet';
 import { checkUserKeyStatus } from '../../shared/keyapp';
 
 const KeyAppAdminCheck: ContextMenu = {
@@ -15,17 +14,7 @@ const KeyAppAdminCheck: ContextMenu = {
 		.setType(ApplicationCommandType.User),
 
 	async execute(interaction: CommandInteraction) {
-		if (!isSheetLoaded()) {
-			return interaction.reply({ content: 'Sheet has not finished loading, please try again later.', ephemeral: true });
-		}
-		try {
-			return checkUserKeyStatus(interaction, interaction.options.getUser('user', true), false);
-		} catch (e) {
-			if (interaction.deferred) {
-				return interaction.editReply('Encountered an error loading spreadsheet, please try again later.');
-			}
-			return interaction.reply({ 'content': 'Encountered an error loading spreadsheet, please try again later.', ephemeral: true });
-		}
+		return checkUserKeyStatus(interaction, interaction.options.getUser('user', true), false);
 	}
 };
 export default KeyAppAdminCheck;

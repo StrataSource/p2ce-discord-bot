@@ -1,109 +1,70 @@
 import { CommandInteraction, EmbedBuilder, User } from 'discord.js';
+import { KeyStatus } from '../../types/keyapp';
 import { sheet } from '../../utils/sheet';
 import { LogLevelColor } from '../../utils/log';
 import { formatUserRaw } from '../../utils/utils';
 
-const COLORS = {
-	blank:  { red: 0,   green: 0,   blue: 0 },
-	red:    { red: 1,   green: 0,   blue: 0 },
-	orange: { red: 1,   green: 0.6, blue: 0 },
-	yellow: { red: 1,   green: 1,   blue: 0 },
-	cyan:   { red: 0,   green: 1,   blue: 1 },
-	green:  { red: 0,   green: 1,   blue: 0 },
-	purple: { red: 0.6, green: 0,   blue: 1 },
-};
-
-async function getCell(a1: string, reloadRange: string) {
-	try {
-		return sheet.getCellByA1(a1);
-	} catch (ignored) {
-		// make double sure, saw an error about a cell not being loaded even though they should be...
-		await sheet.loadCells(reloadRange);
-		return sheet.getCellByA1(a1);
-	}
-}
-
-function getPrintedPronouns(user: User, ranOnSelf: boolean): [string, string, string] {
-	// Liberals smh
-	if (ranOnSelf) {
-		return ['your', 'Your', 'you'];
-	} else {
-		return [`<@${user.id}>'s`, `<@${user.id}>'s`, `<@${user.id}>`];
-	}
-}
+import * as persist from '../../utils/persist';
 
 export async function checkUserKeyStatus(interaction: CommandInteraction, user: User, ranOnSelf: boolean) {
-	// Assumes isSheetLoaded() has been called...
-	await interaction.deferReply({ ephemeral: true });
+	if (!interaction.guild) {
+		return;
+	}
+	const data = persist.data(interaction.guild.id);
 
-	const reloadRange = `B2:B${sheet.rowCount}`;
-
-	const [pronoun1, pronoun1caps, pronoun2] = getPrintedPronouns(user, ranOnSelf);
-
-	// Refresh cache
-	await sheet.loadCells(reloadRange);
-
-	// Get plaintext username + discriminator
-	const name = formatUserRaw(user);
-
-	// Try to find where the app is
-	let row = -1;
-	for (let i = 2; i < sheet.rowCount; i++) {
-		const cell = await getCell(`B${i}`, reloadRange);
-		if ((typeof cell.value === 'string') && (name.toLowerCase() === cell.value.toLowerCase())) {
-			row = i;
-		}
+	if (!data.keyapps || !Object.hasOwn(data.keyapps, user.id)) {
+		return interaction.reply({ content: `This application was not found. If ${ranOnSelf ? 'you' : `${user}`} already submitted one, let a team member know.`, ephemeral: true });
 	}
 
-	if (row < 0) {
-		return interaction.followUp(`${pronoun1caps} application was not found. If ${pronoun2} already submitted one, let a team member know.\nThe failure to find ${pronoun1} application is likely a result of ${pronoun1} username or discriminator changing since the application was submitted.`);
-	}
-
-	const cell = await getCell(`B${row}`, reloadRange);
-
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const bgColor: any = {};
-	try {
-		Object.assign(bgColor, cell.backgroundColor);
-	// eslint-disable-next-line no-empty
-	} catch (ignored) {}
-	if (!Object.hasOwn(bgColor, 'red')) bgColor.red = 0;
-	if (!Object.hasOwn(bgColor, 'green')) bgColor.green = 0;
-	if (!Object.hasOwn(bgColor, 'blue')) bgColor.blue = 0;
-
-	for (const [colorName, color] of Object.entries(COLORS)) {
-		if (Math.round(bgColor.red * 100) === Math.round(color.red * 100) &&
-			Math.round(bgColor.green * 100) === Math.round(color.green * 100) &&
-			Math.round(bgColor.blue * 100) === Math.round(color.blue * 100)) {
-			// It's this color, but which one?
-			switch (colorName) {
-			case 'red':
-			case 'orange':
-				return interaction.followUp(`${pronoun1caps} key application has been denied.`);
-			case 'yellow':
-			case 'cyan':
-				return interaction.followUp(`${pronoun1caps} key application has been approved! The key will be sent to ${pronoun1} DMs when they are distributed next.`);
-			case 'green':
-				return interaction.followUp(`${pronoun1caps} key application has been approved! Either a key was already sent to ${pronoun2}, or ${pronoun1} key will be sent to ${pronoun2} in a few days.`);
-			case 'purple':
-				return interaction.followUp(`${pronoun1caps} key application has been placed onto a waitlist for when we require general users for testing.`);
-			default:
-			case 'blank':
-				// If a cell has no background color, it hasn't been reviewed
-				return interaction.followUp(`${pronoun1caps} key application has not been reviewed yet.`);
-			}
-		}
+	const [pronoun1, pronoun2] = ranOnSelf ? ['your', 'you'] : [`<@${user.id}>'s`, `<@${user.id}>`];
+	switch (data.keyapps[user.id].accept_state) {
+	case KeyStatus.SUPER_DENIED:
+		return interaction.reply({ content: 'This key application has been denied. Future applications will not be considered.', ephemeral: true });
+	case KeyStatus.DENIED:
+		return interaction.reply({ content: 'This key application has been denied. New applications will still be considered, but without substantial changes to the application content the result will likely be the same.', ephemeral: true });
+	case KeyStatus.ACCEPTED_SUPER_PENDING:
+	case KeyStatus.ACCEPTED_PENDING:
+		return interaction.reply({ content: `This key application has been approved! The key will be sent to ${pronoun1} DMs when they are distributed next.`, ephemeral: true });
+	case KeyStatus.ACCEPTED_CANNOT_FIND: // This one shouldn't exist actually, left in for backwards compat
+	case KeyStatus.ACCEPTED_SENT:
+		return interaction.reply({ content: `This key application has been approved! Either a key was already sent to ${pronoun2}, or ${pronoun1} key will be sent to ${pronoun2} in a few days.`, ephemeral: true });
+	case KeyStatus.ACCEPTED_GAMER:
+		return interaction.reply({ content: 'This key application has been placed onto a waitlist for when we require general users for testing.', ephemeral: true });
+	default:
+	case KeyStatus.UNREVIEWED:
+		return interaction.reply({ content: 'This key application has not been reviewed yet.', ephemeral: true });
 	}
 }
 
 export async function readUserApplication(interaction: CommandInteraction, user: User, ranOnSelf: boolean) {
+	if (!interaction.guild) {
+		return;
+	}
+	const data = persist.data(interaction.guild.id);
+
+	if (!data.keyapps || !Object.hasOwn(data.keyapps, user.id)) {
+		//return interaction.reply({ content: `This application was not found. If ${ranOnSelf ? 'you' : `${user}`} already submitted one, let a team member know.`, ephemeral: true });
+		return readUserApplicationLegacy(interaction, user, ranOnSelf);
+	}
+
+	const embed = new EmbedBuilder()
+		.setColor(LogLevelColor.INFO)
+		.setTitle('LATEST KEY APPLICATION')
+		.addFields(
+			{ name: 'Rationale For Access', value: `\`\`\`\n${data.keyapps[user.id].rationale}\n\`\`\`` },
+			{ name: 'Community Role', value: `\`\`\`\n${data.keyapps[user.id].role}\n\`\`\`` },
+			{ name: 'Active Mod', value: `\`\`\`\n${data.keyapps[user.id].mod.length > 0 ? data.keyapps[user.id].mod : 'No response.'}\n\`\`\`` },
+			{ name: 'Experience', value: `\`\`\`\n${data.keyapps[user.id].experience}\n\`\`\`` })
+		.setTimestamp();
+	return interaction.reply({ embeds: [embed], ephemeral: true });
+}
+
+async function readUserApplicationLegacy(interaction: CommandInteraction, user: User, ranOnSelf: boolean) {
 	// Assumes isSheetLoaded() has been called...
 	await interaction.deferReply({ ephemeral: true });
 
 	const reloadRange = `B2:E${sheet.rowCount}`;
 	const reloadRangeExperience = `H2:H${sheet.rowCount}`;
-
-	const [pronoun1, pronoun1caps, pronoun2] = getPrintedPronouns(user, ranOnSelf);
 
 	// Refresh cache
 	await sheet.loadCells(reloadRange);
@@ -122,7 +83,7 @@ export async function readUserApplication(interaction: CommandInteraction, user:
 	}
 
 	if (row < 0) {
-		return interaction.followUp(`${pronoun1caps} application was not found. If ${pronoun2} already submitted one, let a team member know.\nThe failure to find ${pronoun1} application is likely a result of ${pronoun1} username or discriminator changing since the application was submitted.`);
+		return interaction.followUp(`This application was not found. If ${ranOnSelf ? 'you' : `${user}`} already submitted one, let a team member know.`);
 	}
 
 	const why = (await getCell(`C${row}`, reloadRange)).value?.toString() ?? 'No response.';
@@ -140,4 +101,14 @@ export async function readUserApplication(interaction: CommandInteraction, user:
 			{ name: 'State your experience, if you have any.', value: `\`\`\`\n${experience}\n\`\`\`` })
 		.setTimestamp();
 	return interaction.followUp({ embeds: [embed], ephemeral: true });
+}
+
+async function getCell(a1: string, reloadRange: string) {
+	try {
+		return sheet.getCellByA1(a1);
+	} catch (ignored) {
+		// make double sure, saw an error about a cell not being loaded even though they should be...
+		await sheet.loadCells(reloadRange);
+		return sheet.getCellByA1(a1);
+	}
 }

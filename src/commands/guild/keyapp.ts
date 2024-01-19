@@ -3,6 +3,7 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, CommandInteraction, ModalActionRowComponentBuilder, ModalBuilder, SlashCommandBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
 import { MoralityCoreClient } from '../../types/client';
 import { Command } from '../../types/interaction';
+import { KeyStatus } from '../../types/keyapp';
 import { PermissionLevel } from '../../utils/permissions';
 import { isSheetLoaded } from '../../utils/sheet';
 import { checkUserKeyStatus, readUserApplication } from '../shared/keyapp';
@@ -117,7 +118,8 @@ const KeyApp: Command = {
 						report: report,
 						experience: experience,
 						notes: notes,
-						accept_state: 'white',
+						accept_state: KeyStatus.UNREVIEWED,
+						key_given: '',
 					};
 					persist.saveData(buttonInteraction.guild.id);
 
@@ -134,19 +136,11 @@ const KeyApp: Command = {
 		}
 
 		case 'check': {
-			try {
-				return checkUserKeyStatus(interaction, interaction.user, true);
-			} catch (ignored) {
-				return interaction.followUp({ content: 'There was an error checking your application. Please try again.', ephemeral: true });
-			}
+			return checkUserKeyStatus(interaction, interaction.user, true);
 		}
 
 		case 'read': {
-			try {
-				return readUserApplication(interaction, interaction.user, true);
-			} catch (ignored) {
-				return interaction.followUp({ content: 'There was an error reading your application. Please try again.', ephemeral: true });
-			}
+			return readUserApplication(interaction, interaction.user, true);
 		}
 		}
 	}

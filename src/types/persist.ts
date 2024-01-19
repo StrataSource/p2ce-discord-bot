@@ -1,3 +1,5 @@
+import { KeyStatus } from './keyapp';
+
 // Modify this interface when adding new data things, or don't if you hate TypeScript and everything it stands for
 export interface PersistentData {
 	autoroles: string[],
@@ -43,8 +45,8 @@ export interface PersistentData {
 			report: string,
 			experience: string,
 			notes: string,
-			accept_state: string,
-			key_given?: string,
+			accept_state: KeyStatus,
+			key_given: string,
 		}
 	},
 	moderation: {

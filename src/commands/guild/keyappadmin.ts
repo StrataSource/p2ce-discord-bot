@@ -3,8 +3,10 @@
 import { CommandInteraction, SlashCommandBuilder } from 'discord.js';
 import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';
-import { isSheetLoaded } from '../../utils/sheet';
 import { checkUserKeyStatus, readUserApplication } from '../shared/keyapp';
+
+//// TODO warning system
+// - have they sent at least one message? if not, tread with caution
 
 const KeyAppAdmin: Command = {
 	permissionLevel: PermissionLevel.TEAM_MEMBER,
@@ -15,14 +17,14 @@ const KeyAppAdmin: Command = {
 		.setDescription('Various key application utilities for P2CE team members.')
 		.addSubcommand(subcommand => subcommand
 			.setName('check')
-			.setDescription('Check the status of your key application.')
+			.setDescription('Check the status of someone\'s key application.')
 			.addUserOption(option => option
 				.setName('user')
 				.setDescription('The user to check the application of')
 				.setRequired(true)))
 		.addSubcommand(subcommand => subcommand
 			.setName('read')
-			.setDescription('Reads your latest key application.')
+			.setDescription('Reads someone\'s latest key application.')
 			.addUserOption(option => option
 				.setName('user')
 				.setDescription('The user to read the application of')
@@ -31,33 +33,13 @@ const KeyAppAdmin: Command = {
 	async execute(interaction: CommandInteraction) {
 		if (!interaction.isChatInputCommand()) return;
 
-		if (!isSheetLoaded()) {
-			return interaction.reply({ content: 'Sheet has not finished loading, please try again later.', ephemeral: true });
-		}
-
-		// Don't run command if already present in list
-		// If not present, add user to list
 		switch (interaction.options.getSubcommand()) {
 		case 'check': {
-			try {
-				return checkUserKeyStatus(interaction, interaction.options.getUser('user', true), false);
-			} catch (e) {
-				if (interaction.deferred) {
-					return interaction.editReply('Encountered an error loading spreadsheet, please try again later.');
-				}
-				return interaction.reply({ content: 'Encountered an error loading spreadsheet, please try again later.', ephemeral: true });
-			}
+			return checkUserKeyStatus(interaction, interaction.options.getUser('user', true), false);
 		}
 
 		case 'read': {
-			try {
-				return readUserApplication(interaction, interaction.options.getUser('user', true), false);
-			} catch (e) {
-				if (interaction.deferred) {
-					return interaction.editReply(`Encountered an error loading spreadsheet, please try again later. (Error: \`${e}\`)`);
-				}
-				return interaction.reply({ content: `Encountered an error loading spreadsheet, please try again later. (Error: \`${e}\`)`, ephemeral: true });
-			}
+			return readUserApplication(interaction, interaction.options.getUser('user', true), false);
 		}
 		}
 	}
