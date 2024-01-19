@@ -35,6 +35,18 @@ export interface PersistentData {
 			name: string,
 		},
 	},
+	keyapps?: {
+		[user: string]: {
+			rationale: string,
+			role: string,
+			mod: string,
+			report: string,
+			experience: string,
+			notes: string,
+			accept_state: string,
+			key_given?: string,
+		}
+	},
 	moderation: {
 		autoban?: {
 			enabled: boolean,

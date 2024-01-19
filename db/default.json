@@ -28,6 +28,7 @@
 		}
 	},
 	"github_repos": {},
+	"keyapps": {},
 	"moderation": {
 		"autoban": {
 			"enabled": false,
