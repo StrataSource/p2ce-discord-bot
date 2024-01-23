@@ -29,6 +29,14 @@
 	},
 	"github_repos": {},
 	"keyapps": {},
+	"linked_accounts": {
+		"config": {
+			"steam": {
+				"required_appids": []
+			}
+		},
+		"steam": {}
+	},
 	"moderation": {
 		"autoban": {
 			"enabled": false,

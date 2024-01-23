@@ -37,7 +37,7 @@ export interface PersistentData {
 			name: string,
 		},
 	},
-	keyapps?: {
+	keyapps: {
 		[user: string]: {
 			rationale: string,
 			role: string,
@@ -47,10 +47,24 @@ export interface PersistentData {
 			notes: string,
 			accept_state: KeyStatus,
 			key_given: string,
-		}
+		},
+	},
+	linked_accounts: {
+		config: {
+			steam: {
+				required_appids: string[],
+			},
+		},
+		steam: {
+			[user: string]: {
+				verified: boolean,
+				owns_required_appids: boolean,
+				account_id: string,
+			},
+		},
 	},
 	moderation: {
-		autoban?: {
+		autoban: {
 			enabled: boolean,
 			new_accounts: number,
 		},
@@ -61,7 +75,7 @@ export interface PersistentData {
 				issuer: string,
 			}[],
 		},
-		watchlist?: {
+		watchlist: {
 			channel: string | null,
 			users: string[],
 		},
@@ -78,7 +92,7 @@ export interface PersistentData {
 	responses: {
 		[response_id: string]: string,
 	},
-	watched_threads: Array<string>,
+	watched_threads: string[],
 	statistics: {
 		joins: number,
 		leaves: number,

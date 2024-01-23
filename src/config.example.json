@@ -22,7 +22,7 @@
 		"search_page_cache_time": 15
 	},
 
-	"keyapp": {
+	"keyapp_legacy": {
 		"auth": {
 			"credentials": {
 				"type": "",
@@ -35,11 +35,9 @@
 				"token_uri": "",
 				"auth_provider_x509_cert_url": "",
 				"client_x509_cert_url": ""
-			},	
+			},
 
 			"sheet_id": ""
-		},
-
-		"hours_to_wait": 1
+		}
 	}
 }
