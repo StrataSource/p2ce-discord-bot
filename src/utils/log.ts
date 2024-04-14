@@ -183,6 +183,10 @@ export async function userBanned(client: Client, guildID: string, ban: GuildBan)
 	await message(client, guildID, 'BAN', LogLevelColor.IMPORTANT, `<@${ban.user.id}> (${formatUserRaw(ban.user)}) was banned 😈`, ban.user);
 }
 
+export async function userWarned(client: Client, guildID: string, user: User | PartialUser, reason: string) {
+	await message(client, guildID, 'WARN', LogLevelColor.WARNING, `<@${user.id}> (${formatUserRaw(user)}) was warned!\n\nReason: \`${reason}\``, user);
+}
+
 export async function userJoined(client: Client, guildID: string, member: GuildMember | PartialGuildMember) {
 	await message(client, guildID, 'USER', 'Blue', `<@${member.id}> (${formatUserRaw(member.user)}) joined the server 😊\n- Account creation date: <t:${formatDate(member.user.createdAt)}:f>`, member);
 }

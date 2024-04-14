@@ -6,6 +6,7 @@ import { PermissionLevel } from '../../utils/permissions';
 import { LogLevelColor } from '../../utils/log';
 import { getWarnList } from '../shared/warnlist';
 
+import * as log from '../../utils/log';
 import * as persist from '../../utils/persist';
 
 const Warn: Command = {
@@ -70,6 +71,8 @@ const Warn: Command = {
 				issuer: interaction.user.id,
 			});
 			persist.saveData(interaction.guild.id);
+
+			await log.userWarned(interaction.client, interaction.guild.id, user, reason);
 
 			if (interaction.options.getBoolean('dm_offender', false) ?? true) {
 				const embed = new EmbedBuilder()
