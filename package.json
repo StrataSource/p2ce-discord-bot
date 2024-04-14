@@ -1,6 +1,6 @@
 {
 	"name": "p2ce-discord-bot",
-	"version": "2.3.7",
+	"version": "2.3.8",
 	"engines": {
 		"node": ">=18.0.0"
 	},
@@ -27,29 +27,29 @@
 		"url": "git+https://github.com/StrataSource/p2ce-discord-bot.git"
 	},
 	"dependencies": {
-		"adm-zip": "^0.5.10",
+		"adm-zip": "^0.5.12",
 		"canvas": "^2.11.2",
 		"console-stamp": "^3.1.2",
-		"discord-api-types": "^0.37.67",
+		"discord-api-types": "^0.37.79",
 		"discord.js": "^14.14.1",
 		"gif-encoder": "^0.7.2",
 		"gifuct-js": "^2.1.2",
-		"google-auth-library": "^9.4.1",
+		"google-auth-library": "^9.7.0",
 		"google-spreadsheet": "^4.1.1",
 		"moment": "^2.30.1",
 		"node-fetch": "^2.6.7",
-		"octokit": "^3.1.2",
+		"octokit": "^3.2.0",
 		"owoify-js": "^2.0.0"
 	},
 	"devDependencies": {
 		"@types/adm-zip": "^0.5.5",
 		"@types/gif-encoder": "^0.7.4",
-		"@types/node": "^20.10.7",
+		"@types/node": "^20.12.7",
 		"@types/node-fetch": "^2.5.7",
-		"@typescript-eslint/eslint-plugin": "^6.18.0",
-		"@typescript-eslint/parser": "^6.18.0",
-		"eslint": "^8.56.0",
-		"tsc-watch": "^6.0.4",
-		"typescript": "^5.3.3"
+		"@typescript-eslint/eslint-plugin": "^7.6.0",
+		"@typescript-eslint/parser": "^7.6.0",
+		"eslint": "^8.57.0",
+		"tsc-watch": "^6.2.0",
+		"typescript": "^5.4.5"
 	}
 }
