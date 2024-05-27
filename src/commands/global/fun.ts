@@ -20,6 +20,7 @@ const medievalB    = ['𝖆','𝖇','𝖈','𝖉','𝖊','𝖋','𝖌','𝖍','�
 const monospace    = ['𝚊','𝚋','𝚌','𝚍','𝚎','𝚏','𝚐','𝚑','𝚒','𝚓','𝚔','𝚕','𝚖','𝚗','𝚘','𝚙','𝚚','𝚛','𝚜','𝚝','𝚞','𝚟','𝚠','𝚡','𝚢','𝚣','𝙰','𝙱','𝙲','𝙳','𝙴','𝙵','𝙶','𝙷','𝙸','𝙹','𝙺','𝙻','𝙼','𝙽','𝙾','𝙿','𝚀','𝚁','𝚂','𝚃','𝚄','𝚅','𝚆','𝚇','𝚈','𝚉'];
 const smallCaps    = ['ᴀ','ʙ','ᴄ','ᴅ','ᴇ','ғ','ɢ','ʜ','ɪ','ᴊ','ᴋ','ʟ','ᴍ','ɴ','ᴏ','ᴘ','ǫ','ʀ','s','ᴛ','ᴜ','ᴠ','ᴡ','x','ʏ','ᴢ','ᴀ','ʙ','ᴄ','ᴅ','ᴇ','ғ','ɢ','ʜ','ɪ','ᴊ','ᴋ','ʟ','ᴍ','ɴ','ᴏ','ᴘ','ǫ','ʀ','s','ᴛ','ᴜ','ᴠ','ᴡ','x','ʏ','ᴢ'];
 const tiny         = ['ᵃ','ᵇ','ᶜ','ᵈ','ᵉ','ᶠ','ᵍ','ʰ','ᶤ','ʲ','ᵏ','ˡ','ᵐ','ᶰ','ᵒ','ᵖ','ᵠ','ʳ','ˢ','ᵗ','ᵘ','ᵛ','ʷ','ˣ','ʸ','ᶻ','ᴬ','ᴮ','ᶜ','ᴰ','ᴱ','ᶠ','ᴳ','ᴴ','ᴵ','ᴶ','ᴷ','ᴸ','ᴹ','ᴺ','ᴼ','ᴾ','ᵠ','ᴿ','ˢ','ᵀ','ᵁ','ᵛ','ᵂ','ᵡ','ᵞ','ᶻ'];
+const wingdings    = ['♋︎','♌︎','♍︎','♎︎','♏︎','♐︎','♑︎','♒︎','♓︎','🙰','🙵','●︎','❍︎','■︎','□︎','◻︎','❑︎','❒︎','⬧︎','⧫︎','◆︎','❖︎','⬥︎','⌧︎','⍓︎','⌘︎','\\✌','👌︎','👍︎','👎︎','☜︎','☞︎','☝︎','☟︎','✋︎','☺︎','😐︎','☹︎','💣︎','☠︎','⚐︎','🏱︎','✈︎','☼︎','💧︎','❄︎','🕆︎','✞︎','🕈︎','✠︎','✡︎','\\☪'];
 
 function replaceText(text: string, from: string[], to: string[]) {
 	for (let i = 0; i < 26 * 2; i++) {
@@ -101,6 +102,13 @@ const Fun: Command = {
 					.setDescription('Text to make tiny')
 					.setRequired(true)))
 			.addSubcommand(subcommand => subcommand
+				.setName('wingdings')
+				.setDescription('Wingdingsify the input text.')
+				.addStringOption(option => option
+					.setName('text')
+					.setDescription('Text to make wingdings')
+					.setRequired(true)))
+			.addSubcommand(subcommand => subcommand
 				.setName('uwuify')
 				.setDescription('UwUify the input text.')
 				.addStringOption(option => option
@@ -167,11 +175,11 @@ const Fun: Command = {
 			case 'wide': {
 				return interaction.reply(replaceText(text, regular, wide));
 			}
-		
+
 			case 'cursive': {
 				return interaction.reply(replaceText(text, regular, cursive));
 			}
-		
+
 			case 'medieval': {
 				if (interaction.options.getBoolean('bold')) {
 					return interaction.reply(replaceText(text, regular, medievalB));
@@ -179,19 +187,23 @@ const Fun: Command = {
 					return interaction.reply(replaceText(text, regular, medievalR));
 				}
 			}
-		
+
 			case 'monospace': {
 				return interaction.reply(replaceText(text, regular, monospace));
 			}
-		
+
 			case 'smallcaps': {
 				return interaction.reply(replaceText(text, regular, smallCaps));
 			}
-		
+
 			case 'tiny': {
 				return interaction.reply(replaceText(text, regular, tiny));
 			}
-		
+
+			case 'wingdings': {
+				return interaction.reply(replaceText(text, regular, wingdings));
+			}
+
 			case 'uwuify': {
 				return interaction.reply(escapeSpecialCharacters(uwuify(text)));
 			}

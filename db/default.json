@@ -41,10 +41,10 @@
 	},
 	"reaction_roles": {},
 	"responses": {},
-	"watched_threads": [],
 	"statistics": {
 		"joins": 0,
 		"leaves": 0
 	},
-	"stickyroles": {}
+	"stickyroles": {},
+	"watched_threads": []
 }
