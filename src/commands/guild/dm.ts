@@ -5,7 +5,7 @@ import { Command } from '../../types/interaction';
 import { PermissionLevel } from '../../utils/permissions';
 
 const DM: Command = {
-	permissionLevel: PermissionLevel.EVERYONE,
+	permissionLevel: PermissionLevel.TEAM_MEMBER,
 	devP2CECommand: true,
 
 	data: new SlashCommandBuilder()
