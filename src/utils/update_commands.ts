@@ -46,8 +46,8 @@ export async function updateCommands() {
 	for (const guild of (await client.guilds.fetch()).values()) {
 		const data = persist.data(guild.id);
 		let filteredCommands = guildCommands;
-		if (!config.p2ce_command_guilds.includes(guild.id)) {
-			filteredCommands = filteredCommands.filter(cmd => !Object.hasOwn(cmd, 'isP2CEOnly') || !cmd.isP2CEOnly);
+		if (config.p2ce_dev_guild !== guild.id) {
+			filteredCommands = filteredCommands.filter(cmd => !Object.hasOwn(cmd, 'devP2CECommand') || !cmd.devP2CECommand);
 		}
 		if (!data.config.first_time_setup) {
 			filteredCommands = filteredCommands.filter(cmd => Object.hasOwn(cmd, 'canBeExecutedWithoutPriorGuildSetup') && cmd.canBeExecutedWithoutPriorGuildSetup);
@@ -82,8 +82,8 @@ export async function updateCommandsForGuild(guildID: string) {
 
 	const data = persist.data(guildID);
 	let filteredCommands = guildCommands;
-	if (!config.p2ce_command_guilds.includes(guildID)) {
-		filteredCommands = filteredCommands.filter(cmd => !Object.hasOwn(cmd, 'isP2CEOnly') || !cmd.isP2CEOnly);
+	if (config.p2ce_dev_guild !== guildID) {
+		filteredCommands = filteredCommands.filter(cmd => !Object.hasOwn(cmd, 'devP2CECommand') || !cmd.devP2CECommand);
 	}
 	if (!data.config.first_time_setup) {
 		filteredCommands = filteredCommands.filter(cmd => Object.hasOwn(cmd, 'canBeExecutedWithoutPriorGuildSetup') && cmd.canBeExecutedWithoutPriorGuildSetup);

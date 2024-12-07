@@ -5,7 +5,7 @@ import { Callbacks } from './client';
 export interface CommandBase {
 	permissionLevel: PermissionLevel,
 	canBeExecutedWithoutPriorGuildSetup?: boolean | undefined,
-	isP2CEOnly?: boolean | undefined,
+	devP2CECommand?: boolean | undefined,
 	data: unknown,
 	execute(interaction: CommandInteraction, callbacks?: Callbacks): Promise<void | InteractionResponse<boolean> | Message<boolean>>,
 	getAutocompleteOptions?(interaction: AutocompleteInteraction): { name: string, value: string }[],

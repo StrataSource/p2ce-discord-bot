@@ -3,7 +3,7 @@
 	"client_id": "client id goes here",
 	"ipc_port": 23741,
 
-	"p2ce_command_guilds": [],
+	"p2ce_dev_guild": "",
 
 	"log": {
 		"errors_and_warnings_channel": ""
