@@ -6,6 +6,7 @@ import { LogLevelColor } from '../../utils/log';
 import { PermissionLevel } from '../../utils/permissions';
 
 import * as persist from '../../utils/persist';
+import { unescapeSpecialCharacters } from '../../utils/utils';
 
 const Responses: Command = {
 	permissionLevel: PermissionLevel.MODERATOR,
@@ -77,7 +78,8 @@ const Responses: Command = {
 				return interaction.reply({ content: `There is already a response with ID "${responseID}"!`, ephemeral: true });
 			}
 
-			data.responses[responseID] = interaction.options.getString('contents', true);
+			const responseContents = interaction.options.getString('contents', true);
+			data.responses[responseID] = unescapeSpecialCharacters(responseContents);
 			persist.saveData(interaction.guild.id);
 
 			return interaction.reply({ content: 'Added response.', ephemeral: true });

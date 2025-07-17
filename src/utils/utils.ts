@@ -60,6 +60,12 @@ export function escapeSpecialCharacters(raw: string) {
 		.replaceAll('-', '\\-');  // list
 }
 
+export function unescapeSpecialCharacters(escaped: string) {
+	return escaped
+		.replaceAll('\\n', '\n')
+		.replaceAll('\\t', '\t');
+}
+
 export async function streamToBuffer(stream: Stream) {
 	return new Promise<Buffer>((resolve, reject) => {
 		const buf = Array<Uint8Array>();
