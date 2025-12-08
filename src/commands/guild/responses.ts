@@ -4,9 +4,9 @@ import { AutocompleteInteraction, CommandInteraction, EmbedBuilder, SlashCommand
 import { Command } from '../../types/interaction';
 import { LogLevelColor } from '../../utils/log';
 import { PermissionLevel } from '../../utils/permissions';
+import { unescapeSpecialCharacters } from '../../utils/utils';
 
 import * as persist from '../../utils/persist';
-import { unescapeSpecialCharacters } from '../../utils/utils';
 
 const Responses: Command = {
 	permissionLevel: PermissionLevel.MODERATOR,
