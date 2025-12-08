@@ -37,7 +37,7 @@ async function main() {
 	const client = new MoralityCoreClient({
 		intents: new IntentsBitField([
 			IntentsBitField.Flags.Guilds,
-			IntentsBitField.Flags.GuildEmojisAndStickers,
+			IntentsBitField.Flags.GuildExpressions,
 			IntentsBitField.Flags.GuildInvites,
 			IntentsBitField.Flags.GuildMembers,
 			IntentsBitField.Flags.GuildMessages,
@@ -290,7 +290,7 @@ async function main() {
 	// Listen for presence updates
 	client.on('userUpdate', async (oldUser, newUser) => {
 		for (const guild of (await client.guilds.fetch()).values()) {
-			const member = (await (await guild.fetch()).members.fetch(newUser.id));
+			const member = (await (await guild.fetch()).members.fetch(newUser.id).catch(() => null));
 			if (!member)
 				continue;
 
