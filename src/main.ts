@@ -290,7 +290,7 @@ async function main() {
 	// Listen for presence updates
 	client.on('userUpdate', async (oldUser, newUser) => {
 		for (const guild of (await client.guilds.fetch()).values()) {
-			const member = (await (await guild.fetch()).members.fetch()).get(newUser.id);
+			const member = (await (await guild.fetch()).members.fetch(newUser.id));
 			if (!member)
 				continue;
 
