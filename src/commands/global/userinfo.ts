@@ -17,6 +17,7 @@ const UserInfo: Command = {
 			.setDescription('The name of the user')),
 
 	async execute(interaction: CommandInteraction) {
+		if (!interaction.isChatInputCommand()) return;
 		const user = interaction.options.getUser('user') ?? interaction.user;
 		return getUserInfo(interaction, user, false);
 	},

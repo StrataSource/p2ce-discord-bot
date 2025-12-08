@@ -155,7 +155,7 @@ export async function error(client: Client, msg: Error, guildID?: string | undef
 	if (channelID.length === 0) return;
 	const channel = await client.channels.fetch(channelID);
 	const [embed, attachments] = await generateErrorEmbed(msg, guildID);
-	if (channel?.isTextBased()) {
+	if (channel?.isSendable()) {
 		await channel.send({ embeds: [embed], files: attachments });
 	}
 	writeToLog(undefined, msg.toString(), true);

@@ -29,9 +29,10 @@ const Say: Command = {
 		const channelID = interaction.options.getChannel('channel')?.id;
 		const channel = channelID !== undefined ? await interaction.guild?.channels.fetch(channelID) : interaction.channel;
 		try {
-			if (channel?.isTextBased()) {
+			if (channel?.isSendable()) {
 				await channel.send(message);
 			}
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		} catch (ignored) {
 			return interaction.reply({ content: `Error encountered when sending message "${message}" to ${channel}. Check channel permissions are correct!`, ephemeral: true });
 		}

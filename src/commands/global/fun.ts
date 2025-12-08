@@ -272,7 +272,7 @@ const Fun: Command = {
 					attachment = new AttachmentBuilder(canvas.createPNGStream())
 						.setName(`${imageName}_speech_bubble.png`);
 				} else {
-					const gif = parseGIF(imageBuf);
+					const gif = parseGIF(imageBuf.buffer);
 					const frames = decompressFrames(gif, true);
 
 					const tempCanvas = createCanvas(frames[0].dims.width, frames[0].dims.height);
