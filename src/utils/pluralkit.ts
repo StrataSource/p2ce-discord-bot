@@ -2,14 +2,14 @@ import { Message, PartialMessage } from 'discord.js';
 
 import * as persist from './persist';
 
-// TODO: When scheduler is implemented make the cache reset after x time
-const cache: string[] = [];
+const cache = new Map<string, number>();
+const TWO_WEEKS_MS = 1000 * 60 * 60 * 24 * 14;
 
 export async function isSystemMessage(message: Message | PartialMessage) {
 	try {
 		// simple fetch to check if the message was proxied
 		return (await fetch(`https://api.pluralkit.me/v2/messages/${message.id}`)).status != 404;
-	} catch (e) {
+	} catch {
 		return false;
 	}
 }
@@ -20,8 +20,9 @@ export async function shouldLog(message: Message | PartialMessage) {
 	}
 
 	const data = persist.data(message.guild.id);
-	// check if the author is in the session cache
-	if (!cache.includes(message.author.id)) {
+
+	const cacheTimestamp = cache.get(message.author.id);
+	if (cacheTimestamp === undefined || cacheTimestamp > Date.now() + TWO_WEEKS_MS) {
 		// first, check if is from an already known system
 		if (data.compat.pluralkit.accounts.includes(message.author.id)) {
 			return false;
@@ -33,14 +34,12 @@ export async function shouldLog(message: Message | PartialMessage) {
 			return false;
 		} else {
 			// add author to the session cache, so we do fewer calls to the API
-			cache.push(message.author.id);
+			cache.set(message.author.id, Date.now());
 		}
 	}
 	return !data.config.log.user_exceptions.includes(message.author.id);
 }
 
 export function purgeCacheEntry(userId: string) {
-	const index = cache.findIndex(it => it == userId);
-	if (index != -1)
-		delete cache[index];
+	cache.delete(userId);
 }
