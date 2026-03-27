@@ -36,7 +36,7 @@
 		"gifuct-js": "^2.1.2",
 		"moment": "^2.30.1",
 		"node-fetch": "^2.6.7",
-		"octokit": "^3.2.2",
+		"octokit": "^5.0.5",
 		"owoify-js": "^2.0.0"
 	},
 	"devDependencies": {
